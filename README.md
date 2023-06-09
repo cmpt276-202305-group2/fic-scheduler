@@ -1,1 +1,1 @@
-# FIC-Scheduler
+# FIC Scheduler App
