@@ -2,6 +2,8 @@
 
 ## Abstract 
 
+New stuff HEREE!
+
 The FIC Class Scheduler is a course schedule planning tool to help administrative staff develop class schedules which respect the preferences of the teaching staff and maximize their course offerings in the space available. This browser-based application’s primary feature is the generation of a class schedule for the school based on the courses offered, assigning the classes to rooms and professors according to suitability, availability, seniority, and preferences, followed by whatever other constraints are identified. In the proposed version, the application will focus on providing a clear workflow and generating efficient schedules; future work may include features such as tuning or manual tweaking of already-generated schedules, or direct integration of feedback from teachers.
 
 ## The Customer: Fraser International College
