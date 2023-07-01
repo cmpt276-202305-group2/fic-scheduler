@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "./InstructorCoordinatorHomePage.module.css";
-import InstructorSidebar from "../components/InstructorSidebar";
+import CoordinatorSidebar from "../components/CoordinatorSidebar";
 
-function InstructorHomePage() {
+function CoordinatorHomePage() {
     return (
         <>
         <div className = {styles.Container}>
         <div className = {styles.Sidebar}>
-            <InstructorSidebar className = {styles.Sidebar}/>
+            <CoordinatorSidebar className = {styles.Sidebar}/>
         </div>
         <div className = {styles.Schedule}>
             SCHEDULE GOES HERE
@@ -17,4 +17,4 @@ function InstructorHomePage() {
     );
 }
 
-export default InstructorHomePage;
+export default CoordinatorHomePage;
