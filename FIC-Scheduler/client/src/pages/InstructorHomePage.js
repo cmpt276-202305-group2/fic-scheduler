@@ -7,7 +7,7 @@ function InstructorHomePage() {
     <React.Fragment>
       <div className={styles.Container}>
         <div className={styles.Sidebar}>
-          <InstructorSidebar className={styles.Sidebar} />
+          <InstructorSidebar />
         </div>
         <div className={styles.Schedule}>SCHEDULE GOES HERE</div>
       </div>
