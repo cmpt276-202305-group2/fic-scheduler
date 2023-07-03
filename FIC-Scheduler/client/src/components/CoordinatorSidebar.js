@@ -1,4 +1,5 @@
 import React from "react";
+import {useNavigate} from 'react-router-dom';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Button from '@mui/material/Button';
@@ -7,12 +8,13 @@ import ClassIcon from '@mui/icons-material/Class';
 import GroupIcon from '@mui/icons-material/Group';
 
 function CoordinatorSidebar() {
+    const navigate = useNavigate();
     const handleLogout = () => {
        fetch('/logout', {method: 'POST'
     
         }).then((response) => {
             if(response.ok){
-                
+                navigate('/LoginPage');
             }
             else{
                 alert("Logout Failed");

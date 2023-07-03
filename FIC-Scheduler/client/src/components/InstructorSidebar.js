@@ -1,16 +1,18 @@
 import React from "react";
+import {useNavigate} from 'react-router-dom';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Button from '@mui/material/Button';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 function InstructorSidebar() {
+    const navigate = useNavigate();
     const handleLogout = () => {
        fetch('/logout', {method: 'POST'
     
         }).then((response) => {
             if(response.ok){
-                
+                navigate('/LoginPage');
             }
             else{
                 alert("Logout Failed");
