@@ -36,7 +36,7 @@ jobs:
           cd FIC-Scheduler/client
           npm install
 
-      - name: Build
+      - name: Build Frontend
         run: |
           cd FIC-Scheduler/client
           npm run build
