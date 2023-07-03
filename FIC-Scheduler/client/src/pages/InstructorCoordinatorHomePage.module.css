@@ -26,11 +26,12 @@
 
 .Sidebar li:hover {
     background-color: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
 }
 
 .Container {
     display: flex;
-    justify-content: center;
+    justify-content: row;
     align-items: center;
     height: 100vh;
 }
