@@ -1,17 +1,28 @@
 *{
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 .Sidebar {
-    position: absolute;
     background-color: #417A1A;
     color: white;
-    top: 0;
-    left: 0;
     height: 100vh;
     width: 280px;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
 
+.Sidebar li:last-child {
+    margin-top: auto;
+    width: 100%;
+}
+
+.Sidebar li:last-child button {
+    width: 100%;
 }
 
 .Sidebar li {
@@ -26,21 +37,45 @@
 
 .Sidebar li:hover {
     background-color: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
 }
 
 .Container {
     display: flex;
-    justify-content: center;
-    align-items: center;
     height: 100vh;
 }
   
 .Schedule {
-    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 50px;
-    margin-left: 290px;
     color: grey;
     border: solid grey 1px;
-    padding: 400px;
+    margin: 20px;  
 }
 
+/* this is gonna make sure it works for the smaller devices */
+@media (max-width: 600px) {
+  .Container {
+    flex-direction: column;
+  }
+  
+  .Sidebar {
+    width: 100%;
+    height: auto;
+  }
+
+  .Schedule {
+    flex-grow: 1;
+    margin-left: 20px;
+    padding: 10px;
+    font-size: 30px;
+  }
+
+  .Sidebar li:last-child {
+    margin-top: auto;
+    width: 100%;
+}
+}
