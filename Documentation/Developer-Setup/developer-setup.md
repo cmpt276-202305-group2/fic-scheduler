@@ -38,7 +38,7 @@ If you're just doing frontend work maybe just the frontend is enough for you to 
 
 3. **Press the Run (or Debug I guess if you want to debug) button right there** -- that's the one next to the Run tooltip in the screenshot
 
-That will start the backend server at http://localhost:8080/. Now you need to start the frontend!
+That will start the backend server at <http://localhost:8080/>. Now you need to start the frontend!
 
 ## Frontend Setup
 
@@ -50,8 +50,8 @@ That will start the backend server at http://localhost:8080/. Now you need to st
 
 3. **Run `npm run start`** to start the frontend web server
 
-The frontend should now be running at http://localhost:3000/, but it will probably open a browser pointed there automatically so you might not even need to type that in.
+The frontend should now be running at <http://localhost:3000/>, but it will probably open a browser pointed there automatically so you might not even need to type that in.
 
-## N.B.
+## N.B
 
 **Both the frontend and backend are pretty good about hot-reloading, but there will be times when you need to restart their servers!**

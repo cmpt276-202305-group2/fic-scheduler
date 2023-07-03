@@ -1,6 +1,6 @@
 # FIC Scheduler App
 
-## Abstract 
+## Abstract
 
 New stuff HEREE!
 
@@ -18,8 +18,7 @@ At Fraser International College, the course and professors scheduling is current
 
 ## Competitive Analysis
 
-There are a large number of hosted online systems which offer shift scheduling, such as findmyshift (https://www.findmyshift.com/ca/classroom-scheduling), deputy (https://www.deputy.com/industry/education), or Creatrix Campus (https://www.creatrixcampus.com/). Many of these offerings are derived from systems primarily targeting service-industry jobs, and as such focus on shorter-term dynamic scheduling, and features such as time tracking, overtime management, relief coverage for staff who are temporarily away, and so on. These are considerations not immediately relevant to the fixed schedule optimization problem FIC faces. Of course, even a system which is capable of solving FIC’s problems will still need to be configured correctly, and have unneeded features disabled or hidden (if that is possible). We will instead create a directly targeted solution which addresses FIC’s precise needs. Including the fact that we will generate that completely free of charge.
-
+There are a large number of hosted online systems which offer shift scheduling, such as findmyshift (<https://www.findmyshift.com/ca/classroom-scheduling>), deputy (<https://www.deputy.com/industry/education>), or Creatrix Campus (<https://www.creatrixcampus.com/>). Many of these offerings are derived from systems primarily targeting service-industry jobs, and as such focus on shorter-term dynamic scheduling, and features such as time tracking, overtime management, relief coverage for staff who are temporarily away, and so on. These are considerations not immediately relevant to the fixed schedule optimization problem FIC faces. Of course, even a system which is capable of solving FIC’s problems will still need to be configured correctly, and have unneeded features disabled or hidden (if that is possible). We will instead create a directly targeted solution which addresses FIC’s precise needs. Including the fact that we will generate that completely free of charge.
 
 ## A Use Case
 
@@ -28,10 +27,10 @@ John logs on, ready to plan a new semester. He begins by retrieving a spreadshee
 
 ## Tech Stack and External Infrastructure
 
-The FIC Class Scheduler will be implemented as a **Spring Boot** web application with a **ReactJS** client side, including external libraries for visualization or validation. The schedule optimization will use the constraint programming capabilities of **Google OR-Tools**, via their **Google Cloud REST** integration. Data will be stored and managed using **PostgreSQ**L.
-Source code will be hosted on **GitHu**b, with test automation, deployment, and hosting done via GitHub, **Render.com**, or potentially **Railway.app**.
+The FIC Class Scheduler will be implemented as a **Spring Boot** web application with a **ReactJS** client side, including external libraries for visualization or validation. The schedule optimization will use the constraint programming capabilities of **Google OR-Tools**, via their **Google Cloud REST** integration. Data will be stored and managed using **PostgreSQL**.
+Source code will be hosted on **GitHub**, with test automation, deployment, and hosting done via GitHub or **Render.com**.
 
-## Feature Goals (Epics) 
+## Feature Goals (Epics)
 
 Our project revolves around three main epics: user management and login, course and room setup, and schedule generation.
 User management and login includes authentication stories such as login/logout, adding and removing users, and other necessary administrative actions.
@@ -41,11 +40,9 @@ Schedule generation includes stories involving the input of teacher availability
 ## Some of the Mockups for the Login Page and the Main Dashboard Page
 
 ### Login
+
 ![image](https://github.com/peyz21/FIC-Scheduler/assets/64120482/393b294a-fe49-41ee-b990-a653a877b670)
 
+### Dashboard page
 
-### Dashboard page 
 ![image](https://github.com/peyz21/FIC-Scheduler/assets/64120482/8e4b5d5f-3bf9-43d3-956f-9d38b7dec2bf)
-
-
-
