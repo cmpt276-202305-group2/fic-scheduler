@@ -1,8 +1,61 @@
 # Branch Workflow
 
+This is a reasonably long document and you don't need to read it all at once, but you will probably eventually need to understand most of it.
+
+Here are the most important parts which you should find and read now:
+
+- Skim the "Ideal World Development And Release Flow" diagram and if it doesn't make sense, dig into the following sections and/or ask questions. You don't need to fully understand hotfixes but you should sort of get the release process.
+- Skim the "Feature Development" section
+- **Read the "Code Review Principles" section!**
+
+The later bits about "Stabilization And Deployment" are parts not everyone needs to understand. The people managing deployment will be responsible for gathering everyone together and clearly saying when you can/can't merge PRs.
+
 ## Branches
 
-There are 2 persistent branches, plus feature branches for development. The persistent branches are:
+### Ideal World Development And Release Flow
+
+This diagram lumps all the feature branches for a particular iteration into one "(issues X)" branch, and ignores the possibility of hotfixes, but it represents a sort of simplified ideal world scenario:
+
+```mermaid
+gitGraph
+    checkout main
+    commit id: "init"
+
+    branch "(issues 1)"
+    commit id: "issues for iteration1"
+    checkout main
+    merge "(issues 1)"
+    commit id: "stabilize iteration1"
+
+    branch release
+    commit id: "iteration1"
+
+    checkout main
+    commit id: "main open for iteration2"
+    branch "(issues 2)"
+    commit id: "issues for iteration2"
+    checkout main
+    merge "(issues 2)"
+    commit id: "stabilize iteration2"
+
+    checkout release
+    merge main
+    commit id: "iteration2"
+
+    checkout main
+    commit id: "main open for iteration3"
+    branch "(issues 3)"
+    commit id: "issues for iteration3"
+    checkout main
+    merge "(issues 3)"
+    commit id: "stabilize iteration3"
+
+    checkout release
+    merge main
+    commit id: "iteration3"
+```
+
+There are 2 persistent branches, plus feature branches for development, bugfixes, and hotfixes. The persistent branches are:
 
 1. main - the unstable branch where development is coordinated
 2. release - the (relatively) stable branch monitored by CI
@@ -14,6 +67,108 @@ For every issue, developers should create a new branch with a name like `issue#X
 Generally if something is worth working on it's worth making an issue for, but if for whatever reason there is not an issue associated with a branch - maybe it's speculative work, for example - branches should be named after the creator's github username, plus a descriptive suffix. **For example:**
 
 - `jlunder-policy-doc-branching` is an acceptable name for the branch which introduces this policy documentation.
+
+### Hotfixes
+
+```mermaid
+gitGraph
+    checkout main
+    commit id: "init"
+
+    branch "(issues 1)"
+    commit id: "issues for iteration1"
+    checkout main
+    merge "(issues 1)"
+    commit id: "stabilize iteration1"
+
+    branch release
+    commit id: "iteration1"
+
+    checkout main
+    commit id: "main open for iteration2"
+    branch "(issues 2)"
+    commit id: "issues for iteration2"
+    checkout main
+    merge "(issues 2)"
+
+    checkout release
+    branch "issue#30-hotfix"
+    commit id: "hotfix issue 30"
+    checkout release
+    merge "issue#30-hotfix"
+    checkout main
+    merge "issue#30-hotfix"
+
+    commit id: "stabilize iteration2"
+
+    checkout release
+    merge main
+    commit id: "iteration2"
+
+```
+
+If development has already restarted on `main`, and a critical problem is discovered with the released software, an awkward situation arises where a fix is needed more urgently than a full release cycle where `main` is stabilized. Moreover, adding new features together with a fix is risky even in the best circumstances.
+
+In this situation it's better to craft a targeted hotfix by branching from the `release` branch, test the hotfix separately, and merge it directly back into `release`. If it's possible to merge the fix into `main`, this should also be done so that it doesn't get lost in future releases (but in some cases the fix will be a hack and should explicitly *not* be merged back).
+
+### More Complete Example Git Graph
+
+```mermaid
+gitGraph
+    checkout main
+    commit id: "init"
+
+    branch "issue#4"
+    branch "issue#7-long-feature"
+    checkout "issue#7-long-feature"
+    commit id: "work on issue#7"
+    checkout "issue#4"
+    commit id: "complete issue#4"
+    checkout "issue#7-long-feature"
+    commit id: "more work on issue#7"
+    checkout main
+    merge "issue#4"
+
+    commit id: "iteration1 testing begins, only merge bugfixes"
+    branch "issue#9-bugfix"
+    checkout "issue#9-bugfix"
+    commit id: "fix bug for release"
+    checkout main
+    merge "issue#9-bugfix"
+    commit id: "main okay for iteration1 release"
+    branch release
+    checkout main
+    commit id: "main open after iteration1 merge to release"
+    checkout release
+    commit id: "iteration1"
+
+    checkout release
+    branch "issue#10-hotfix"
+    commit "hotfix release issue directly off release branch"
+    checkout release
+    merge "issue#10-hotfix"
+    checkout main
+    merge "issue#10-hotfix"
+
+    checkout "issue#7-long-feature"
+    commit id: "complete issue#7"
+    checkout main
+    merge "issue#7-long-feature"
+
+    commit id: "iteration2 testing begins, only merge bugfixes"
+    branch "issue#13-bugfix"
+    checkout "issue#13-bugfix"
+    commit id: "fix bug for release 2"
+    checkout main
+    merge "issue#13-bugfix"
+    commit id: "main okay for iteration2 release"
+    checkout release
+    merge main
+    checkout main
+    commit id: "main open after iteration2 merge to release"
+    checkout release
+    commit id: "iteration2"
+```
 
 ## Feature Workflow Step By Step
 
@@ -43,23 +198,37 @@ Generally if something is worth working on it's worth making an issue for, but i
 
 7. Open a PR for your change in Github. There are 2 main ways, either via the branches tab:
 
-    ![Go To Branches Page](branch-workflow-files/github-pr-go-to-branches.png)
+    1. Go to the Branches page by clicking on the "... branches" link, next to the branch selection, near the top of the page
 
-    ![Select New Pull Request For Branch](branch-workflow-files/github-pr-branches-new-pr.png)
+        ![Go To Branches Page](branch-workflow-files/github-pr-go-to-branches.png)
 
-    ![Fill Out Pull Request And Create](branch-workflow-files/github-pr-make-pr.png)
+    2. Find your branch in the list, and click "New pull request" on that row, on the right side
+
+        ![Select New Pull Request For Branch](branch-workflow-files/github-pr-branches-new-pr.png)
+
+    3. Fill out the pull request form (the only critical part is to make sure the title is good enough), and click "Create pull request"
+
+        ![Fill Out Pull Request And Create](branch-workflow-files/github-pr-make-pr.png)
 
     Or via the Pull Requests tab:
 
-    ![Go To Pull Requests Page](branch-workflow-files/github-pr-go-to-prs.png)
+    1. Click "Pull requests", at the top of the page
 
-    ![Create New Pull Request](branch-workflow-files/github-pr-new-pr.png)
+        ![Go To Pull Requests Page](branch-workflow-files/github-pr-go-to-prs.png)
 
-    ![Choose Branch To Diff In Pull Request](branch-workflow-files/github-pr-new-pr-choose-branch.png)
+    2. Click "New pull request", at the top-right of the page
 
-    ![Fill Out Pull Request And Create](branch-workflow-files/github-pr-make-pr.png)
+        ![Create New Pull Request](branch-workflow-files/github-pr-new-pr.png)
 
-    You'll end up at the same place either way.
+    3. Choose the branch you want to merge FROM in the "compare:" dropdown ("base:" is the branch you want to merge TO and it should generally be `main` unless you're doing something special and really know what you're doing, e.g. merging `main` into the `release` branch for deployment)
+
+        ![Choose Branch To Diff In Pull Request](branch-workflow-files/github-pr-new-pr-choose-branch.png)
+
+    4. Fill out the pull request form (the only critical part is to make sure the title is good enough), and click "Create pull request"
+
+        ![Fill Out Pull Request And Create](branch-workflow-files/github-pr-make-pr.png)
+
+    You'll end up at the same place either way!
 
 8. Now that you have a new pull request, copy the URL from Github and paste the link into `#⁠pr-review-fic` on the Discord server. Next, someone else has to review your work.
 
@@ -96,7 +265,7 @@ But they can also be a drag on development:
 
 4. If you think it's important that the code get in right away, you may squash-merge and delete the branch, instead of waiting for the author to do it. Obviously don't squash-merge unless you're approving the changes as-is. If changes are requested let the original author have a chance to fix them.
 
-5. Authors, don't forget to go back and look for comments.
+5. Authors, don't forget to go back and look for comments **even if the PR is approved**.
 
     Reviewers, if a comment you make is particularly important, please say something about it in the reviews channel (maybe in a thread?) so that it for sure gets noticed.
 
