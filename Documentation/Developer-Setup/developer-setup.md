@@ -8,11 +8,11 @@ A really short step-by-step to get your dev machine set up for development.
 
 2. In VS Code, **make sure you have the Java tools installed** -- that's the **"Extension Pack for Java"**
 
-    ![VS Code Extension Pack for Java](vscode-1-extension-pack-for-java.png)
+    ![VS Code Extension Pack for Java](developer-setup-files/vscode-1-extension-pack-for-java.png)
 
     (Open the Extensions Manager sidebar in VS Code, Ctrl+Shift+X if you don't see it)
 
-    ![VS Code Extensions Manager](vscode-0-extensions-sidebar.png)
+    ![VS Code Extensions Manager](developer-setup-files/vscode-0-extensions-sidebar.png)
 
 3. **Install npm** (this works different on different platforms so you're on your own with the documentation here -- I'm using npm 9.1.2 and Node 19.0.1 on Ubuntu 22.04; TBH I think I just installed npm locally and used it to install the latest stable node sometime in the last year, that combination seems to work)
 
@@ -26,15 +26,15 @@ If you're just doing frontend work maybe just the frontend is enough for you to 
 
 1. **Open the project root in VS Code** -- you should see something like this in your file browser:
 
-    ![Java Project and Maven tabs in VS Code's Explorer sidebar](vscode-2-project-root.png)
+    ![Java Project and Maven tabs in VS Code's Explorer sidebar](developer-setup-files/vscode-2-project-root.png)
 
     If the Java support is working correctly, it should have Java Project and Maven tabs:
 
-    ![Java Project and Maven tabs in VS Code's Explorer sidebar](vscode-3-project-tabs.png)
+    ![Java Project and Maven tabs in VS Code's Explorer sidebar](developer-setup-files/vscode-3-project-tabs.png)
 
 2. **Go to the hexagonal "Spring Boot Dashboard" sidebar tab further down.** It takes a little while for the Java tools to figure out your project if you're loading them for the first time, but eventually you should see the "server" under APPS at the top:
 
-    ![image info](vscode-4-run-server.png)
+    ![image info](developer-setup-files/vscode-4-run-server.png)
 
 3. **Press the Run (or Debug I guess if you want to debug) button right there** -- that's the one next to the Run tooltip in the screenshot
 
