@@ -1,31 +1,31 @@
-package com.group2.server.Config;
+// package com.group2.server.Config;
 
 
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
+// import org.springframework.boot.CommandLineRunner;
+// import org.springframework.stereotype.Component;
 
-import com.group2.server.Model.User;
-import com.group2.server.Repository.UserRepository;
+// import com.group2.server.Model.User;
+// import com.group2.server.Repository.UserRepository;
 
 
 
-@Component
-public class DatabaseSeeder implements CommandLineRunner {
+// @Component
+// public class DatabaseSeeder implements CommandLineRunner {
     
-    private UserRepository userRepository;
+//     private UserRepository userRepository;
 
 
-    public DatabaseSeeder(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+//     public DatabaseSeeder(UserRepository userRepository) {
+//         this.userRepository = userRepository;
+//     }
 
-    @Override
-    public void run(String... args) throws Exception {
-        // Seed users into database
-        User admin = new User("admin", "admin", "ADMIN");
-        User professor = new User("professor", "professor", "PROFESSOR");
+//     @Override
+//     public void run(String... args) throws Exception {
+//         // Seed users into database
+//         User admin = new User("admin", "admin", "ADMIN");
+//         User professor = new User("professor", "professor", "PROFESSOR");
 
-        userRepository.save(admin);
-        userRepository.save(professor);
-    }
-}
+//         userRepository.save(admin);
+//         userRepository.save(professor);
+//     }
+// }

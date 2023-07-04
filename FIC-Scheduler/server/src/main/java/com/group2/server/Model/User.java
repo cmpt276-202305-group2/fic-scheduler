@@ -1,61 +1,79 @@
 package com.group2.server.Model;
 
+
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+//this will provide getters and setters for the fields and the constructor
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "users")
-public class User {
-    
+public class User implements UserDetails {
+    //userDetials is an interface that provides core user information which ig
+    //it is helpful for authentication and authorization
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;    
+    private Integer id;
 
+    private String firstName;
     private String username;
     private String password;
-    private String role;
     
-    public User(String username, String password, String role) {
-        this.username = username;
-        this.password = password;
-        this.role = role;
-    }
-    
-    public User() {}
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
+    //this is the method that is used to get the authorities of the user
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        
+        //this will return the role of the user (admin /prof / coordinator)
+        return List.of(new SimpleGrantedAuthority(role.name()));
+        
+    }
 
-    public Long getId() {
-        return id;
-    }
-    
-    public void setId(Long id) {
-        this.id = id;
-    }
-    
+    @Override
     public String getUsername() {
-        return username;
+       return username;
     }
-    
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    
+    @Override
     public String getPassword() {
         return password;
     }
-    
-    public void setPassword(String password) {
-        this.password = password;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
-    
-    public String getRole() {
-        return role;
+    @Override
+    public boolean isAccountNonLocked() {
+         return true;
+     }
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
-    
-    public void setRole(String role) {
-        this.role = role;
+
+    @Override
+    public boolean isEnabled() {
+            return true;
     }
 }

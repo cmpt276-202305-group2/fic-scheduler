@@ -1,0 +1,15 @@
+spring:
+    datasource:
+        url: jdbc:postgresql://dpg-chtdp4m7avj345epjl6g-a.oregon-postgres.render.com/database_vy4u
+        username: database_vy4u_user
+        password: aM8AlM28g9hjfEnEyqq0lJpU1f1nUhkB
+        driver-class-name: org.postgresql.Driver
+    jpa:
+        hibernate:
+            ddl-auto: create-drop
+        show-sql: true
+        properties:
+            hibernate:
+                format_sql: true
+        database: postgresql
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
