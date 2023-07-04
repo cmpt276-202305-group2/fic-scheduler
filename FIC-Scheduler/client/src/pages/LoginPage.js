@@ -12,8 +12,10 @@ function LoginPage() {
 
     try {
       //send req
-      const res = await axios.post("/login", { username, password });
+      const res = await axios.post("http://localhost:8080/login", { username, password });
+      //var role = "instructor";
       console.log(res.data);
+      window.location.href = res.data;
     } catch (err) {
       console.log(err);
     }

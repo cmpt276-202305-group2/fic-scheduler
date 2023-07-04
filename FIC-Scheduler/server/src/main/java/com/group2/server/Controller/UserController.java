@@ -31,6 +31,16 @@ public class UserController {
             return ResponseEntity.badRequest().body("Invalid username or password");
         }
 
+        if(user != null){
+            if(user.getRole().equals("Coordinator"))
+            {
+                return ResponseEntity.ok("/CoordinatorHomePage");
+            }
+            else if(user.getRole().equals("Instructor")){
+                return ResponseEntity.ok("/InstructorHomePage");
+            }
+        }
+
         Map<String, String> response = new HashMap<>();
         response.put("message", "Login successful");
         response.put("role", user.getRole());
