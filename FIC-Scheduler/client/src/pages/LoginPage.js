@@ -41,11 +41,6 @@ function LoginPage() {
     }
   };
 
-  const handleForgotPass = (event) => {
-    event.preventDefault();
-    navigate("/forgotPass");
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.cardContainer}>
