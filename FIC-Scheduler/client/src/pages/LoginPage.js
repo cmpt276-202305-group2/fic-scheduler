@@ -41,11 +41,6 @@ function LoginPage() {
     }
   };
 
-  const handleForgotPass = (event) => {
-    event.preventDefault();
-    navigate("/forgotPass");
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.cardContainer}>
@@ -77,11 +72,6 @@ function LoginPage() {
           {error && <p className={styles.errormessage}>{error}</p>}
 
         </form>
-        <div className={styles.forgotPassword}>
-          <a href="/forgotPass" onClick={handleForgotPass}>
-            Forgot Password?
-          </a>
-        </div>
       </div>
     </div>
   );
