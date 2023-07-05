@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 import styles from "./LoginPage.module.css"; // Import the CSS module
+
 
 function LoginPage() {
   const [username, setUsername] = useState("");
@@ -71,7 +73,9 @@ function LoginPage() {
           </label>
           <br />
           <button type="submit">Login</button>
-          {error && <p className={styles.errorMessage}>{error}</p>}
+
+          {error && <p className={styles.errormessage}>{error}</p>}
+
         </form>
         <div className={styles.forgotPassword}>
           <a href="/forgotPass" onClick={handleForgotPass}>
