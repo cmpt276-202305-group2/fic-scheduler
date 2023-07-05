@@ -77,11 +77,6 @@ function LoginPage() {
           {error && <p className={styles.errormessage}>{error}</p>}
 
         </form>
-        <div className={styles.forgotPassword}>
-          <a href="/forgotPass" onClick={handleForgotPass}>
-            Forgot Password?
-          </a>
-        </div>
       </div>
     </div>
   );
