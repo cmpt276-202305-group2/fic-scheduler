@@ -9,7 +9,7 @@ function CoordinatorHomePage() {
         <div className={styles.Sidebar}>
           <CoordinatorSidebar /> 
         </div>
-        <div className={styles.Schedule}>SCHEDULE GOES HERE</div>
+        <div className={styles.Schedule} data-testid="schedule">SCHEDULE GOES HERE</div>
       </div>
     </React.Fragment>
   );
