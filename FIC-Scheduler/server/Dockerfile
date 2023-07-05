@@ -3,7 +3,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 FROM openjdk:17.0.1-jdk-slim
-COPY --from=build /target/fic-scheduler-0.0.1-SNAPSHOT.jar /fic-scheduler-0.0.1-SNAPSHOT.jar
+COPY --from=build /target/server-0.0.1-SNAPSHOT.jar server.jar
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","/fic-scheduler-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java","-jar","server.jar"]
