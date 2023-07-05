@@ -32,7 +32,7 @@ public class UserControllerTests {
 
     private User mockUser;
 
-    @BeforeEach
+    @BeforeEach // Create a mock user before each test
     void setup() {
         mockUser = new User();
         mockUser.setUsername("testUsername");
@@ -40,7 +40,7 @@ public class UserControllerTests {
         mockUser.setRole("admin");
     }
 
-    @Test
+    @Test // Test the login endpoint with a user that does exists in the database with the role Admin
     public void testLoginSuccessAdmin() throws Exception {
         when(userRepository.findByUsername(mockUser.getUsername())).thenReturn(mockUser);
 
@@ -54,7 +54,7 @@ public class UserControllerTests {
                 .andDo(print());
     }
 
-    @Test
+    @Test // Test the login endpoint with a user that does exists in the database with the role professor 
     public void testLoginSuccessProfessor() throws Exception {
     
     User mockProfessor = new User();
@@ -64,7 +64,6 @@ public class UserControllerTests {
 
     when(userRepository.findByUsername(mockProfessor.getUsername())).thenReturn(mockProfessor);
 
-    // Perform the post request and check the response
     mockMvc.perform(MockMvcRequestBuilders.post("/login")
             .contentType(MediaType.APPLICATION_JSON)
             .content("{\"username\":\"professorUsername\", \"password\":\"professorPassword\"}")
@@ -73,9 +72,9 @@ public class UserControllerTests {
             .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Login successful"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.role").value("professor"))
             .andDo(print());
-}
+    }
 
-    @Test
+    @Test // Test the login endpoint with a user that does exists in the database
     public void testLoginFail() throws Exception {
         when(userRepository.findByUsername(anyString())).thenReturn(null);
 
