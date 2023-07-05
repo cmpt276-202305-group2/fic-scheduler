@@ -33,16 +33,6 @@ public class UserController {
         // response status types : 
         // status 200 (OK), status 404 ( it coudnt connect to backend) , status 500 (response had a problem)
 
-        // if(user != null){
-        //     if(user.getRole().equals("ADMIN"))
-        //     {
-        //         return ResponseEntity.ok("/CoordinatorHomePage");
-        //     }
-        //     else if(user.getRole().equals("PROFESSOR")){
-        //         return ResponseEntity.ok("/InstructorHomePage");
-        //     }
-        // }
-
         Map<String, String> response = new HashMap<>();
         response.put("message", "Login successful");
         response.put("role", user.getRole());
