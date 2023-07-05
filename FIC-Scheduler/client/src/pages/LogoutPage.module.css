@@ -1,20 +1,65 @@
-.container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #417A1A;
-    height: 100vh;
-    width: 100vw;
-    padding: 1rem;
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #417A1A;
+  height: 100vh;
+  width: 100vw;
+  padding: 1rem;
 }
-.cardContainer{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 1rem;
-    padding: 2rem;
-    box-sizing: border-box;
-    width: 80%; 
-    max-width: 600px;
-    height: 50%;
+
+.cardContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  box-sizing: border-box;
+  width: 80%;
+  max-width: 600px;
+  height: 50%;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cardContainer h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.cardContainer label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.cardContainer input[type="text"],
+.cardContainer input[type="password"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+.cardContainer button[type="submit"] {
+  padding: 10px 20px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.cardContainer button[type="submit"]:hover {
+  background-color: #555;
+}
+
+.cardContainer p.error-message {
+  color: #f00;
+  margin-top: 10px;
+  font-size: 14px;
 }
