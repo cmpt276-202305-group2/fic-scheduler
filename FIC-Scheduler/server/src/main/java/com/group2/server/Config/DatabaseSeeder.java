@@ -22,8 +22,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // Seed users into database
-        User admin = new User("admin", "admin", "ADMIN");
-        User professor = new User("professor", "professor", "PROFESSOR");
+        User admin = new User("coordinator", "coordinator", "ADMIN");
+        User professor = new User("instructor", "instructor", "PROFESSOR");
 
         userRepository.save(admin);
         userRepository.save(professor);
