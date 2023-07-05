@@ -39,7 +39,7 @@ public class UserController {
         //         return ResponseEntity.ok("/CoordinatorHomePage");
         //     }
         //     else if(user.getRole().equals("PROFESSOR")){
-        //         return ResponseEntity.ok("/InstructorHomePage");
+        //         return ResponseEntity.ok("/InstructorHomePage");asdasdasd
         //     }
         // }
 
