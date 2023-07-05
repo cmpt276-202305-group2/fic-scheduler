@@ -26,7 +26,7 @@ function LoginPage() {
     };
 
     try {
-      const response = await axios.post("https://ficschedulerapp.onrender.com/login", payload);
+      const response = await axios.post("https://ficbackend.onrender.com/login", payload);
       console.log(response);
       if (response.status === 200) {
         if (response.data.role === "ADMIN") {
