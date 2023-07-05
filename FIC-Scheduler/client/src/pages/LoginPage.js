@@ -1,22 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import styles from "./LoginPage.module.css"; // Import the CSS file
+import styles from "./LoginPage.module.css"; // Import the CSS module
 
 function LoginPage() {
-  // set up the user
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // simple validation
     if (!username || !password) {
-      setError("Please enter all fields");
+      setError("Please enter both username and password");
       return;
     }
 
@@ -26,7 +24,6 @@ function LoginPage() {
     };
 
     try {
-      // send req
       const response = await axios.post("http://localhost:8080/login", payload);
       console.log(response);
       if (response.status === 200) {
@@ -42,6 +39,11 @@ function LoginPage() {
     }
   };
 
+  const handleForgotPass = (event) => {
+    event.preventDefault();
+    navigate("/forgotPass");
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.cardContainer}>
@@ -53,6 +55,8 @@ function LoginPage() {
               type="text"
               value={username}
               onChange={(event) => setUsername(event.target.value)}
+              placeholder="Enter your username"
+              autoFocus
             />
           </label>
           <br />
@@ -62,14 +66,18 @@ function LoginPage() {
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              placeholder="Enter your password"
             />
           </label>
-
           <br />
-
           <button type="submit">Login</button>
-          {error && <p className={styles.errormessage}>{error}</p>}
+          {error && <p className={styles.errorMessage}>{error}</p>}
         </form>
+        <div className={styles.forgotPassword}>
+          <a href="/forgotPass" onClick={handleForgotPass}>
+            Forgot Password?
+          </a>
+        </div>
       </div>
     </div>
   );
