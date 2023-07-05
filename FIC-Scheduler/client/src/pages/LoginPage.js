@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import './LoginPage.module.css'; 
+import styles from "./LoginPage.module.css"; // Import the CSS file
 
 function LoginPage() {
   // set up the user
@@ -43,8 +43,8 @@ function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-form">
+    <div className={styles.container}>
+      <div className={styles.cardContainer}>
         <h1>Login</h1>
         <form onSubmit={handleSubmit}>
           <label>
@@ -68,7 +68,7 @@ function LoginPage() {
           <br />
 
           <button type="submit">Login</button>
-          {error && <p>{error}</p>}
+          {error && <p className={styles.errormessage}>{error}</p>}
         </form>
       </div>
     </div>
