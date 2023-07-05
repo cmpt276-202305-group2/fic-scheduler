@@ -9,7 +9,9 @@ function InstructorHomePage() {
         <div className={styles.Sidebar}>
           <InstructorSidebar />
         </div>
-        <div className={styles.Schedule}>SCHEDULE GOES HERE</div>
+        <div className={styles.Schedule} data-testid="schedule">
+          SCHEDULE GOES HERE
+        </div>
       </div>
     </React.Fragment>
   );
