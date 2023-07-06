@@ -10,17 +10,7 @@ import GroupIcon from "@mui/icons-material/Group";
 function CoordinatorSidebar() {
   const navigate = useNavigate();
   const handleLogout = () => {
-    fetch("/logout", { method: "POST" })
-      .then((response) => {
-        if (response.ok) {
-          navigate("/LoginPage");
-        } else {
-          alert("Logout Failed");
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    navigate("/LogoutPage");
   };
   return (
     <nav>
