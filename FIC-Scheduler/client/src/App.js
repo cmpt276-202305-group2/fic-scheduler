@@ -15,7 +15,7 @@ function App() {
         <Route path="/InstructorHomePage" element={<InstructorHomePage />} />
         <Route path="/CoordinatorHomePage" element={<CoordinatorHomePage />} />
         <Route path="/LogoutPage" element={<LogoutPage />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="/*" element={<Navigate to="/login" replace />} />
       </Routes>
     </div>
   );
