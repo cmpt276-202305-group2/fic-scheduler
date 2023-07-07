@@ -20,12 +20,12 @@ jobs:
 
       - name: Build with Maven Backend
         run: |
-          cd FIC-Scheduler/server
+          cd FIC-Scheduler/backend
           mvn -B package --file pom.xml
 
       - name: Test with Maven
         run: |
-          cd FIC-Scheduler/server
+          cd FIC-Scheduler/backend
           mvn test --file pom.xml
 
       - name: Set up Node.js
@@ -35,15 +35,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd FIC-Scheduler/client
+          cd FIC-Scheduler/frontend
           npm install
 
       - name: Build Frontend
         run: |
-          cd FIC-Scheduler/client
+          cd FIC-Scheduler/frontend
           npm run build
 
       # - name: Test
       #   run: |
-      #     cd FIC-Scheduler/client
+      #     cd FIC-Scheduler/frontend
       #     npm test
