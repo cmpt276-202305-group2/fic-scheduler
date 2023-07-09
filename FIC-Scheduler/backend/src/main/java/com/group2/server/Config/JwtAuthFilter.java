@@ -1,5 +1,6 @@
 package com.group2.server.Config;
 
+
 import java.io.IOException;
 
 import org.springframework.lang.NonNull;
@@ -31,7 +32,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     filterChain.doFilter(request, response);
                     return;
                 } 
-                jwt = authHeader.substring(7);//since we want to count after the word Bearer
+                //since we want to count after the word Bearer
+                jwt = authHeader.substring(7);
+                // extract username from jwt token
                 username = jwtService.extractUsername(jwt);
             
     }
