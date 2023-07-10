@@ -8,23 +8,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.group2.server.Model.User;
+
+import com.group2.server.Model.ApplicationUser;
+
 import com.group2.server.Repository.UserRepository;
 
 @RestController
 @CrossOrigin("*")
+@RequestMapping("/api")
 public class UserController {
 
     @Autowired
     private UserRepository userRepository;
     
-    @PostMapping("/login")
+    @PostMapping("/user")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         String username = credentials.get("username");
         String password = credentials.get("password");
 
-        User user = userRepository.findByUsername(username);
+        ApplicationUser user = userRepository.findByUsername(username);
         System.out.println(user);
 
         if (user == null || !user.getPassword().equals(password)) {
@@ -35,7 +39,7 @@ public class UserController {
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Login successful");
-        response.put("role", user.getRole());
+        // response.put("role", user.getRole());
 
         // reponse : header (status number 200). res.body (response{usernamne, role })
         return ResponseEntity.ok(response);
