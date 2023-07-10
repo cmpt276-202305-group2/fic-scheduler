@@ -47,8 +47,8 @@ public class Role implements GrantedAuthority {
         return this.roleId;
     }
 
-    public void setRoleId(Integer id) {
-        this.roleId = id;
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
     }
 
 

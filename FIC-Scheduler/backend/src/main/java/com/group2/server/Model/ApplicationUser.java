@@ -22,11 +22,12 @@ import jakarta.persistence.JoinColumn;
 @Entity
 @Table(name = "users")
 public class ApplicationUser implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "user_id")
     private Integer userId;
-
+    
+    @Column(unique=true)
     private String username;
     private String password;
 
@@ -40,7 +41,7 @@ public class ApplicationUser implements UserDetails {
 
     public ApplicationUser() {
         super();
-        this.authorities = new HashSet<Role>();
+        authorities = new HashSet<>();
     }
 
     public ApplicationUser(Integer userId, String username, String password, Set<Role> authorities) {
@@ -59,6 +60,9 @@ public class ApplicationUser implements UserDetails {
         this.userId = userId;
     }
 
+    public void setAuthorities(Set<Role> authorities) {
+        this.authorities = authorities;
+    }
 
 
     @Override
@@ -66,9 +70,6 @@ public class ApplicationUser implements UserDetails {
         return this.authorities;
     }
 
-    public void setAuthorities(Set<Role> authorities) {
-        this.authorities = authorities;
-    }
 
     @Override
     public String getPassword() {
