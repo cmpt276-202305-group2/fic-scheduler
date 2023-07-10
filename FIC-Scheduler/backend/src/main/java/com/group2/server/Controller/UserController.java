@@ -13,7 +13,7 @@ import com.group2.server.Model.User;
 import com.group2.server.Repository.UserRepository;
 
 @RestController
-@CrossOrigin
+@CrossOrigin("*")
 public class UserController {
 
     @Autowired
@@ -40,4 +40,6 @@ public class UserController {
         // reponse : header (status number 200). res.body (response{usernamne, role })
         return ResponseEntity.ok(response);
     }
+
+    
 }
