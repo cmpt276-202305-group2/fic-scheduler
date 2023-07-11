@@ -1,16 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-import styles from "./LoginPage.module.css"; // Import the CSS module
-
+import { parseJwtToken } from "../utils";
+import styles from "./LoginPage.module.css";
 
 function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-
   const navigate = useNavigate();
+
+  const navigateByRole = useCallback(
+    (role) => {
+      if (role === "COORDINATOR") {
+        navigate("/coordinator");
+      } else if (role === "INSTRUCTOR") {
+        navigate("/instructor");
+      } else {
+        setError("You do not have permission to access this application");
+      }
+    },
+    [navigate]
+  );
+
+  useEffect(() => {
+    const jwtToken = localStorage.getItem("jwtToken");
+    if (jwtToken) {
+      const decodedToken = parseJwtToken(jwtToken);
+      navigateByRole(decodedToken.roles);
+    }
+  }, [navigateByRole]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -26,14 +45,17 @@ function LoginPage() {
     };
 
     try {
-      const response = await axios.post("https://ficbackend.onrender.com/login", payload);
-      console.log(response);
+      const response = await axios.post(
+        "http://localhost:8080/auth/login",
+        payload
+      );
+
       if (response.status === 200) {
-        if (response.data.role === "ADMIN") {
-          navigate("/CoordinatorHomePage");
-        } else if (response.data.role === "PROFESSOR") {
-          navigate("/InstructorHomePage");
-        }
+        const jwtToken = response.data.jwt;
+        localStorage.setItem("jwtToken", jwtToken);
+        const decodedToken = parseJwtToken(jwtToken);
+        console.log(decodedToken);
+        navigateByRole(decodedToken.roles);
       }
     } catch (err) {
       console.log(err);
@@ -70,7 +92,6 @@ function LoginPage() {
           <button type="submit">Login</button>
 
           {error && <p className={styles.errormessage}>{error}</p>}
-
         </form>
       </div>
     </div>

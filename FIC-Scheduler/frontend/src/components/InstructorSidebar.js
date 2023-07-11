@@ -8,7 +8,8 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 function InstructorSidebar() {
   const navigate = useNavigate();
   const handleLogout = () => {
-    navigate("/LogoutPage");
+    localStorage.removeItem("jwtToken"); 
+    navigate("/logout"); 
   };
   return (
     <nav>
@@ -23,7 +24,7 @@ function InstructorSidebar() {
         </li>
         <li>
           <CloudUploadIcon />
-          Upload Peferences
+          Upload Preferences
         </li>
         <li>
           <Button

@@ -12,6 +12,7 @@ function LogoutPage() {
       setTimer((prevTimer) => prevTimer - 1);
     }, 1000);
 
+
     const redirect = setTimeout(() => {
       navigate("/login");
     }, 9000);
