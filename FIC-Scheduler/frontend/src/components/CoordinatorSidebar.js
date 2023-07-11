@@ -10,7 +10,8 @@ import GroupIcon from "@mui/icons-material/Group";
 function CoordinatorSidebar() {
   const navigate = useNavigate();
   const handleLogout = () => {
-    navigate("/LogoutPage");
+    localStorage.removeItem("jwtToken"); 
+    navigate("/logout"); 
   };
   return (
     <nav>
