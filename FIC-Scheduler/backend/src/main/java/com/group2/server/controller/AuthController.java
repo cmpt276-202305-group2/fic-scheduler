@@ -1,4 +1,4 @@
-package com.group2.server.Controller;
+package com.group2.server.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.group2.server.Model.ApplicationUser;
-import com.group2.server.Model.LoginResponeDTO;
-import com.group2.server.Model.RegistrationDTO;
-import com.group2.server.Services.AuthService;
+import com.group2.server.model.ApplicationUser;
+import com.group2.server.model.LoginResponeDTO;
+import com.group2.server.model.RegistrationDTO;
+import com.group2.server.services.AuthService;
 
 @RestController
 @RequestMapping("/auth")

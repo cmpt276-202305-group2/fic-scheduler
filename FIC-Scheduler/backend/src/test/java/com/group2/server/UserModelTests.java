@@ -2,7 +2,7 @@
 
 // import static org.assertj.core.api.Assertions.assertThat;
 
-// import com.group2.server.Model.User;
+// import com.group2.server.model.User;
 // import org.junit.jupiter.api.Test;
 
 // public class UserModelTests {

@@ -1,4 +1,4 @@
-package com.group2.server.Services;
+package com.group2.server.services;
 
 
 
@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 
-import com.group2.server.Repository.UserRepository;
+import com.group2.server.repository.UserRepository;
 
 @Service
 public class UserService implements UserDetailsService {

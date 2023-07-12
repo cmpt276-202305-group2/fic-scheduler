@@ -1,4 +1,4 @@
-package com.group2.server.Utils;
+package com.group2.server.utils;
 
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;

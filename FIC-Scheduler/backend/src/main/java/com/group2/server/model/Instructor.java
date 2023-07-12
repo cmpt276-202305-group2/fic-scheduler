@@ -1,4 +1,4 @@
-package com.group2.server.Model;
+package com.group2.server.model;
 
 import java.util.Set;
 
