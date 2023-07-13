@@ -1,7 +1,7 @@
 // package com.group2.server;
 
-// import com.group2.server.Model.User;
-// import com.group2.server.Repository.UserRepository;
+// import com.group2.server.model.User;
+// import com.group2.server.repository.UserRepository;
 // import org.junit.jupiter.api.Test;
 // import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

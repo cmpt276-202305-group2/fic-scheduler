@@ -1,4 +1,4 @@
-package com.group2.server.Services;
+package com.group2.server.services;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,11 +12,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.group2.server.Model.ApplicationUser;
-import com.group2.server.Model.LoginResponeDTO;
-import com.group2.server.Model.Role;
-import com.group2.server.Repository.RoleRepository;
-import com.group2.server.Repository.UserRepository;
+import com.group2.server.model.ApplicationUser;
+import com.group2.server.model.LoginResponeDTO;
+import com.group2.server.model.Role;
+import com.group2.server.repository.RoleRepository;
+import com.group2.server.repository.UserRepository;
 
 @Service
 @Transactional

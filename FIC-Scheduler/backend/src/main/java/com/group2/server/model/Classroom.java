@@ -1,4 +1,4 @@
-package com.group2.server.Model;
+package com.group2.server.model;
 
 import java.util.Set;
 
@@ -9,38 +9,30 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "Course")
-public class Course {
-    
+@Table(name = "Classroom")
+public class Classroom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  
+    private Long id; 
 
     @Getter
     @Setter
-    private String courseNumber;
+    private String roomNumber;
 
     @Getter
     @Setter
     @ManyToMany
-    @JoinTable(name="Facilities_Courses",
+    @JoinTable(name="Classroom_Facilities",
         joinColumns=
-            @JoinColumn(name="Course_ID", referencedColumnName="ID"),
+            @JoinColumn(name="Classroom_ID", referencedColumnName="ID"),
         inverseJoinColumns=
             @JoinColumn(name="Facilities_ID", referencedColumnName="ID")
         )
-    private Set<Facilities> facilitiesRequired;
-
-    @Getter
-    @Setter
-    @ManyToOne
-    //@JoinColumn(name="Accreditaion_ID", nullable=false)
-    private Accreditation accreditationRequired;
+    private Set<Facilities> facilitiesAvailable;
     
 }

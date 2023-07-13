@@ -9,10 +9,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.group2.server.Model.ApplicationUser;
-import com.group2.server.Model.Role;
-import com.group2.server.Repository.RoleRepository;
-import com.group2.server.Repository.UserRepository;
+import com.group2.server.model.ApplicationUser;
+import com.group2.server.model.Role;
+import com.group2.server.repository.RoleRepository;
+import com.group2.server.repository.UserRepository;
 
 
 @SpringBootApplication()

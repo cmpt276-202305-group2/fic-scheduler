@@ -16,9 +16,9 @@
 // import org.springframework.http.MediaType;
 // import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-// import com.group2.server.Model.ApplicationUser;
-// import com.group2.server.Model.User;
-// import com.group2.server.Repository.UserRepository;
+// import com.group2.server.model.ApplicationUser;
+// import com.group2.server.model.User;
+// import com.group2.server.repository.UserRepository;
 
 // @SpringBootTest
 // @AutoConfigureMockMvc
