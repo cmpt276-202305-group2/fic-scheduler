@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.group2.server.model.ApplicationUser;
-import com.group2.server.model.LoginResponeDTO;
-import com.group2.server.model.RegistrationDTO;
+import com.group2.server.model.LoginResponseDto;
+import com.group2.server.model.RegistrationDto;
 import com.group2.server.services.AuthService;
 
 @RestController
@@ -21,12 +21,12 @@ public class AuthController {
     private AuthService authService;
     
     @PostMapping("/register")
-    public ApplicationUser registerUser(@RequestBody RegistrationDTO body){
+    public ApplicationUser registerUser(@RequestBody RegistrationDto body){
         return authService.registerUser(body.getUsername(), body.getPassword());
     }
 
     @PostMapping("/login")
-    public LoginResponeDTO loginUser(@RequestBody RegistrationDTO body){
+    public LoginResponseDto loginUser(@RequestBody RegistrationDto body){
         return authService.loginUser(body.getUsername(), body.getPassword());
     }
 }

@@ -1,14 +1,14 @@
 package com.group2.server.model;
 
-public class LoginResponeDTO {
+public class LoginResponseDto {
     private ApplicationUser user;
     private String jwt;
 
-    public LoginResponeDTO() {
+    public LoginResponseDto() {
         super();
     }
 
-    public LoginResponeDTO(ApplicationUser user, String jwt) {
+    public LoginResponseDto(ApplicationUser user, String jwt) {
         this.user = user;
         this.jwt = jwt;
     }
@@ -29,7 +29,4 @@ public class LoginResponeDTO {
         this.jwt = jwt;
     }
 
-    
 }
-
-

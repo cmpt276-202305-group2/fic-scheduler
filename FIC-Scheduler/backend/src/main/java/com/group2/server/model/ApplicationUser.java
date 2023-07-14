@@ -15,12 +15,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
 import jakarta.persistence.JoinColumn;
 
 
-@Entity
-@Table(name = "users")
+@Entity(name = "application_user")
 public class ApplicationUser implements UserDetails {
 
     @Id

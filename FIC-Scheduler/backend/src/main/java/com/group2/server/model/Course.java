@@ -10,17 +10,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Table(name = "Course")
+@Entity(name = "course")
 public class Course {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  
+    private Long id;
 
     @Getter
     @Setter
@@ -29,18 +27,13 @@ public class Course {
     @Getter
     @Setter
     @ManyToMany
-    @JoinTable(name="Facilities_Courses",
-        joinColumns=
-            @JoinColumn(name="Course_ID", referencedColumnName="ID"),
-        inverseJoinColumns=
-            @JoinColumn(name="Facilities_ID", referencedColumnName="ID")
-        )
+    @JoinTable(name = "facilities_courses", joinColumns = @JoinColumn(name = "course_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "facilities_id", referencedColumnName = "id"))
     private Set<Facilities> facilitiesRequired;
 
     @Getter
     @Setter
     @ManyToOne
-    //@JoinColumn(name="Accreditaion_ID", nullable=false)
+    // @JoinColumn(name="Accreditaion_ID", nullable=false)
     private Accreditation accreditationRequired;
-    
+
 }

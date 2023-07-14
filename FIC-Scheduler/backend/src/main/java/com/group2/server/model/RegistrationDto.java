@@ -1,14 +1,14 @@
 package com.group2.server.model;
 
-public class RegistrationDTO {
+public class RegistrationDto {
     private String username;
     private String password;
     
-    public RegistrationDTO() {
+    public RegistrationDto() {
         super();
     }
     
-    public RegistrationDTO(String username, String password) {
+    public RegistrationDto(String username, String password) {
         super();
         this.username = username;
         this.password = password;

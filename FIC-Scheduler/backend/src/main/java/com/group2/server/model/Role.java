@@ -7,10 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 
-@Entity
-@Table(name = "roles")
+@Entity(name = "roles")
 public class Role implements GrantedAuthority {
 
     @Id
@@ -24,7 +22,7 @@ public class Role implements GrantedAuthority {
         super();
     }
 
-    public Role( String authority) {
+    public Role(String authority) {
         this.authority = authority;
     }
 
@@ -32,11 +30,10 @@ public class Role implements GrantedAuthority {
         this.roleId = roleId;
         this.authority = authority;
     }
-    
+
     public void setAuthority(String authority) {
         this.authority = authority;
     }
-
 
     @Override
     public String getAuthority() {
@@ -51,6 +48,4 @@ public class Role implements GrantedAuthority {
         this.roleId = roleId;
     }
 
-
-    
 }

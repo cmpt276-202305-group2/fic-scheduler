@@ -5,12 +5,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Table(name = "InstrucotrAvailability")
+@Entity(name = "instructor_availability")
 public class InstructorAvailability {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +19,7 @@ public class InstructorAvailability {
     @ManyToOne
     private Instructor instructor;
 
-    //add DayOfWeek later
-    //add PartOfDay later
-    
+    // add DayOfWeek later
+    // add PartOfDay later
+
 }

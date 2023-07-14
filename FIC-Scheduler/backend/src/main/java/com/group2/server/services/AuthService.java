@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.group2.server.model.ApplicationUser;
-import com.group2.server.model.LoginResponeDTO;
+import com.group2.server.model.LoginResponseDto;
 import com.group2.server.model.Role;
 import com.group2.server.repository.RoleRepository;
 import com.group2.server.repository.UserRepository;
@@ -49,7 +49,7 @@ public class AuthService {
         return userRepository.save(new ApplicationUser(0, username, encodedPassword, authorities));
     }
 
-    public LoginResponeDTO loginUser(String username, String password){
+    public LoginResponseDto loginUser(String username, String password){
         try{
             Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password)
@@ -57,10 +57,10 @@ public class AuthService {
 
                 String token = tokenService.generateJWT(auth);
 
-                return new LoginResponeDTO(userRepository.findByUsername(username).get(), token);
+                return new LoginResponseDto(userRepository.findByUsername(username).get(), token);
         }
         catch(AuthenticationException e){
-            return new LoginResponeDTO(null, "");
+            return new LoginResponseDto(null, "");
         }
            
     }
