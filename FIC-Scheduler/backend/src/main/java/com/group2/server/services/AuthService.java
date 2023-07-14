@@ -12,10 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.group2.server.controller.LoginResponseDto;
 import com.group2.server.model.ApplicationUser;
-import com.group2.server.model.LoginResponseDto;
 import com.group2.server.model.Role;
-import com.group2.server.repository.RoleRepository;
 import com.group2.server.repository.UserRepository;
 
 @Service
@@ -24,9 +23,6 @@ public class AuthService {
     
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -40,11 +36,10 @@ public class AuthService {
     public ApplicationUser registerUser(String username, String password){
         
         String encodedPassword = passwordEncoder.encode(password);
-        Role userRole = roleRepository.findByAuthority("INSTRUCTOR").get();
 
         Set<Role> authorities = new HashSet<>();
 
-        authorities.add(userRole);
+        authorities.add(Role.INSTRUCTOR);
 
         return userRepository.save(new ApplicationUser(0, username, encodedPassword, authorities));
     }

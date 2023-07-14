@@ -1,92 +1,49 @@
 package com.group2.server.model;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.JoinColumn;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "application_user")
 public class ApplicationUser implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer userId;
-    
-    @Column(unique=true)
+
+    @Getter
+    @Setter
+    @Column(unique = true)
     private String username;
+
+    @Getter
+    @Setter
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "user_role_junction",
-        joinColumns = {@JoinColumn(name="user_id")},
-        inverseJoinColumns = {@JoinColumn(name = "role_id")}
-    )
+    @Getter
+    @Setter
+    @ElementCollection(targetClass = Role.class)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
     private Set<Role> authorities;
-
-    public ApplicationUser() {
-        super();
-        authorities = new HashSet<>();
-    }
-
-    public ApplicationUser(Integer userId, String username, String password, Set<Role> authorities) {
-        super();
-        this.userId = userId;
-        this.username = username;
-        this.password = password;
-        this.authorities = authorities;
-    }
-
-    public Integer getUserId() {
-        return this.userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public void setAuthorities(Set<Role> authorities) {
-        this.authorities = authorities;
-    }
-
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.authorities;
-    }
-
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
 
     @Override
     public boolean isAccountNonExpired() {
@@ -100,12 +57,12 @@ public class ApplicationUser implements UserDetails {
 
     @Override
     public boolean isCredentialsNonExpired() {
-         return true;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
         return true;
     }
-    
+
 }
