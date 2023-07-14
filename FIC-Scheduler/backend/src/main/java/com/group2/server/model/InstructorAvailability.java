@@ -12,9 +12,10 @@ import lombok.Setter;
 
 @Entity(name = "instructor_availability")
 public class InstructorAvailability {
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Getter
     @Setter

@@ -14,10 +14,10 @@ import lombok.Setter;
 
 @Entity(name = "instructor")
 public class Instructor {
-
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Getter
     @Setter
@@ -28,4 +28,5 @@ public class Instructor {
     @ManyToMany
     @JoinTable(name = "instructor_accreditation", joinColumns = @JoinColumn(name = "instructor_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "accreditation_id", referencedColumnName = "id"))
     private Set<Accreditation> accreditation;
+
 }

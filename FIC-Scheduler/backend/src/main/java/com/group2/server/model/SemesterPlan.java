@@ -1,14 +1,17 @@
 package com.group2.server.model;
 
+import java.util.Set;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity(name = "facilities")
-public class Facilities {
+@Entity(name = "semester_plan")
+public class SemesterPlan {
     @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,6 +19,10 @@ public class Facilities {
 
     @Getter
     @Setter
-    private String name;
+    private String semester;
+
+    @Setter
+    @OneToMany(mappedBy = "semesterPlan")
+    private Set<CourseOffering> coursesOffered;
 
 }

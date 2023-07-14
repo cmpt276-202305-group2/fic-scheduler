@@ -24,6 +24,7 @@ import lombok.Setter;
 @Entity(name = "application_user")
 public class ApplicationUser implements UserDetails {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer userId;

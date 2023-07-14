@@ -34,7 +34,7 @@ public class SecurityConfiguration {
 
     private final RSAKeyProperties keys;
 
-    public SecurityConfiguration(RSAKeyProperties keys){
+    public SecurityConfiguration(RSAKeyProperties keys) {
         this.keys = keys;
     }
 
@@ -44,46 +44,44 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public AuthenticationManager authManager(UserDetailsService detailsService){
+    public AuthenticationManager authManager(UserDetailsService detailsService) {
         DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
         daoProvider.setUserDetailsService(detailsService);
         daoProvider.setPasswordEncoder(passwordEncoder());
         return new ProviderManager(daoProvider);
     }
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-				.csrf(scrf -> scrf.disable())
-				.authorizeHttpRequests(auth -> {
-						auth.requestMatchers("/auth/**").permitAll();
-						auth.requestMatchers("/coordinator/**").hasRole("COORDINATOR");
-						auth.requestMatchers("/instructor/**").hasAnyRole("INSTRUCTOR", "COORDINATOR");
-						auth.anyRequest().authenticated();
-						})
-				.oauth2ResourceServer(oauth -> 
-						oauth.jwt(jwt -> 
-											jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.build();
+                .csrf(scrf -> scrf.disable())
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/auth/**").permitAll();
+                    auth.requestMatchers("/coordinator/**").hasRole("COORDINATOR");
+                    auth.requestMatchers("/instructor/**").hasAnyRole("INSTRUCTOR", "COORDINATOR");
+                    auth.anyRequest().authenticated();
+                })
+                .oauth2ResourceServer(
+                        oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
 
-                
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(){
+    public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(keys.getPublicKey()).build();
     }
 
     @Bean
-    public JwtEncoder jwtEncoder(){
+    public JwtEncoder jwtEncoder() {
         JWK jwk = new RSAKey.Builder(keys.getPublicKey()).privateKey(keys.getPrivateKey()).build();
         JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
     }
 
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter(){
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
@@ -92,5 +90,4 @@ public class SecurityConfiguration {
         return jwtConverter;
     }
 
-   
 }
