@@ -1,5 +1,6 @@
 package com.group2.server.model;
 
+import java.util.Date;
 import java.util.Set;
 
 import jakarta.persistence.Entity;
@@ -9,12 +10,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity(name = "course")
-public class Course {
+@Entity(name = "class_schedule")
+public class ClassSchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,17 +22,11 @@ public class Course {
 
     @Getter
     @Setter
-    private String courseNumber;
+    private String semester;
 
-    @Getter
     @Setter
     @ManyToMany
     @JoinTable(name = "facilities_courses", joinColumns = @JoinColumn(name = "course_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "facilities_id", referencedColumnName = "id"))
     private Set<Facilities> facilitiesRequired;
-
-    @Getter
-    @Setter
-    @ManyToOne
-    private Accreditation accreditationRequired;
 
 }
