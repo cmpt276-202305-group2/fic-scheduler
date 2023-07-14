@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.group2.server.model.ApplicationUser;
-import com.group2.server.model.LoginResponseDto;
-import com.group2.server.model.RegistrationDto;
 import com.group2.server.services.AuthService;
 
 @RestController

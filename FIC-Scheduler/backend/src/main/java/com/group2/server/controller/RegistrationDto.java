@@ -1,4 +1,4 @@
-package com.group2.server.model;
+package com.group2.server.controller;
 
 public class RegistrationDto {
     private String username;

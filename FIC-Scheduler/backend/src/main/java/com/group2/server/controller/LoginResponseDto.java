@@ -1,4 +1,6 @@
-package com.group2.server.model;
+package com.group2.server.controller;
+
+import com.group2.server.model.ApplicationUser;
 
 public class LoginResponseDto {
     private ApplicationUser user;
