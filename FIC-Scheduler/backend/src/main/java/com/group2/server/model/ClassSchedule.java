@@ -1,6 +1,5 @@
 package com.group2.server.model;
 
-import java.util.Date;
 import java.util.Set;
 
 import jakarta.persistence.Entity;

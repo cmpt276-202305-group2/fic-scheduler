@@ -1,6 +1,8 @@
 package com.group2.server.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,7 +21,14 @@ public class InstructorAvailability {
     @ManyToOne
     private Instructor instructor;
 
-    // add DayOfWeek later
-    // add PartOfDay later
+    @Getter
+    @Setter
+    @Enumerated(EnumType.STRING)
+    private DayOfWeek dayOfWeek;
+
+    @Getter
+    @Setter
+    @Enumerated(EnumType.STRING)
+    private PartOfDay partOfDay;
 
 }
