@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./InstructorCoordinatorHomePage.module.css";
 import InstructorSidebar from "../components/InstructorSidebar";
+import ExcelViewer from "../components/ExcelViewer";
 
 function InstructorHomePage() {
   return (
@@ -10,7 +11,7 @@ function InstructorHomePage() {
           <InstructorSidebar />
         </div>
         <div className={styles.Schedule} data-testid="schedule">
-          SCHEDULE GOES HERE
+          <ExcelViewer />
         </div>
       </div>
     </React.Fragment>
