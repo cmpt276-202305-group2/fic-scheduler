@@ -14,9 +14,10 @@ import lombok.Setter;
 
 @Entity(name = "classroom")
 public class Classroom {
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id; 
+    private Integer id;
 
     @Getter
     @Setter
@@ -25,12 +26,7 @@ public class Classroom {
     @Getter
     @Setter
     @ManyToMany
-    @JoinTable(name="Classroom_Facilities",
-        joinColumns=
-            @JoinColumn(name="Classroom_ID", referencedColumnName="ID"),
-        inverseJoinColumns=
-            @JoinColumn(name="Facilities_ID", referencedColumnName="ID")
-        )
+    @JoinTable(name = "classroom_facilities", joinColumns = @JoinColumn(name = "classroom_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "facilities_id", referencedColumnName = "id"))
     private Set<Facilities> facilitiesAvailable;
-    
+
 }

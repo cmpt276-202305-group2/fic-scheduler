@@ -20,6 +20,11 @@ public class InstructorAvailability {
     @Getter
     @Setter
     @ManyToOne
+    private SemesterPlan semesterPlan;
+
+    @Getter
+    @Setter
+    @ManyToOne
     private Instructor instructor;
 
     @Getter
