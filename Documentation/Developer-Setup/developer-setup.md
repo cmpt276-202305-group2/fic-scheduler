@@ -14,7 +14,17 @@ A really short step-by-step to get your dev machine set up for development.
 
     ![VS Code Extensions Manager](developer-setup-files/vscode-0-extensions-sidebar.png)
 
-3. **Install npm** (this works different on different platforms so you're on your own with the documentation here -- I'm using npm 9.1.2 and Node 19.0.1 on Ubuntu 22.04; TBH I think I just installed npm locally and used it to install the latest stable node sometime in the last year, that combination seems to work)
+    Other extensions that will make your life *much* better working with this project/on this team:
+    - **Spring Boot Dashboard** (Microsoft) - Important! To launch the server in the debugger easily
+    - **Markdown Perview Mermaid Support** (Mark Bierner) - To preview this documentation better
+    - **Live Share** (Microsoft)
+
+    You might also have use for these:
+    - **GitHub Pull Requests and Issues** (github.com)
+    - **Jupyter** (Microsoft)
+    - **Docker** (Microsoft)
+
+3. **Install npm** (this works different on different platforms so you're on your own with the documentation here -- I'm using npm 9.5.1 and Node 18.16.1 on Ubuntu 22.04; I installed nvm from the repository and used "nvm install --lts" to get the latest LTS version of npm/node installed to my user account, instead of trying to install for the whole system.
 
     node/npm do have native installers for Windows and Mac AFAIK, and maybe that's the easiest choice for you, but **I would be inclined to use some kind of unixy package management system**: on Windows, **Ubuntu via WSL2**, or on Mac, **homebrew** (my first choice) or MacPorts or possibly nix -- and you probably also want to install git and openssh in the same environment if you're doing that.
 
