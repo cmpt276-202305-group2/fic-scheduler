@@ -9,18 +9,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Table(name = "Instructor")
+@Entity(name = "instructor")
 public class Instructor {
-
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
+    private Integer id;
+
     @Getter
     @Setter
     private String name;
@@ -28,11 +26,7 @@ public class Instructor {
     @Getter
     @Setter
     @ManyToMany
-    @JoinTable(name="Instructor_Accreditation",
-        joinColumns=
-            @JoinColumn(name="Instructor_ID", referencedColumnName="ID"),
-        inverseJoinColumns=
-            @JoinColumn(name="Accreditation_ID", referencedColumnName="ID")
-        )
+    @JoinTable(name = "instructor_accreditation", joinColumns = @JoinColumn(name = "instructor_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "accreditation_id", referencedColumnName = "id"))
     private Set<Accreditation> accreditation;
+
 }

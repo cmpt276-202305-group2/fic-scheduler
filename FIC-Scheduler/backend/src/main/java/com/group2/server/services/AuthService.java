@@ -12,21 +12,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.group2.server.controller.LoginResponseDto;
 import com.group2.server.model.ApplicationUser;
-import com.group2.server.model.LoginResponeDTO;
 import com.group2.server.model.Role;
-import com.group2.server.repository.RoleRepository;
 import com.group2.server.repository.UserRepository;
 
 @Service
 @Transactional
 public class AuthService {
-    
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -37,32 +33,29 @@ public class AuthService {
     @Autowired
     private TokenService tokenService;
 
-    public ApplicationUser registerUser(String username, String password){
-        
+    public ApplicationUser registerUser(String username, String password) {
+
         String encodedPassword = passwordEncoder.encode(password);
-        Role userRole = roleRepository.findByAuthority("INSTRUCTOR").get();
 
         Set<Role> authorities = new HashSet<>();
 
-        authorities.add(userRole);
+        authorities.add(Role.INSTRUCTOR);
 
         return userRepository.save(new ApplicationUser(0, username, encodedPassword, authorities));
     }
 
-    public LoginResponeDTO loginUser(String username, String password){
-        try{
+    public LoginResponseDto loginUser(String username, String password) {
+        try {
             Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
-                );   
+                    new UsernamePasswordAuthenticationToken(username, password));
 
-                String token = tokenService.generateJWT(auth);
+            String token = tokenService.generateJWT(auth);
 
-                return new LoginResponeDTO(userRepository.findByUsername(username).get(), token);
+            return new LoginResponseDto(userRepository.findByUsername(username).get(), token);
+        } catch (AuthenticationException e) {
+            return new LoginResponseDto(null, "");
         }
-        catch(AuthenticationException e){
-            return new LoginResponeDTO(null, "");
-        }
-           
+
     }
 
 }
