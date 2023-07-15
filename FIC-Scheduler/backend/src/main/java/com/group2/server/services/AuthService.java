@@ -20,7 +20,7 @@ import com.group2.server.repository.UserRepository;
 @Service
 @Transactional
 public class AuthService {
-    
+
     @Autowired
     private UserRepository userRepository;
 
@@ -33,8 +33,8 @@ public class AuthService {
     @Autowired
     private TokenService tokenService;
 
-    public ApplicationUser registerUser(String username, String password){
-        
+    public ApplicationUser registerUser(String username, String password) {
+
         String encodedPassword = passwordEncoder.encode(password);
 
         Set<Role> authorities = new HashSet<>();
@@ -44,20 +44,18 @@ public class AuthService {
         return userRepository.save(new ApplicationUser(0, username, encodedPassword, authorities));
     }
 
-    public LoginResponseDto loginUser(String username, String password){
-        try{
+    public LoginResponseDto loginUser(String username, String password) {
+        try {
             Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
-                );   
+                    new UsernamePasswordAuthenticationToken(username, password));
 
-                String token = tokenService.generateJWT(auth);
+            String token = tokenService.generateJWT(auth);
 
-                return new LoginResponseDto(userRepository.findByUsername(username).get(), token);
-        }
-        catch(AuthenticationException e){
+            return new LoginResponseDto(userRepository.findByUsername(username).get(), token);
+        } catch (AuthenticationException e) {
             return new LoginResponseDto(null, "");
         }
-           
+
     }
 
 }

@@ -14,17 +14,17 @@ import com.group2.server.services.AuthService;
 @RequestMapping("/auth")
 @CrossOrigin("*")
 public class AuthController {
-    
+
     @Autowired
     private AuthService authService;
-    
+
     @PostMapping("/register")
-    public ApplicationUser registerUser(@RequestBody RegistrationDto body){
+    public ApplicationUser registerUser(@RequestBody RegistrationDto body) {
         return authService.registerUser(body.getUsername(), body.getPassword());
     }
 
     @PostMapping("/login")
-    public LoginResponseDto loginUser(@RequestBody RegistrationDto body){
+    public LoginResponseDto loginUser(@RequestBody RegistrationDto body) {
         return authService.loginUser(body.getUsername(), body.getPassword());
     }
 }
