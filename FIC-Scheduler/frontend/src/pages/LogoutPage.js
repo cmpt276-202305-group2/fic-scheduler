@@ -8,6 +8,8 @@ function LogoutPage() {
   const [timer, setTimer] = useState(9);
 
   useEffect(() => {
+    localStorage.removeItem("jwtToken");
+
     const countdown = setInterval(() => {
       setTimer((prevTimer) => prevTimer - 1);
     }, 1000);
