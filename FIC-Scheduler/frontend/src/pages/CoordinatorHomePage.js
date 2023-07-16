@@ -1,11 +1,11 @@
 import React , { useState }from "react";
 import styles from "./InstructorCoordinatorHomePage.module.css";
 import CoordinatorSidebar from "../components/CoordinatorSidebar";
+import ExcelViewer from "../components/ExcelViewer";
 import UploadPrefereces from "../components/UploadPreferences";
 
 function CoordinatorHomePage() {
   const [showUploadPreferences, setShowUploadPreferences] = React.useState(false);
-  const [showSchedule, setShowSchedule] = React.useState(false);
   const [showManageCourse, setShowManageCourse] = React.useState(false);
   const [showManageProfessors, setShowManageProfessors] = React.useState(false);
   const [data, setData] = useState([]);
@@ -31,7 +31,6 @@ function CoordinatorHomePage() {
       setShowUploadPreferences(false);
       setShowManageCourse(false);
       setShowManageProfessors(false);
-      setShowSchedule(true);
     }
   };
   return (
@@ -49,7 +48,7 @@ function CoordinatorHomePage() {
               setValues={setValues}
               setdata = {setData}
               setcoloumnArray = {setColoumnArray}/> 
-            ) : <div> Schedule </div>
+            ) : <ExcelViewer /> 
           } 
         </div>
       </div>

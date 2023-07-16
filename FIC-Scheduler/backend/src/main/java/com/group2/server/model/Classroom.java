@@ -9,16 +9,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Table(name = "Classroom")
+@Entity(name = "classroom")
 public class Classroom {
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; 
+    private Integer id;
 
     @Getter
     @Setter
@@ -27,12 +26,7 @@ public class Classroom {
     @Getter
     @Setter
     @ManyToMany
-    @JoinTable(name="Classroom_Facilities",
-        joinColumns=
-            @JoinColumn(name="Classroom_ID", referencedColumnName="ID"),
-        inverseJoinColumns=
-            @JoinColumn(name="Facilities_ID", referencedColumnName="ID")
-        )
+    @JoinTable(name = "classroom_facilities", joinColumns = @JoinColumn(name = "classroom_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "facilities_id", referencedColumnName = "id"))
     private Set<Facilities> facilitiesAvailable;
-    
+
 }

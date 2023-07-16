@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.group2.server.model.ApplicationUser;
 import com.group2.server.model.Role;
-import com.group2.server.repository.RoleRepository;
 import com.group2.server.repository.UserRepository;
 
 
@@ -24,14 +23,10 @@ public class ServerApplication {
 
 
 	@Bean
-	CommandLineRunner run(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder passwordEncoder){
+	CommandLineRunner run(UserRepository userRepository, PasswordEncoder passwordEncoder){
 		return args -> {
-			if(roleRepository.findByAuthority("COORDINATOR").isPresent()) return;
-			Role coordinatorRole = roleRepository.save(new Role("COORDINATOR"));
-			roleRepository.save(new Role("INSTRUCTOR"));
-
 			Set<Role> roles = new HashSet<>();
-			roles.add(coordinatorRole);
+			roles.add(Role.COORDINATOR);
 
 			ApplicationUser coordinator = new ApplicationUser(1, "coordinator", passwordEncoder.encode("password"), roles);
 
