@@ -52,18 +52,19 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
+         http
                 .csrf(scrf -> scrf.disable())
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/auth/**").permitAll();
-                    auth.requestMatchers("/coordinator/**").hasRole("COORDINATOR");
-                    auth.requestMatchers("/instructor/**").hasAnyRole("INSTRUCTOR", "COORDINATOR");
+                    auth.requestMatchers("/api/coordinator/**").hasRole("COORDINATOR");
+                    auth.requestMatchers("/api/instructor/**").hasRole("INSTRUCTOR");
                     auth.anyRequest().authenticated();
-                })
-                .oauth2ResourceServer(
+                });
+                http.oauth2ResourceServer(
                         oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .build();
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+                return http.build();        
 
     }
 
