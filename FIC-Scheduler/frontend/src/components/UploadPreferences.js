@@ -10,9 +10,6 @@ import Papa from "papaparse";
 
 function UploadPrefereces({data, coloumnArray, values, setValues, setdata, setcoloumnArray}) {
     const [ShowErrorMessage, setShowErrorMessage] = useState(false); 
-    // const [data, setdata] = useState([]);
-    // const [coloumnArray, setcoloumnArray] = useState([]);
-    // const [values, setValues] = useState([]);
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
         if(file) {
