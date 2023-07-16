@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import axios from 'axios';
+
 import LoginPage from './LoginPage';
 
 jest.mock('axios');
@@ -9,7 +10,8 @@ jest.mock('axios');
 test('login successfully', async () => {
   axios.post.mockResolvedValue({
     data: {
-      role: 'ADMIN',
+      pub: 'adminUser',
+      roles: ['ADMIN'],
     },
     status: 200,
   });
@@ -29,7 +31,7 @@ test('login successfully', async () => {
   fireEvent.click(loginButton);
 
   await waitFor(() => {
-    expect(axios.post).toHaveBeenCalledWith('http://localhost:8080/login', {
+    expect(axios.post).toHaveBeenCalledWith('http://localhost:8080/auth/login', {
       username: 'adminUser',
       password: 'adminPass',
     });

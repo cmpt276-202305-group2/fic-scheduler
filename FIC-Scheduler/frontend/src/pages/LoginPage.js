@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 import { parseJwtToken } from "../utils";
+
 import styles from "./LoginPage.module.css";
 
 function LoginPage() {
@@ -45,10 +47,7 @@ function LoginPage() {
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/auth/login",
-        payload
-      );
+      const response = await axios.post("auth/login", payload);
 
       if (response.status === 200) {
         const jwtToken = response.data.jwt;

@@ -2,17 +2,18 @@ import React from "react";
 import styles from "./InstructorCoordinatorHomePage.module.css";
 import Sidebar from "../components/Sidebar";
 
-function CoordinatorHomePage() {
+function GenerateSchedule() {
   return (
     <React.Fragment>
       <div className={styles.Container}>
         <div className={styles.Sidebar}>
-          <Sidebar /> 
+          <Sidebar />
         </div>
-        <div className={styles.Schedule} data-testid="schedule">SCHEDULE GOES HERE</div>
+        <div className={styles.Schedule} data-testid="generate-schedule">
+        </div>
       </div>
     </React.Fragment>
   );
 }
 
-export default CoordinatorHomePage;
+export default GenerateSchedule;

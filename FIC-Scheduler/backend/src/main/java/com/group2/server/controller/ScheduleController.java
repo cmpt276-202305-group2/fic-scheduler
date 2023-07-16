@@ -1,6 +1,6 @@
 package com.group2.server.controller;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.group2.server.model.ClassSchedule;
@@ -23,7 +23,6 @@ import com.group2.server.repository.ClassScheduleRepository;
 import com.group2.server.repository.SemesterPlanRepository;
 
 @RestController
-@RequestMapping("/schedule")
 @CrossOrigin("*")
 public class ScheduleController {
 
@@ -33,7 +32,22 @@ public class ScheduleController {
     @Autowired
     private SemesterPlanRepository semesterPlanRepository;
 
-    @GetMapping("/id/{id}")
+    @GetMapping("/schedules/latest")
+    public ClassSchedule getLatestSchedule() {
+        ClassSchedule latestSchedule = null;
+        int latestId = -1;
+
+        for (var sched : classScheduleRepository.findAll()) {
+            if ((int) sched.getId() > latestId) {
+                latestSchedule = sched;
+                latestId = (int) sched.getId();
+            }
+        }
+
+        return latestSchedule;
+    }
+
+    @GetMapping("/schedules/{id}")
     public ClassSchedule getScheduleById(@PathVariable Integer id) {
         if (id == null) {
             return null;
@@ -41,15 +55,17 @@ public class ScheduleController {
         return classScheduleRepository.findById(id).orElse(null);
     }
 
-    @GetMapping("/sememster/{semester}")
-    public Integer[] findSchedulesBySemester(@PathVariable String semester) {
-        ArrayList<Integer> ids = new ArrayList<>();
+    @GetMapping("/schedules")
+    public ClassSchedule[] getSchedulesByQuery(@RequestParam(required = false) String semester) {
+        Collection<ClassSchedule> schedules;
 
-        for (var sched : classScheduleRepository.findBySemester(semester)) {
-            ids.add(sched.getId());
+        if (semester != null) {
+            schedules = classScheduleRepository.findBySemester(semester);
+        } else {
+            schedules = classScheduleRepository.findAll();
         }
 
-        return (Integer[]) ids.toArray();
+        return schedules.toArray(new ClassSchedule[0]);
     }
 
     @PostMapping("/generate")

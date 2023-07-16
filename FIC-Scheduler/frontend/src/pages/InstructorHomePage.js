@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./InstructorCoordinatorHomePage.module.css";
-import InstructorSidebar from "../components/InstructorSidebar";
+import Sidebar from "../components/Sidebar";
 import ExcelViewer from "../components/ExcelViewer";
 
 function InstructorHomePage() {
@@ -8,7 +8,7 @@ function InstructorHomePage() {
     <React.Fragment>
       <div className={styles.Container}>
         <div className={styles.Sidebar}>
-          <InstructorSidebar />
+          <Sidebar />
         </div>
         <div className={styles.Schedule} data-testid="schedule">
           <ExcelViewer />
