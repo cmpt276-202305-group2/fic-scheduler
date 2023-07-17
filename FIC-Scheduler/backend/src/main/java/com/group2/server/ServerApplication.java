@@ -27,7 +27,6 @@ public class ServerApplication {
 		return args -> {
 			Set<Role> roles = new HashSet<>();
 			roles.add(Role.COORDINATOR);
-
 			ApplicationUser coordinator = new ApplicationUser(1, "coordinator", passwordEncoder.encode("password"), roles);
 
 			userRepository.save(coordinator);
