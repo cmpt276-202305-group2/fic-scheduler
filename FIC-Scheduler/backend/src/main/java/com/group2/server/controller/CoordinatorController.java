@@ -12,6 +12,6 @@ public class CoordinatorController {
     
     @GetMapping("/coordinator")
     public String verifiedCoordinatorController() {
-        return "admin level access"; 
+        return "COORDINATOR level access BABYY"; 
     }
 }
