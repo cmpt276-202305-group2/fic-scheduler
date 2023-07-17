@@ -6,31 +6,15 @@ import UploadPrefereces from "../components/UploadPreferences";
 
 function CoordinatorHomePage() {
   const [showUploadPreferences, setShowUploadPreferences] = React.useState(false);
-  const [showManageCourse, setShowManageCourse] = React.useState(false);
-  const [showManageProfessors, setShowManageProfessors] = React.useState(false);
   const [data, setData] = useState([]);
   const [coloumnArray, setColoumnArray] = useState([]);
   const [values, setValues] = useState([]);
   const handleSidebarItemClick = (item) => {
     if (item === "Upload Preferences") {
       setShowUploadPreferences(true);
-      setShowManageCourse(false);
-      setShowManageProfessors(false);
-    }
-    else if(item === "Manage Course") {
-      setShowManageCourse(true);
-      setShowUploadPreferences(false);
-      setShowManageProfessors(false);
-    }
-    else if(item === "Manage Professors") {
-      setShowManageProfessors(true);
-      setShowUploadPreferences(false);
-      setShowManageCourse(false);
     }
     else {
       setShowUploadPreferences(false);
-      setShowManageCourse(false);
-      setShowManageProfessors(false);
     }
   };
   return (
@@ -40,14 +24,15 @@ function CoordinatorHomePage() {
           <CoordinatorSidebar onItemClick={handleSidebarItemClick}/> 
         </div>
         <div className={styles.Schedule} data-testid="schedule">
-          {(showUploadPreferences || showManageCourse || showManageProfessors) ? (
+          {(showUploadPreferences) ? (
             <UploadPrefereces 
               data = {data}
+              setData = {setData}
               coloumnArray = {coloumnArray}
+              setColoumnArray = {setColoumnArray}
               values={values}
               setValues={setValues}
-              setdata = {setData}
-              setcoloumnArray = {setColoumnArray}/> 
+              /> 
             ) : <ExcelViewer /> 
           } 
         </div>

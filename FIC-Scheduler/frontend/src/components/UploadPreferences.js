@@ -7,8 +7,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Papa from "papaparse";
+import axios from "axios";
 
-function UploadPrefereces({data, coloumnArray, values, setValues, setdata, setcoloumnArray}) {
+function UploadPrefereces({data, setData, coloumnArray, setColoumnArray, values, setValues}) {
     const [ShowErrorMessage, setShowErrorMessage] = useState(false); 
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
@@ -25,9 +26,22 @@ function UploadPrefereces({data, coloumnArray, values, setValues, setdata, setco
                         coloumnArray.push(Object.keys(d));
                         valuesArray.push(Object.values(d));
                     });
-                    setdata(results.data);
-                    setcoloumnArray(coloumnArray[0]);
+                    setData(results.data);
+                    setColoumnArray(coloumnArray[0]);
                     setValues(valuesArray);
+                    
+                    // Below code is for uploading the file to the server
+                    // const formData = new FormData();
+                    // formData.append("file", file);
+                    // axios.post("http://localhost:5000/upload", formData, {
+                    //     headers: {
+                    //         "Content-Type": "multipart/form-data",
+                    //     },
+                    // }).then((response) => {
+                    //     console.log(response);
+                    // }).catch((error) => {
+                    //     console.log(error);
+                    // });
                 }
             })
             setShowErrorMessage(false);
@@ -38,6 +52,7 @@ function UploadPrefereces({data, coloumnArray, values, setValues, setdata, setco
     }
     return (
         <div>
+            <h1 style={{color: "black", fontSize: "40px"}}>Upload Preferences</h1>
             <input
                 type="file"
                 name='file'
