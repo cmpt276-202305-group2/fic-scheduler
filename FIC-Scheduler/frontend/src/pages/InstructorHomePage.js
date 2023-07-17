@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./InstructorCoordinatorHomePage.module.css";
+import styles from "./Common.module.css";
 import Sidebar from "../components/Sidebar";
 
 function InstructorHomePage() {

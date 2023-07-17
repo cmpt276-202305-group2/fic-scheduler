@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
-import styles from "./InstructorCoordinatorHomePage.module.css";
+import styles from "./Common.module.css";
 import Sidebar from "../components/Sidebar";
 import ExcelViewer from "../components/ExcelViewer";
 import Schedule from "../components/Schedule";

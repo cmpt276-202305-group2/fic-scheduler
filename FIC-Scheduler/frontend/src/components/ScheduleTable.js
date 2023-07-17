@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import styles from "../pages/InstructorCoordinatorHomePage.module.css";
+import styles from "../pages/Common.module.css";
 
 import { getAsync } from "../utils"
 
