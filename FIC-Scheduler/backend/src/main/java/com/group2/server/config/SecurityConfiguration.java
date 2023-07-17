@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.group2.server.utils.RSAKeyProperties;
@@ -27,6 +28,8 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+
+import jakarta.servlet.http.Cookie;
 
 @Configuration
 public class SecurityConfiguration {
@@ -51,21 +54,41 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    public BearerTokenResolver cookieBearerTokenResolver() {
+        return request -> {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals("jwtToken")) {
+                        return cookie.getValue();
+                    }
+                }
+            }
+            return null;
+        };
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
+        http
                 .csrf(scrf -> scrf.disable())
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/auth/**").permitAll();
-                    auth.requestMatchers("/coordinator/**").hasRole("COORDINATOR");
-                    auth.requestMatchers("/instructor/**").hasAnyRole("INSTRUCTOR", "COORDINATOR");
+                    auth.requestMatchers("/api/coordinator/**").hasRole("COORDINATOR");
+                    auth.requestMatchers("/api/instructor/**").hasRole("INSTRUCTOR");
                     auth.anyRequest().authenticated();
                 })
                 .oauth2ResourceServer(
-                        oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .build();
+                    oauth -> oauth.bearerTokenResolver(cookieBearerTokenResolver())
+                             .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+        return http.build();
     }
+    
+
+    
 
     @Bean
     public JwtDecoder jwtDecoder() {

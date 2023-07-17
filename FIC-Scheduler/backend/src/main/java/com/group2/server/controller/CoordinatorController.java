@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class CoordinatorController {
     
     @GetMapping("/coordinator")
     public String verifiedCoordinatorController() {
-        return "admin level access"; 
+        return "COORDINATOR level access BABYY"; 
     }
 }

@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { parseJwtToken } from "../utils";
+import { UserRoleContext } from "../App";
 import styles from "./LoginPage.module.css";
 
 function LoginPage() {
@@ -9,27 +9,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
-  const navigateByRole = useCallback(
-    (role) => {
-      if (role === "COORDINATOR") {
-        navigate("/coordinator");
-      } else if (role === "INSTRUCTOR") {
-        navigate("/instructor");
-      } else {
-        setError("You do not have permission to access this application");
-      }
-    },
-    [navigate]
-  );
-
-  useEffect(() => {
-    const jwtToken = localStorage.getItem("jwtToken");
-    if (jwtToken) {
-      const decodedToken = parseJwtToken(jwtToken);
-      navigateByRole(decodedToken.roles);
-    }
-  }, [navigateByRole]);
+  const { setUserRole } = useContext(UserRoleContext);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -45,20 +25,27 @@ function LoginPage() {
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/auth/login",
-        payload
-      );
+      await axios.post("http://localhost:8080/auth/login", payload, {
+        withCredentials: true,
+      });
 
-      if (response.status === 200) {
-        const jwtToken = response.data.jwt;
-        localStorage.setItem("jwtToken", jwtToken);
-        const decodedToken = parseJwtToken(jwtToken);
-        console.log(decodedToken);
-        navigateByRole(decodedToken.roles);
+      const userInfoResponse = await axios.get(
+        "http://localhost:8080/auth/userinfo",
+        { withCredentials: true }
+      );
+      const { roles } = userInfoResponse.data;
+      console.log(roles);
+      setUserRole(roles[0]);
+
+      if (roles.includes("COORDINATOR")) {
+        navigate("/coordinator");
+      } else if (roles.includes("INSTRUCTOR")) {
+        navigate("/instructor");
+      } else {
+        setError("You do not have permission to access this application");
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setError("Failed to login. Please try again.");
     }
   };
