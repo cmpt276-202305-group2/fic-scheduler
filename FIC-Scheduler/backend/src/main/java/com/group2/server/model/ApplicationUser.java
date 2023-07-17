@@ -12,6 +12,7 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,7 +28,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity(name = "application_user")
 public class ApplicationUser implements UserDetails {
-
     @JsonIgnore
     @Setter(AccessLevel.PROTECTED)
     @Id
@@ -39,11 +39,13 @@ public class ApplicationUser implements UserDetails {
 
     private String password;
 
-    @ElementCollection(targetClass = Role.class)
+    @ElementCollection(fetch = FetchType.EAGER, targetClass = Role.class)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Set<Role> authorities;
+
+    private String fullName;
 
     @Override
     public boolean isAccountNonExpired() {
@@ -62,7 +64,7 @@ public class ApplicationUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return authorities.size() > 0;
     }
 
 }

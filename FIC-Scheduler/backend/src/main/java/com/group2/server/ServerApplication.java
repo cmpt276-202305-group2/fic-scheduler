@@ -27,7 +27,7 @@ public class ServerApplication {
 			roles.add(Role.COORDINATOR);
 
 			ApplicationUser coordinator = new ApplicationUser(null, "coordinator", passwordEncoder.encode("password"),
-					roles);
+					roles, "Coordinator");
 
 			userRepository.save(coordinator);
 		};
