@@ -11,6 +11,23 @@ const ExcelViewer = () => {
     try {
       const data = await readExcelFile(file);
       setSpreadsheetData(data);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("post_to_db", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        // Handle the success response from the server
+        const result = await response.json();
+        console.log("File upload successful:", result);
+      } else {
+        // Handle the error response from the server
+        console.error("Error uploading Excel file:", response.statusText);
+      }
     } catch (error) {
       console.error("Error reading Excel file:", error);
     }
