@@ -1,43 +1,53 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import readExcelFile from "./readExcelfile";
+import styles from "./ExcelViewer.module.css"; // Import CSS module
 
 const ExcelViewer = () => {
   const [spreadsheetData, setSpreadsheetData] = useState([]);
 
-  useEffect(() => {
-    const fetchSpreadsheetData = async () => {
-      try {
-        const data = await readExcelFile("../schedules/schedule.xlsx");
-        setSpreadsheetData(data);
-      } catch (error) {
-        console.error("Error reading Excel file:", error);
-      }
-    };
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
 
-    fetchSpreadsheetData();
-  }, []);
+    try {
+      const data = await readExcelFile(file);
+      setSpreadsheetData(data);
+    } catch (error) {
+      console.error("Error reading Excel file:", error);
+    }
+  };
 
   return (
-    <div>
-      <table>
-        <thead>
-          <tr>
-            {spreadsheetData.length > 0 &&
-              spreadsheetData[0].map((header, index) => (
-                <th key={index}>{header}</th>
+    <div className={styles.container}>
+      <input
+        type="file"
+        onChange={handleFileUpload}
+        accept=".xlsx"
+        className={styles.fileInput}
+      />
+      {spreadsheetData.length > 0 ? (
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                {spreadsheetData[0].map((header, index) => (
+                  <th key={index}>{header}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {spreadsheetData.slice(1).map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, cellIndex) => (
+                    <td key={cellIndex}>{cell}</td>
+                  ))}
+                </tr>
               ))}
-          </tr>
-        </thead>
-        <tbody>
-          {spreadsheetData.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {row.map((cell, cellIndex) => (
-                <td key={cellIndex}>{cell}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className={styles.emptyMessage}>No data to display</div>
+      )}
     </div>
   );
 };
