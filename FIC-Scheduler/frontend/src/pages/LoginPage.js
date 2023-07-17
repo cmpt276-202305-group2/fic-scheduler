@@ -26,7 +26,7 @@ function LoginPage() {
     };
 
     try {
-      const response = await axios.post("auth/login", payload, { withCredentials: true });
+      await axios.post("auth/login", payload, { withCredentials: true });
 
       const userInfoResponse = await axios.get("auth/userinfo", { withCredentials: true }
       );
