@@ -84,4 +84,29 @@ public class AuthController {
         throw new RuntimeException("User is not authenticated");
     }
 
+    @PostMapping("/logout")
+    public String logoutUser(HttpServletRequest request, HttpServletResponse response) {
+        // Extract the JWT token from the request cookie
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("jwtToken")) {
+                    // Invalidate the cookie by setting its max age to 0
+                    Cookie jwtCookie = new Cookie("jwtToken", "");
+                    jwtCookie.setMaxAge(0);
+                    jwtCookie.setHttpOnly(true);
+                    jwtCookie.setPath("/");
+
+                    // Add the cookie to the response
+                    response.addCookie(jwtCookie);
+
+                    return "logout successful";
+                }
+            }
+        }
+
+        throw new RuntimeException("User is not authenticated");
+    }
+
+
 }
