@@ -8,7 +8,7 @@ import ClassIcon from "@mui/icons-material/Class";
 import GroupIcon from "@mui/icons-material/Group";
 import { parseJwtToken } from '../utils';
 
-function Sidebar() {
+function Sidebar({onItemClick}) {
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("jwtToken");
@@ -48,19 +48,19 @@ function Sidebar() {
         {roles.indexOf("COORDINATOR") >= 0 ? (
           <React.Fragment>
             <li>
-              <CalendarMonthIcon />
+              <CalendarMonthIcon onClick = {() => onItemClick("Schedule")} />
               Full Schedule
             </li>
             <li>
-              <CloudUploadIcon />
+              <CloudUploadIcon onClick = {() => onItemClick("Upload Preferences")} />
               Upload All Peferences
             </li>
             <li>
-              <ClassIcon />
+              <ClassIcon onClick = {() => onItemClick("Manage Course")} />
               Manage Courses
             </li>
             <li>
-              <GroupIcon />
+              <GroupIcon onClick = {() => onItemClick("Manage Professor")} />
               Manage Professors
             </li>
           </React.Fragment>
