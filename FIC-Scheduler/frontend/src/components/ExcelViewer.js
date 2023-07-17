@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import readExcelFile from "./readExcelfile";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@material-ui/core";
+import readExcelFile from "./readExcelFile";
 import styles from "./ExcelViewer.module.css"; // Import CSS module
 
 const ExcelViewer = () => {
@@ -40,26 +49,26 @@ const ExcelViewer = () => {
         className={styles.fileInput}
       />
       {spreadsheetData.length > 0 ? (
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
+        <TableContainer component={Paper} className={styles.tableWrapper}>
+          <Table className={styles.table} aria-label="Excel sheet table">
+            <TableHead>
+              <TableRow>
                 {spreadsheetData[0].map((header, index) => (
-                  <th key={index}>{header}</th>
+                  <TableCell key={index}>{header}</TableCell>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {spreadsheetData.slice(1).map((row, rowIndex) => (
-                <tr key={rowIndex}>
+                <TableRow key={rowIndex}>
                   {row.map((cell, cellIndex) => (
-                    <td key={cellIndex}>{cell}</td>
+                    <TableCell key={cellIndex}>{cell}</TableCell>
                   ))}
-                </tr>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
       ) : (
         <div className={styles.emptyMessage}>No data to display</div>
       )}
