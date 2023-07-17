@@ -7,33 +7,31 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import lombok.Getter;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "instructor_availability")
 public class InstructorAvailability {
-    @Getter
+    @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Getter
-    @Setter
     @ManyToOne
     private SemesterPlan semesterPlan;
 
-    @Getter
-    @Setter
     @ManyToOne
     private Instructor instructor;
 
-    @Getter
-    @Setter
     @Enumerated(EnumType.STRING)
     private DayOfWeek dayOfWeek;
 
-    @Getter
-    @Setter
     @Enumerated(EnumType.STRING)
     private PartOfDay partOfDay;
 

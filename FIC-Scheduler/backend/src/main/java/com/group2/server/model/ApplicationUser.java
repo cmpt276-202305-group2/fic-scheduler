@@ -4,6 +4,8 @@ import java.util.Set;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -14,32 +16,29 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "application_user")
 public class ApplicationUser implements UserDetails {
 
-    @Getter
+    @JsonIgnore
+    @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer userId;
+    private Integer id;
 
-    @Getter
-    @Setter
     @Column(unique = true)
     private String username;
 
-    @Getter
-    @Setter
     private String password;
 
-    @Getter
-    @Setter
     @ElementCollection(targetClass = Role.class)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role")
