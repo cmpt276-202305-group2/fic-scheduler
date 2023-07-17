@@ -1,15 +1,18 @@
+// CheckAuth.js
 import { Navigate, useLocation } from "react-router-dom";
-import { parseJwtToken } from '../utils'; 
+import { useContext } from 'react'; 
+import { UserRoleContext } from '../App';
 
 function CheckAuth({children, roles}) {
-  const jwtToken = localStorage.getItem('jwtToken');
-  const userRole = jwtToken ? parseJwtToken(jwtToken).roles : null;
+  const { userRole } = useContext(UserRoleContext);
   const location = useLocation();
 
-  if (!jwtToken || !roles.includes(userRole)) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!userRole || !roles.includes(userRole)) {
+    // If userRole is undefined or not included in the roles prop, navigate to their role's page
+    // If userRole is null (user is not logged in), this will fall back to /login
+    return <Navigate to={`/${userRole ? userRole.toLowerCase() : "login"}`} state={{ from: location }} replace />;
   }
-  
+
   return children;
 }
 
