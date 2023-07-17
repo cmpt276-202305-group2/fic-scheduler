@@ -1,7 +1,6 @@
-import React , { useState } from "react";
+import React from "react";
 import styles from "./InstructorCoordinatorHomePage.module.css";
 import InstructorSidebar from "../components/InstructorSidebar";
-import ExcelViewer from "../components/ExcelViewer";
 
 function InstructorHomePage() {
   return (

@@ -20,7 +20,7 @@ function CoordinatorHomePage() {
       });
   }, []);  // Run the effect on mount
   const [showUploadPreferences, setShowUploadPreferences] = useState(false);
-  const [showScedule, setShowSchedule] = useState(false);
+  const [showSchedule, setShowSchedule] = useState(false);
   const [showManageCourse, setShowManageCourse] = useState(false);
   const [showManageProfessor, setShowManageProfessor] = useState(false);
   const handleSidebarItemClick = (item) => {
@@ -53,9 +53,10 @@ function CoordinatorHomePage() {
           <CoordinatorSidebar onItemClick={handleSidebarItemClick}/>
         </div>
         <div className={styles.Schedule} data-testid="schedule">
-          {/* <p>{message}</p> Display the message from the server */}
-          {(showUploadPreferences || showManageCourse || showManageProfessor) ? (<ExcelViewer />) : (<Schedule />)}
+          {((showUploadPreferences || showManageCourse || showManageProfessor) && !showSchedule) ? (<ExcelViewer />) : (<Schedule />)}
         </div>
+        <br></br>
+        <p>{message}</p> Display the message from the server 
       </div>
     </React.Fragment>
   );

@@ -28,11 +28,11 @@ function CoordinatorSidebar({onItemClick}) {
           <CloudUploadIcon />
           Upload Peferences
         </li>
-        <li>
+        <li onClick = {() => onItemClick("Manage Course")}>
           <ClassIcon />
           Manage Course
         </li>
-        <li>
+        <li onClick = {() => onItemClick("Manage Professor")}>
           <GroupIcon />
           Manage Professors
         </li>
