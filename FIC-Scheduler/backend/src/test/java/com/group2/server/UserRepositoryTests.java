@@ -4,18 +4,18 @@ import com.group2.server.model.ApplicationUser;
 import com.group2.server.model.Role;
 import com.group2.server.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashSet;
 import java.util.Optional;
 
 @SpringBootTest
-@DataJpaTest
+@Transactional
 public class UserRepositoryTests {
 
     @Autowired
