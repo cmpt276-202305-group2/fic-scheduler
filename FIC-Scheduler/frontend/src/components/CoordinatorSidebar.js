@@ -7,7 +7,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ClassIcon from "@mui/icons-material/Class";
 import GroupIcon from "@mui/icons-material/Group";
 
-function CoordinatorSidebar() {
+function CoordinatorSidebar({onItemClick}) {
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("jwtToken"); 
@@ -20,11 +20,11 @@ function CoordinatorSidebar() {
           <AccountCircleIcon />
           Coordinator Name
         </li>
-        <li>
+        <li onClick = {() => onItemClick("Schedule")}>
           <CalendarMonthIcon />
           Schedule
         </li>
-        <li>
+        <li onClick = {() => onItemClick("Upload Preferences")}>
           <CloudUploadIcon />
           Upload Peferences
         </li>

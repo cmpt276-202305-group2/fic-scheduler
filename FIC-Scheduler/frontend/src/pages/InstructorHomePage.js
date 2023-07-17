@@ -1,4 +1,4 @@
-import React from "react";
+import React , { useState } from "react";
 import styles from "./InstructorCoordinatorHomePage.module.css";
 import InstructorSidebar from "../components/InstructorSidebar";
 import ExcelViewer from "../components/ExcelViewer";
@@ -11,7 +11,7 @@ function InstructorHomePage() {
           <InstructorSidebar />
         </div>
         <div className={styles.Schedule} data-testid="schedule">
-          <ExcelViewer />
+          <div>schedule</div>
         </div>
       </div>
     </React.Fragment>
