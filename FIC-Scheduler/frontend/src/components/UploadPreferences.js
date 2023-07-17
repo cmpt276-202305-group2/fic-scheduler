@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Papa from "papaparse";
-import axios from "axios";
+//import axios from "axios";
 
 function UploadPrefereces({data, setData, coloumnArray, setColoumnArray, values, setValues}) {
     const [ShowErrorMessage, setShowErrorMessage] = useState(false); 
@@ -22,7 +22,7 @@ function UploadPrefereces({data, setData, coloumnArray, setColoumnArray, values,
                     const coloumnArray = [];
                     const valuesArray = [];
     
-                    results.data.map((d)=> {
+                    results.data.forEach((d)=> {
                         coloumnArray.push(Object.keys(d));
                         valuesArray.push(Object.values(d));
                     });
@@ -52,7 +52,7 @@ function UploadPrefereces({data, setData, coloumnArray, setColoumnArray, values,
     }
     return (
         <div>
-            <h1 style={{color: "black", fontSize: "40px"}}>Upload Preferences</h1>
+            <h1 style={{color: "black", fontSize: "40px", margin: "0 10px"}}>Upload Preferences</h1>
             <input
                 type="file"
                 name='file'
