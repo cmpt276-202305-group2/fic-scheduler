@@ -24,7 +24,7 @@ import com.group2.server.repository.ClassScheduleRepository;
 import com.group2.server.repository.SemesterPlanRepository;
 
 @RestController
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class ScheduleController {
 
     @Autowired

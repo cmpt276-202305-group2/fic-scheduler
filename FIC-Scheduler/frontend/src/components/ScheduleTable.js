@@ -7,7 +7,7 @@ import { getAsync } from "../utils"
 export function ScheduleTable() {
   const [fetchResult, setFetchResult] = useState(null);
 
-  getAsync("http://localhost:8080/schedules/latest", setFetchResult);
+  getAsync("schedules/latest", setFetchResult);
 
   if ((fetchResult == null) || !(fetchResult.classScheduleAssignments instanceof Array)) {
     return (

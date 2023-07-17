@@ -28,9 +28,7 @@ export function isJwtTokenExpired(token) {
 
 export function getAsync(url, setResult) {
   axios.get(url, {
-    headers: {
-      Authorization: "Bearer " + localStorage.getItem("jwtToken")
-    }
+    withCredentials: true
   }).then(
     (r) => {
       setResult(r.data);
@@ -44,9 +42,7 @@ export function getAsync(url, setResult) {
 
 export async function postAsync(url, setResult) {
   axios.post(url, {
-    headers: {
-      Authorization: "Bearer " + localStorage.getItem("jwtToken")
-    }
+    withCredentials: true
   }).then(
     (r) => {
       setResult(r.data);
