@@ -1,38 +1,51 @@
-// package com.group2.server;
+package com.group2.server;
 
-// import com.group2.server.model.User;
-// import com.group2.server.repository.UserRepository;
-// import org.junit.jupiter.api.Test;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import com.group2.server.model.ApplicationUser;
+import com.group2.server.model.Role;
+import com.group2.server.repository.UserRepository;
 
-// import static org.assertj.core.api.Assertions.assertThat;
+import jakarta.transaction.Transactional;
 
-// @DataJpaTest
-// public class UserRepositoryTests {
-    
-//     @Autowired
-//     private UserRepository userRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
-//     @Test // Save the user to the repository and verify that it was saved correctly 
-//     public void testFindByUsername() {
-//         User user = new User();
-//         user.setUsername("testUsername");
-//         user.setPassword("testPassword");
-//         user.setRole("admin");
+import java.util.HashSet;
+import java.util.Optional;
 
-//         userRepository.save(user);
+@SpringBootTest
+@Transactional
+public class UserRepositoryTests {
 
-//         User retrievedUser = userRepository.findByUsername("testUsername");
+    @Autowired
+    private UserRepository userRepository;
 
-//         assertThat(retrievedUser).isEqualTo(user);
-//     }
+    @Test // Save the user to the repository and verify that it was saved correctly
+    public void testFindByUsername() {
+        ApplicationUser user = new ApplicationUser();
+        user.setUsername("testUsername");
+        user.setPassword("testPassword");
+        var roles = new HashSet<Role>();
+        roles.add(Role.ADMIN);
+        user.setAuthorities(roles);
 
-//     @Test // Try to retrieve a user that doesn't exist and verify that the returned user is null
-//     public void testFindByUsernameNonExisting() {
+        user = userRepository.save(user);
 
-//     User retrievedUser = userRepository.findByUsername("nonExistingUsername");
-//     assertThat(retrievedUser).isNull();
-// }
+        Optional<ApplicationUser> retrievedUser = userRepository.findByUsername("testUsername");
 
-// }
+        assertThat(retrievedUser.isPresent()).isTrue();
+        assertThat(retrievedUser.get().getId()).isEqualTo(user.getId());
+        assertThat(retrievedUser.get().getUsername()).isEqualTo(user.getUsername());
+        assertThat(retrievedUser.get().getPassword()).isEqualTo(user.getPassword());
+        assertThat(retrievedUser.get().getAuthorities()).isEqualTo(user.getAuthorities());
+    }
+
+    @Test // Try to retrieve a user that doesn't exist and verify that the returned user
+          // is null
+    public void testFindByUsernameNonExisting() {
+        Optional<ApplicationUser> retrievedUser = userRepository.findByUsername("nonExistingUsername");
+        assertThat(retrievedUser.isPresent()).isFalse();
+    }
+
+}

@@ -11,7 +11,7 @@ function LogoutPage() {
   const { setUserRole } = useContext(UserRoleContext); // Access setUserRole from UserRoleContext
 
   useEffect(() => {
-    axios.post('http://localhost:8080/auth/logout', {}, { withCredentials: true })
+    axios.post('auth/logout', {}, { withCredentials: true })
       .then((response) => {
         console.log("Logout successful");
         setUserRole(null); // Update userRole to null after successful logout

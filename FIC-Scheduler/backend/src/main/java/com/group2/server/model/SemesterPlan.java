@@ -10,32 +10,30 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import lombok.Getter;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "semester_plan")
 public class SemesterPlan {
-    @Getter
+    @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Getter
-    @Setter
     private String semester;
 
-    @Getter
-    @Setter
     @OneToMany(mappedBy = "semesterPlan")
     private Set<CourseOffering> coursesOffered;
 
-    @Getter
-    @Setter
     @OneToMany(mappedBy = "semesterPlan")
     private Set<InstructorAvailability> instructorsAvailable;
 
-    @Getter
-    @Setter
     @ManyToMany
     @JoinTable(name = "classroom_semester_plans", joinColumns = @JoinColumn(name = "semester_plan_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "classroom_id", referencedColumnName = "id"))
     private Set<Classroom> classroomsAvailable;

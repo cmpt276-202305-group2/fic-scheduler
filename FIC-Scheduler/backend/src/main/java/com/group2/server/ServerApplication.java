@@ -13,7 +13,6 @@ import com.group2.server.model.ApplicationUser;
 import com.group2.server.model.Role;
 import com.group2.server.repository.UserRepository;
 
-
 @SpringBootApplication()
 public class ServerApplication {
 
@@ -21,13 +20,14 @@ public class ServerApplication {
 		SpringApplication.run(ServerApplication.class, args);
 	}
 
-
 	@Bean
-	CommandLineRunner run(UserRepository userRepository, PasswordEncoder passwordEncoder){
+	CommandLineRunner run(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		return args -> {
 			Set<Role> roles = new HashSet<>();
 			roles.add(Role.COORDINATOR);
-			ApplicationUser coordinator = new ApplicationUser(1, "coordinator", passwordEncoder.encode("password"), roles);
+
+			ApplicationUser coordinator = new ApplicationUser(null, "coordinator", passwordEncoder.encode("password"),
+					roles, "Coordinator");
 
 			userRepository.save(coordinator);
 		};

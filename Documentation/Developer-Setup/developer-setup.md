@@ -16,6 +16,7 @@ A really short step-by-step to get your dev machine set up for development.
 
     Other extensions that will make your life *much* better working with this project/on this team:
     - **Spring Boot Dashboard** (Microsoft) - Important! To launch the server in the debugger easily
+    - **EditorConfig for VS Code** (EditorConfig) - Important! So formatting respects .editorconfig settings
     - **Markdown Perview Mermaid Support** (Mark Bierner) - To preview this documentation better
     - **Live Share** (Microsoft)
 

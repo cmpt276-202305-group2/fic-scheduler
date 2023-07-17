@@ -1,24 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import InstructorHomePage from "./pages/InstructorHomePage";
-import CoordinatorHomePage from "./pages/CoordinatorHomePage";
-import { createContext } from 'react';
-import LogoutPage from "./pages/LogoutPage";
-import CheckAuth from "./components/CheckAuth";
 import axios from 'axios';
+import React, { createContext, useState, useEffect } from 'react';
+import { Routes, Route, Navigate } from "react-router-dom";
+
+import "./App.css";
+
+import CheckAuth from "./components/CheckAuth";
+
+import CoordinatorHomePage from "./pages/CoordinatorHomePage";
+import GenerateSchedule from "./pages/GenerateSchedule";
+import InstructorHomePage from "./pages/InstructorHomePage";
+import LoginPage from "./pages/LoginPage";
+import LogoutPage from "./pages/LogoutPage";
+import ViewFullSchedule from "./pages/ViewFullSchedule";
 
 export const UserRoleContext = createContext();
 
 function App() {
+  axios.defaults.baseURL = "http://localhost:8080/";
+  axios.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
+
   const [userRole, setUserRole] = useState(null);
-  const [userInfoFetched, setUserInfoFetched] = useState(false); 
+  const [userInfoFetched, setUserInfoFetched] = useState(false);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/auth/userinfo", { withCredentials: true });
+        const response = await axios.get("auth/userinfo", { withCredentials: true });
         const { roles } = response.data;
         setUserRole(roles[0]);
       } catch (error) {
@@ -27,9 +34,9 @@ function App() {
         setUserInfoFetched(true);
       }
     };
-    
+
     fetchUserInfo();
-  }, []);  
+  }, []);
 
   if (!userInfoFetched) {
     return <div>Loading...</div>;
@@ -59,6 +66,24 @@ function App() {
             element={
               <CheckAuth roles={["COORDINATOR"]}>
                 <CoordinatorHomePage />
+              </CheckAuth>
+            }
+          />
+
+          <Route
+            path="/generateSchedule"
+            element={
+              <CheckAuth roles={["COORDINATOR"]}>
+                <GenerateSchedule />
+              </CheckAuth>
+            }
+          />
+
+          <Route
+            path="/viewFullSchedule"
+            element={
+              <CheckAuth roles={["COORDINATOR"]}>
+                <ViewFullSchedule />
               </CheckAuth>
             }
           />

@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 import { UserRoleContext } from "../App";
 import styles from "./LoginPage.module.css";
 
@@ -25,13 +26,9 @@ function LoginPage() {
     };
 
     try {
-      await axios.post("http://localhost:8080/auth/login", payload, {
-        withCredentials: true,
-      });
+      await axios.post("auth/login", payload, { withCredentials: true });
 
-      const userInfoResponse = await axios.get(
-        "http://localhost:8080/auth/userinfo",
-        { withCredentials: true }
+      const userInfoResponse = await axios.get("auth/userinfo", { withCredentials: true }
       );
       const { roles } = userInfoResponse.data;
       console.log(roles);

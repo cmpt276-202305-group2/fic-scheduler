@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import styles from "./InstructorCoordinatorHomePage.module.css";
-import CoordinatorSidebar from "../components/CoordinatorSidebar";
+import Sidebar from "../components/Sidebar";
 import ExcelViewer from "../components/ExcelViewer";
 import Schedule from "../components/Schedule";
 
@@ -10,7 +10,7 @@ function CoordinatorHomePage() {
 
   useEffect(() => {
     // Fetch the message from your backend
-    axios.get('http://localhost:8080/api/coordinator', { withCredentials: true })
+    axios.get('api/coordinator', { withCredentials: true })
       .then(response => {
         setMessage(response.data);
       })
@@ -50,13 +50,13 @@ function CoordinatorHomePage() {
     <React.Fragment>
       <div className={styles.Container}>
         <div className={styles.Sidebar}>
-          <CoordinatorSidebar onItemClick={handleSidebarItemClick}/>
+          <Sidebar onItemClick={handleSidebarItemClick}/>
         </div>
         <div className={styles.Schedule} data-testid="schedule">
           {((showUploadPreferences || showManageCourse || showManageProfessor) && !showSchedule) ? (<ExcelViewer />) : (<Schedule />)}
         </div>
         <br></br>
-        <p>{message}</p> Display the message from the server 
+        <p>{message}</p> Display the message from the server
       </div>
     </React.Fragment>
   );
