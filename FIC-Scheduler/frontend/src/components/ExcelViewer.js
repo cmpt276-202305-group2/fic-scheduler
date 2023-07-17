@@ -21,11 +21,9 @@ const ExcelViewer = () => {
       });
 
       if (response.ok) {
-        // Handle the success response from the server
         const result = await response.json();
         console.log("File upload successful:", result);
       } else {
-        // Handle the error response from the server
         console.error("Error uploading Excel file:", response.statusText);
       }
     } catch (error) {
