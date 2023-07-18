@@ -31,20 +31,20 @@ public class AccreditationController {
             List<Accreditation> createdAccreditations = new ArrayList<>();
             List<Accreditation> conflictAccreditations = new ArrayList<>();
             for (Accreditation accreditation : accreditations) {
-                // Check if the accreditation already exists
+                
                 Accreditation existingAccreditation = accreditationRepository.findByName(accreditation.getName());
                 if (existingAccreditation != null) {
                     logger.info("Conflict: An accreditation with name {} already exists", accreditation.getName());
                     conflictAccreditations.add(existingAccreditation);
                 } else {
-                    // If it doesn't exist, save the new accreditation
+                    
                     Accreditation _accreditation = accreditationRepository.save(new Accreditation(accreditation.getName()));
                     logger.info("Created new accreditation with name {}", _accreditation.getName());
                     createdAccreditations.add(_accreditation);
                 }
             }
             if (!conflictAccreditations.isEmpty()) {
-                // If there were conflict accreditations, return them along with the created accreditations
+                
                 Map<String, List<Accreditation>> response = new HashMap<>();
                 response.put("created", createdAccreditations);
                 response.put("conflicts", conflictAccreditations);

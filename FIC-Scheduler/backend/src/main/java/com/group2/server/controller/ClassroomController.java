@@ -36,7 +36,7 @@ public ResponseEntity<?> createClassrooms(@RequestBody List<ClassroomDto> classr
         for (ClassroomDto classroomDto : classroomDtos) {
             Classroom existingClassroom = classroomRepository.findByRoomNumber(classroomDto.getRoomNumber());
 
-            // Check if the Classroom already exists
+           
             if (existingClassroom != null) {
                 conflictClassrooms.add(classroomDto.getRoomNumber());
                 continue;
@@ -57,7 +57,7 @@ public ResponseEntity<?> createClassrooms(@RequestBody List<ClassroomDto> classr
         }
         
         if (!conflictClassrooms.isEmpty()) {
-            // If there were conflict classrooms, return them along with the created classrooms
+           
             Map<String, Object> response = new HashMap<>();
             response.put("created", savedClassrooms);
             response.put("conflicts", conflictClassrooms);

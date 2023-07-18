@@ -2,6 +2,7 @@ package com.group2.server.model;
 
 import java.util.Set;
 
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -38,9 +39,9 @@ public class CourseOffering {
     @ManyToOne
     private Accreditation accreditationRequired;
 
-    // TODO time requirements for this class
-    // i.e. is it a 3 hour block, 2x 1.5 hour blocks, some other combination?
+    @ManyToOne
+    private BlockType blockType;
 
-    // TODO instructor requirements for this class
-    // some classes are shared between multiple instructors
+    @ElementCollection
+    private Set<String> conflictCourseNumbers;
 }
