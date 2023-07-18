@@ -116,7 +116,7 @@ public class ScheduleControllerTests {
         when(classScheduleRepository.findAll()).thenReturn(List.of(mockSchedule));
 
         // Perform the request
-        mockMvc.perform(MockMvcRequestBuilders.get("/schedules/latest")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/schedules/latest")
                 .with(SecurityMockMvcRequestPostProcessors.user(mockUser)) // Include the mock user for authentication
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -132,7 +132,7 @@ public class ScheduleControllerTests {
         when(classScheduleRepository.findById(scheduleId)).thenReturn(Optional.ofNullable(mockSchedule));
 
         // Perform the request and verify the response
-        mockMvc.perform(MockMvcRequestBuilders.get("/schedules/{id}", scheduleId)
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/schedules/{id}", scheduleId)
                 .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.semester").value(mockSchedule.getSemester()))
@@ -147,7 +147,7 @@ public class ScheduleControllerTests {
         when(classScheduleRepository.findBySemester(anyString())).thenReturn(new HashSet<>(List.of(mockSchedule)));
     
         // Perform the request and verify the response
-        mockMvc.perform(MockMvcRequestBuilders.get("/schedules").param("semester", "Fall 2023")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/schedules").param("semester", "Fall 2023")
                 .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].semester").value(mockSchedule.getSemester()))
@@ -161,7 +161,7 @@ public class ScheduleControllerTests {
         when(semesterPlanRepository.findById(1)).thenReturn(Optional.ofNullable(mockPlan));
 
         // Perform the request and verify the response
-        mockMvc.perform(MockMvcRequestBuilders.post("/generate")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/generate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"semesterPlanId\": 1}")
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))

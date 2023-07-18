@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import styles from "../pages/InstructorCoordinatorHomePage.module.css";
+import styles from "../pages/Common.module.css";
 
 import { getAsync } from "../utils"
 
@@ -11,13 +11,13 @@ export function ScheduleTable() {
 
   if ((fetchResult == null) || !(fetchResult.classScheduleAssignments instanceof Array)) {
     return (
-      <div className={styles.Schedule} data-testid="schedule">
+      <div className={styles.PageContent} data-testid="schedule">
         <div>No schedules generated!</div>
       </div>);
   }
 
   return (
-    <div className={styles.Schedule} data-testid="schedule">
+    <div className={styles.PageContent} data-testid="schedule">
       <table>
         <thead>
           <tr>

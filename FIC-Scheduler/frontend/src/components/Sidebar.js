@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -6,66 +6,51 @@ import Button from "@mui/material/Button";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ClassIcon from "@mui/icons-material/Class";
 import GroupIcon from "@mui/icons-material/Group";
-import { parseJwtToken } from '../utils';
+import CheckAuth from "./CheckAuth";
+import { UserInfoContext } from '../App';
 
-function Sidebar({onItemClick}) {
+function Sidebar({ onItemClick }) {
+  const { userInfo } = useContext(UserInfoContext);
   const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem("jwtToken");
-    navigate("/logout");
-  };
-
-  const jwtToken = localStorage.getItem("jwtToken");
-  var user = null;
-  var roles = [];
-  if (jwtToken) {
-    const decodedToken = parseJwtToken(jwtToken);
-    user = decodedToken.sub;
-    roles = decodedToken.roles;
-  }
 
   return (
     <nav>
       <ul>
-        {roles.indexOf("INSTRUCTOR") >= 0 || roles.indexOf("COORDINATOR") >= 0 || roles.indexOf("ADMIN") >= 0 ? (
+        <CheckAuth permittedRoles={["INSTRUCTOR", "COORDINATOR", "ADMIN"]}>
           <li>
             <AccountCircleIcon />
-            User Full Name
+            {userInfo.fullName}
           </li>
-        ) : ""}
-        {roles.indexOf("INSTRUCTOR") >= 0 ? (
-          <React.Fragment>
-            <li>
-              <CalendarMonthIcon />
-              Instructor Schedule
-            </li>
-            <li>
-              <CloudUploadIcon />
-              Upload My Preferences
-            </li>
-          </React.Fragment>
-        ) : ""}
-        {roles.indexOf("COORDINATOR") >= 0 ? (
-          <React.Fragment>
-            <li>
-              <CalendarMonthIcon onClick = {() => onItemClick("Schedule")} />
-              Full Schedule
-            </li>
-            <li>
-              <CloudUploadIcon onClick = {() => onItemClick("Upload Preferences")} />
-              Upload All Peferences
-            </li>
-            <li>
-              <ClassIcon onClick = {() => onItemClick("Manage Course")} />
-              Manage Courses
-            </li>
-            <li>
-              <GroupIcon onClick = {() => onItemClick("Manage Professor")} />
-              Manage Professors
-            </li>
-          </React.Fragment>
-        ) : ""}
-        {user !== null ? (
+        </CheckAuth>
+        <CheckAuth permittedRoles={["INSTRUCTOR"]}>
+          <li onClick={() => navigate("/viewInstructorSchedule")}>
+            <CalendarMonthIcon />
+            Instructor Schedule
+          </li>
+          <li>
+            <CloudUploadIcon />
+            Upload My Preferences
+          </li>
+        </CheckAuth>
+        <CheckAuth permittedRoles={["COORDINATOR"]}>
+          <li onClick={() => navigate("/viewFullSchedule")}>
+            <CalendarMonthIcon onClick={() => onItemClick("Schedule")} />
+            Full Schedule
+          </li>
+          <li onClick={() => navigate("/uploadInstructorAvailability")}>
+            <CloudUploadIcon />
+            Upload All Peferences
+          </li>
+          <li onClick={() => navigate("/manageCourses")}>
+            <ClassIcon />
+            Manage Courses
+          </li>
+          <li onClick={() => navigate("/manageInstructors")}>
+            <GroupIcon />
+            Manage Professors
+          </li>
+        </CheckAuth>
+        {(userInfo ?? null) !== null ? (
           <li>
             <Button
               fullWidth
@@ -76,8 +61,7 @@ function Sidebar({onItemClick}) {
                 "&:hover": { backgroundColor: "red" },
               }}
               disableElevation
-              onClick={handleLogout}
-            >
+              onClick={() => { navigate("/logout"); }}>
               Log Out
             </Button>
           </li>
