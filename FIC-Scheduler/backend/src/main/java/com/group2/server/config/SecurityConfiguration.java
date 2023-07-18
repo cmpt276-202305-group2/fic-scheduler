@@ -79,9 +79,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> {
                     // auth.anyRequest().permitAll();
 
-                    // /auth/** exceptions actually handled below, in the custom authentication
-                    // filter handler
-                    // auth.requestMatchers("/auth/**").permitAll();
+                    auth.requestMatchers("/auth/**").permitAll();
                     auth.requestMatchers("/api/coordinator/**").hasRole("COORDINATOR");
                     auth.requestMatchers("/api/instructor/**").hasRole("INSTRUCTOR");
                     auth.anyRequest().authenticated();
@@ -97,12 +95,15 @@ public class SecurityConfiguration {
                                         filter.setAuthenticationFailureHandler((request, response, exception) -> {
                                             if (request.getRequestURI().equals("/auth/login")
                                                     || request.getRequestURI().equals("/auth/logout")) {
-                                                System.out.println(
-                                                        "Authentication failed for /auth/login or /auth/logout, hiding");
-                                            } else {
-                                                var delegate = new BearerTokenAuthenticationEntryPoint();
-                                                delegate.commence(request, response, exception);
+                                                var cookie = new Cookie("jwtToken", "");
+                                                cookie.setMaxAge(0);
+                                                cookie.setPath("/");
+                                                response.addCookie(cookie);
+                                                // Skip delegate -- this will result in an empty 200 response
+                                                return;
                                             }
+                                            var delegate = new BearerTokenAuthenticationEntryPoint();
+                                            delegate.commence(request, response, exception);
                                         });
                                         return filter;
                                     }

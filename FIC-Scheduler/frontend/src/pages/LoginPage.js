@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import { UserRoleContext } from "../App";
+import { storeUserInfo, fetchUserInfo } from "../App";
 import styles from "./LoginPage.module.css";
 
 function LoginPage() {
@@ -10,7 +10,6 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { setUserRole } = useContext(UserRoleContext);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -26,22 +25,22 @@ function LoginPage() {
     };
 
     try {
-      await axios.post("auth/login", payload, { withCredentials: true });
+      // console.log("login request");
+      const loginResponse = await axios.post("auth/login", payload, { withCredentials: true });
 
-      const userInfoResponse = await axios.get("auth/userinfo", { withCredentials: true }
-      );
-      const { roles } = userInfoResponse.data;
-      console.log(roles);
-      setUserRole(roles[0]);
-
-      if (roles.includes("COORDINATOR")) {
-        navigate("/coordinator");
-      } else if (roles.includes("INSTRUCTOR")) {
-        navigate("/instructor");
-      } else {
-        setError("You do not have permission to access this application");
+      if (loginResponse.status === 200) {
+        // console.log("login OK response", loginResponse.data);
+        if (loginResponse.data.user) {
+          storeUserInfo(loginResponse.data.user);
+        } else {
+          // console.log("login bad user, fallback to fetchUserInfo");
+          await fetchUserInfo();
+        }
       }
+
+      navigate("/");
     } catch (err) {
+      console.log("login request exception", err);
       console.error(err);
       setError("Failed to login. Please try again.");
     }

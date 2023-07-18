@@ -11,13 +11,13 @@ export function ScheduleTable() {
 
   if ((fetchResult == null) || !(fetchResult.classScheduleAssignments instanceof Array)) {
     return (
-      <div className={styles.Schedule} data-testid="schedule">
+      <div className={styles.PageContent} data-testid="schedule">
         <div>No schedules generated!</div>
       </div>);
   }
 
   return (
-    <div className={styles.Schedule} data-testid="schedule">
+    <div className={styles.PageContent} data-testid="schedule">
       <table>
         <thead>
           <tr>
