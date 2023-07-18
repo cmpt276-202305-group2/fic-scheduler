@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
 import "./App.css";
@@ -33,7 +33,7 @@ export const fetchUserInfo = async () => {
   // console.log("fetchUserInfo");
   try {
     const response = await axios.get("auth/userinfo", { withCredentials: true });
-    if (response.status == 200) {
+    if (response.status === 200) {
       storeUserInfo(response.data);
     } else {
       console.log("fetchUserInfo bad status", response.status);

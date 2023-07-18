@@ -33,7 +33,7 @@ function LogoutPage() {
       clearTimeout(redirect);
       clearInterval(countdown);
     };
-  }, []);
+  });
 
   return (
     <div className={styles.container}>
