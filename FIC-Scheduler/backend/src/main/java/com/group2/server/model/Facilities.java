@@ -7,10 +7,12 @@ import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "facilities")
 public class Facilities {
     @Setter(AccessLevel.PROTECTED)
@@ -19,5 +21,9 @@ public class Facilities {
     private Integer id;
 
     private String name;
+
+    public Facilities(String name) {
+        this.name = name;
+    }
 
 }
