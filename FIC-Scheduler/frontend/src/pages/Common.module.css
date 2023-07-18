@@ -49,6 +49,7 @@
 .PageContent {
     flex-grow: 1;
     display: flex;
+    flex-direction: column;
     font-size: 9px;
     color: grey;
     margin: 20px;
