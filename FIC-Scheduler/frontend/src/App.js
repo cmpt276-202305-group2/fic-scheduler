@@ -8,9 +8,8 @@ import GenerateSchedulePage from "./pages/GenerateSchedulePage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
-import ManageCoursesPage from "./pages/ManageCoursesPage";
-import ManageInstructorsPage from "./pages/ManageInstructorsPage";
 import UploadInstructorAvailabilityPage from "./pages/UploadInstructorAvailabilityPage";
+import ConfigurationPage from "./pages/ConfigurationPage";
 import ViewFullSchedulePage from "./pages/ViewFullSchedulePage";
 import ViewInstructorSchedulePage from "./pages/ViewInstructorSchedulePage";
 
@@ -76,8 +75,7 @@ function App() {
           <Route path="/generateSchedule" element={<GenerateSchedulePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/logout" element={<LogoutPage />} />
-          <Route path="/manageCourses" element={<ManageCoursesPage />} />
-          <Route path="/manageInstructors" element={<ManageInstructorsPage />} />
+          <Route path="/Configuration" element={<ConfigurationPage />} />
           <Route path="/uploadInstructorAvailability" element={<UploadInstructorAvailabilityPage />} />
           <Route path="/viewFullSchedule" element={<ViewFullSchedulePage />} />
           <Route path="/viewInstructorSchedule" element={<ViewInstructorSchedulePage />} />
