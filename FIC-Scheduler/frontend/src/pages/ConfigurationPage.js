@@ -8,6 +8,7 @@ import ConfigurationExcelView from "../components/ConfigurationExcelView";
 function ConfigurationPage() {
     const [configurationSpreadsheetDataOne, setConfigurationSpreadsheetDataOne] = useState([]); 
     const [configurationSpreadsheetDataTwo, setConfigurationSpreadsheetDataTwo] = useState([]); 
+    const [configurationSpreadsheetDataThree, setConfigurationSpreadsheetDataThree] = useState([]);
   return (
     <CheckAuth permittedRoles={["ADMIN", "COORDINATOR"]} fallback={<Navigate to="/" replace />}>
       <div className={styles.Container}>
@@ -20,6 +21,8 @@ function ConfigurationPage() {
             setConfigurationSpreadsheetDataOne={setConfigurationSpreadsheetDataOne}
             configurationSpreadsheetDataTwo={configurationSpreadsheetDataTwo}
             setConfigurationSpreadsheetDataTwo={setConfigurationSpreadsheetDataTwo}
+            configurationSpreadsheetDataThree={configurationSpreadsheetDataThree}
+            setConfigurationSpreadsheetDataThree={setConfigurationSpreadsheetDataThree}
           />
         </div>
       </div>

@@ -69,6 +69,19 @@ const ExcelViewer = ({ spreadsheetData, setSpreadsheetData }) => {
         alignItems: "flex-start",
       }}
     >
+      <header
+        style={{
+          color: "black",
+          fontSize: 30,
+          position: "sticky",
+          left: 0,
+          marginTop: -10,
+          marginBottom: 10,
+          fontWeight: "bold"
+        }}
+      >
+        Upload Instructor Availability
+      </header>
       <div style={{ display: "flex", alignItems: "center" }}>
         {selectedFile && (
           <div className={styles.fileUploadInput}>{selectedFile}</div>
@@ -107,7 +120,7 @@ const ExcelViewer = ({ spreadsheetData, setSpreadsheetData }) => {
               marginBottom: "12px",
             }}
           >
-            Please Upload Valid .csv, .xlxs File
+            Please Upload Valid .csv, .xlsx File
           </div>
         )}
         {isPreviewVisible && (
