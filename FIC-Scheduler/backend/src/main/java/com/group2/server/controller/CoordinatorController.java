@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "https://ficschedulerapp.onrender.com/", allowCredentials = "true")
+@CrossOrigin(origins = "https://ficschedulerapp.onrender.com", allowCredentials = "true")
 public class CoordinatorController {
     
     @GetMapping("/coordinator")

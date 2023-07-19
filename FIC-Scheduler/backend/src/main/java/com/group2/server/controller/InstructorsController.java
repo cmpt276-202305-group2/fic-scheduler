@@ -14,7 +14,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "https://ficschedulerapp.onrender.com/", allowCredentials = "true")
+@CrossOrigin(origins = "https://ficschedulerapp.onrender.com", allowCredentials = "true")
 public class InstructorsController {
 
     @Autowired
