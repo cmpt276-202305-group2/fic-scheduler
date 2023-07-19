@@ -29,46 +29,46 @@ public class ClassroomController {
     private FacilityRepository facilityRepository;
 
     @PostMapping("/classroom")
-public ResponseEntity<?> createClassrooms(@RequestBody List<ClassroomDto> classroomDtos) {
-    List<Classroom> savedClassrooms = new ArrayList<>();
-    List<String> conflictClassrooms = new ArrayList<>();
-    try {
-        for (ClassroomDto classroomDto : classroomDtos) {
-            Classroom existingClassroom = classroomRepository.findByRoomNumber(classroomDto.getRoomNumber());
+    public ResponseEntity<?> createClassrooms(@RequestBody List<ClassroomDto> classroomDtos) {
+        List<Classroom> savedClassrooms = new ArrayList<>();
+        List<String> conflictClassrooms = new ArrayList<>();
+        try {
+            for (ClassroomDto classroomDto : classroomDtos) {
+                Classroom existingClassroom = classroomRepository.findByRoomNumber(classroomDto.getRoomNumber());
 
-           
-            if (existingClassroom != null) {
-                conflictClassrooms.add(classroomDto.getRoomNumber());
-                continue;
+                if (existingClassroom != null) {
+                    conflictClassrooms.add(classroomDto.getRoomNumber());
+                    continue;
+                }
+
+                Classroom classroom = new Classroom();
+                classroom.setRoomNumber(classroomDto.getRoomNumber());
+
+                Set<Facilities> facilities = new HashSet<>();
+                for (String name : classroomDto.getFacilitiesAvailableNames()) {
+                    Facilities facility = facilityRepository.findByName(name);
+                    if (facility == null) {
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Facility not found with name " + name);
+                    }
+                    facilities.add(facility);
+                }
+                classroom.setFacilitiesAvailable(facilities);
+                savedClassrooms.add(classroomRepository.save(classroom));
             }
-
-            Classroom classroom = new Classroom();
-            classroom.setRoomNumber(classroomDto.getRoomNumber());
-
-            Set<Facilities> facilities = new HashSet<>();
-            for (Integer id : classroomDto.getFacilitiesAvailableIds()) {
-                Facilities facility = facilityRepository.findById(id).orElseThrow(
-                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Facility not found with ID " + id)
-                );
-                facilities.add(facility);
+            
+            if (!conflictClassrooms.isEmpty()) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("created", savedClassrooms);
+                response.put("conflicts", conflictClassrooms);
+                return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+            } else {
+                return new ResponseEntity<>(savedClassrooms, HttpStatus.CREATED);
             }
-            classroom.setFacilitiesAvailable(facilities);
-            savedClassrooms.add(classroomRepository.save(classroom));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        
-        if (!conflictClassrooms.isEmpty()) {
-           
-            Map<String, Object> response = new HashMap<>();
-            response.put("created", savedClassrooms);
-            response.put("conflicts", conflictClassrooms);
-            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
-        } else {
-            return new ResponseEntity<>(savedClassrooms, HttpStatus.CREATED);
-        }
-    } catch (Exception e) {
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
-}
+
 
 
     @GetMapping("/classroom")

@@ -12,5 +12,5 @@ import java.util.Set;
 public class ClassroomDto {
     private Integer id;
     private String roomNumber;
-    private Set<Integer> facilitiesAvailableIds;
+    private Set<String> facilitiesAvailableNames;  // Changed from IDs to names
 }
