@@ -5,7 +5,7 @@ export function parseJwtToken(token) {
   try {
     return jwtDecode(token);
   } catch (error) {
-    console.error('Invalid token specified', error);
+    // console.error('Invalid token specified', error);
     return null;
   }
 }
@@ -34,7 +34,7 @@ export function getAsync(url, setResult) {
       setResult(r.data);
     },
     (e) => {
-      console.log('fetch fail:', e);
+      // console.log('fetch fail:', e);
       setResult(undefined);
     }
   );
@@ -48,7 +48,7 @@ export async function postAsync(url, setResult) {
       setResult(r.data);
     },
     (e) => {
-      console.log('fetch fail:', e);
+      // console.log('fetch fail:', e);
       setResult(undefined);
     }
   );

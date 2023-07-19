@@ -38,7 +38,7 @@ function Sidebar({ onItemClick }) {
           </li>
           <li onClick={() => navigate("/uploadInstructorAvailability")}>
             <CloudUploadIcon />
-            Upload All Peferences
+            Upload All Preferences
           </li>
           <li onClick={() => navigate("/Configuration")}>
             <SettingsIcon />

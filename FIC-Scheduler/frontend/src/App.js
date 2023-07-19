@@ -50,7 +50,7 @@ function App() {
   axios.defaults.baseURL = "http://localhost:8080/";
   axios.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
 
-  const lsUserInfoItem = localStorage.getItem('userInfo') ?? null;
+  const lsUserInfoItem = JSON.parse(localStorage.getItem('userInfo')) ?? null;
   const lsUserInfo = (lsUserInfoItem === null) ? null : {
     username: lsUserInfoItem.username ?? 'nouser',
     roles: Array.from(lsUserInfoItem.roles ?? []),

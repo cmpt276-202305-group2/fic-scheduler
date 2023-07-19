@@ -53,10 +53,10 @@ const ExcelViewer = ({ spreadsheetData, setSpreadsheetData }) => {
           console.log("File upload successful:", result);
           // Add any further actions or state updates upon successful backend upload
         } else {
-          console.error("Error uploading Excel file:", response.statusText);
+          // console.error("Error uploading Excel file:", response.statusText);
         }
       } catch (error) {
-        console.error("Error uploading Excel file:", error);
+        // console.error("Error uploading Excel file:", error);
       }
     }
   };
