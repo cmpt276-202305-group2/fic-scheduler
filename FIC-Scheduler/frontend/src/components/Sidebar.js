@@ -4,8 +4,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Button from "@mui/material/Button";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import ClassIcon from "@mui/icons-material/Class";
-import GroupIcon from "@mui/icons-material/Group";
+import SettingsIcon from "@mui/icons-material/Settings";
 import CheckAuth from "./CheckAuth";
 import { UserInfoContext } from '../App';
 
@@ -41,13 +40,9 @@ function Sidebar({ onItemClick }) {
             <CloudUploadIcon />
             Upload All Peferences
           </li>
-          <li onClick={() => navigate("/manageCourses")}>
-            <ClassIcon />
-            Manage Courses
-          </li>
-          <li onClick={() => navigate("/manageInstructors")}>
-            <GroupIcon />
-            Manage Professors
+          <li onClick={() => navigate("/Configuration")}>
+            <SettingsIcon />
+            Configuration
           </li>
         </CheckAuth>
         {(userInfo ?? null) !== null ? (
