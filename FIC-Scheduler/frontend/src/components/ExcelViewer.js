@@ -120,7 +120,7 @@ const ExcelViewer = ({ spreadsheetData, setSpreadsheetData }) => {
               marginBottom: "12px",
             }}
           >
-            Please Upload Valid .csv, .xlxs File
+            Please Upload Valid .csv, .xlsx File
           </div>
         )}
         {isPreviewVisible && (

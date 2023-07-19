@@ -200,7 +200,7 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
             marginBottom: "12px"
             }}
           >
-          Please Upload Valid .csv, .xlxs File
+          Please Upload Valid .csv, .xlsx File
           </div>
         )}
         {isPreviewVisibleOne && (
@@ -338,7 +338,7 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
               marginBottom: "12px"
             }}
           >
-            Please Upload Valid .csv, .xlxs File
+            Please Upload Valid .csv, .xlsx File
           </div>
         )}
         {isPreviewVisibleTwo && (
@@ -476,7 +476,7 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
             marginBottom: "12px"
             }}
           >
-          Please Upload Valid .csv, .xlxs File
+          Please Upload Valid .csv, .xlsx File
           </div>
         )}
         {isPreviewVisibleThree && (
