@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,5 +34,37 @@ import com.group2.server.model.Role;
 @SpringBootTest
 @AutoConfigureMockMvc
 public class CoordinatorControllerTests {
-    //TODO
+    //Not Working at the moment but wanted to commit the update.
+    @Autowired
+    private MockMvc mockMvc;
+
+    private ApplicationUser mockUser;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @BeforeEach
+    public void setup() {
+        // Create a mock user for authentication
+        mockUser = makeMockUser("testUser", "testPassword", Role.COORDINATOR);
+    }
+
+    // Mock a user for authentication
+    private ApplicationUser makeMockUser(String username, String password, Role role) {
+        var roles = new HashSet<Role>();
+        if (role != null) {
+            roles.add(role);
+        }
+        return new ApplicationUser((Integer) 1, username, passwordEncoder.encode(password), roles, "");
+    }
+
+    @Test
+    public void testVerifiedCoordinatorController() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/coordinator")
+                .with(SecurityMockMvcRequestPostProcessors.user(mockUser)) // Include the mock user for authentication
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("COORDINATOR level access BABYY"))
+                .andDo(print());
+    }
 }
