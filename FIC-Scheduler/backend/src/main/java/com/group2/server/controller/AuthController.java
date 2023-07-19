@@ -53,7 +53,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public UserInfoDto registerUser(@RequestBody RegistrationDto body) {
-        // Build up the DB user object
+        
         String encodedPassword = passwordEncoder.encode(body.getPassword());
         var authorities = new HashSet<Role>();
         authorities.add(Role.INSTRUCTOR);
@@ -75,16 +75,16 @@ public class AuthController {
 
             String token = tokenService.generateJWT(auth);
 
-            // Create a cookie
+            
             Cookie jwtCookie = new Cookie("jwtToken", token);
 
-            // Set the cookie properties
-            jwtCookie.setMaxAge(7 * 24 * 60 * 60); // sets expire time for 7 days
-            // jwtCookie.setSecure(true); // ensures the cookie is only sent over HTTPS
-            jwtCookie.setHttpOnly(true); // protects against XSS attacks
-            jwtCookie.setPath("/"); // allows the cookie to be sent with all requests
+            
+            jwtCookie.setMaxAge(7 * 24 * 60 * 60); 
+            
+            jwtCookie.setHttpOnly(true); 
+            jwtCookie.setPath("/"); 
 
-            // Add the cookie to the response
+            
             response.addCookie(jwtCookie);
 
             Optional<ApplicationUser> user = userRepository.findByUsername(username);
@@ -95,9 +95,9 @@ public class AuthController {
                                 user.get().getFullName()),
                         token);
             }
-            // otherwise, fall through to error handling
+            
         } catch (AuthenticationException e) {
-            // fall through to error handling
+            
         }
         response.setStatus(401);
         return new LoginResponseDto("Authentication failed", null, null);
@@ -105,24 +105,24 @@ public class AuthController {
 
     @GetMapping("/userinfo")
     public UserInfoDto getUserInfo(HttpServletRequest request) {
-        // Extract the JWT token from the request cookie
+        
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("jwtToken")) {
                     String token = cookie.getValue();
 
-                    // Decode the token and get the user's roles
+                    
                     try {
                         Jwt jwt = securityConfiguration.jwtDecoder().decode(token);
                         List<String> roles = jwt.getClaimAsStringList("roles");
 
-                        // Create the response DTO and return it
+                        
                         UserInfoDto dto = new UserInfoDto();
                         dto.setRoles(roles);
                         return dto;
                     } catch (JwtException ex) {
-                        // Invalid token
+                        
                         throw new RuntimeException("Invalid JWT token", ex);
                     }
                 }
@@ -134,18 +134,18 @@ public class AuthController {
 
     @PostMapping("/logout")
     public String logoutUser(HttpServletRequest request, HttpServletResponse response) {
-        // Extract the JWT token from the request cookie
+        
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("jwtToken")) {
-                    // Invalidate the cookie by setting its max age to 0
+                   
                     Cookie jwtCookie = new Cookie("jwtToken", "");
                     jwtCookie.setMaxAge(0);
                     jwtCookie.setHttpOnly(true);
                     jwtCookie.setPath("/");
 
-                    // Add the cookie to the response
+                   
                     response.addCookie(jwtCookie);
 
                     return "logout successful";
@@ -157,7 +157,7 @@ public class AuthController {
     }
 
     private ArrayList<String> applicationUserRolesToDtoRoles(ApplicationUser user) {
-        // Convert the DB object into a DTO, presuming our save was successful
+        
         var strRoles = new ArrayList<String>();
         for (var role : user.getAuthorities()) {
             strRoles.add(role.getAuthority());

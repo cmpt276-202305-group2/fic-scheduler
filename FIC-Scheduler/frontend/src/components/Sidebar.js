@@ -60,7 +60,9 @@ function Sidebar({ onItemClick }) {
               Log Out
             </Button>
           </li>
-        ) : ""}
+        ) : (
+          ""
+        )}
       </ul>
     </nav>
   );
