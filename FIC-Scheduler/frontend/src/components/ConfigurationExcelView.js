@@ -59,12 +59,12 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
         
         if (response.status === 200) {
           const result = response.data;
-          console.log("File upload successful:", result);
+          // console.log("File upload successful:", result);
         } else {
-          console.error("Error uploading Excel file:", response.statusText);
+          // console.error("Error uploading Excel file:", response.statusText);
         }
       } catch (error) {
-        console.error("Error reading Excel file:", error);
+        // console.error("Error reading Excel file:", error);
       }
     }
   };
@@ -98,12 +98,12 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
         
         if (response.status === 200) {
           const result = response.json();
-          console.log("File upload successful:", result);
+          // console.log("File upload successful:", result);
         } else {
-          console.error("Error uploading Excel file:", response.statusText);
+          // console.error("Error uploading Excel file:", response.statusText);
         } 
       } catch (error) {
-        console.error("Error reading Excel file:", error);
+        // console.error("Error reading Excel file:", error);
       }
     }
   };
@@ -137,12 +137,12 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
         
         if (response.status === 200) {
           const result = response.data;
-          console.log("File upload successful:", result);
+          // console.log("File upload successful:", result);
         } else {
-          console.error("Error uploading Excel file:", response.statusText);
+          // console.error("Error uploading Excel file:", response.statusText);
         }
       } catch (error) {
-        console.error("Error reading Excel file:", error);
+        // console.error("Error reading Excel file:", error);
       }
     }
   };
@@ -176,12 +176,12 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
         
         if (response.status === 200) {
           const result = response.data;
-          console.log("File upload successful:", result);
+          // console.log("File upload successful:", result);
         } else {
-          console.error("Error uploading Excel file:", response.statusText);
+          // console.error("Error uploading Excel file:", response.statusText);
         }
       } catch (error) {
-        console.error("Error reading Excel file:", error);
+        // console.error("Error reading Excel file:", error);
       }
     }
   };
@@ -215,12 +215,12 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
         
         if (response.status === 200) {
           const result = response.data;
-          console.log("File upload successful:", result);
+          // console.log("File upload successful:", result);
         } else {
-          console.error("Error uploading Excel file:", response.statusText);
+          // console.error("Error uploading Excel file:", response.statusText);
         }
       } catch (error) {
-        console.error("Error reading Excel file:", error);
+        // console.error("Error reading Excel file:", error);
       }
     }
   };

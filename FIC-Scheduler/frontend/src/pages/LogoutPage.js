@@ -15,7 +15,7 @@ function LogoutPage() {
 
     axios.post('auth/logout', {}, { withCredentials: true })
       .then((response) => {
-        console.log("Logout successful");
+        // console.log("Logout successful");
       })
       .catch((error) => {
         console.error(error);
