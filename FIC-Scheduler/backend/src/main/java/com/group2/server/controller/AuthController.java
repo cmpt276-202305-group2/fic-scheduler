@@ -83,6 +83,7 @@ public class AuthController {
             
             jwtCookie.setHttpOnly(true); 
             jwtCookie.setPath("/"); 
+            jwtCookie.setSecure(true);
 
             
             response.addCookie(jwtCookie);
@@ -144,6 +145,8 @@ public class AuthController {
                     jwtCookie.setMaxAge(0);
                     jwtCookie.setHttpOnly(true);
                     jwtCookie.setPath("/");
+                    jwtCookie.setSecure(true);
+                    
 
                    
                     response.addCookie(jwtCookie);
