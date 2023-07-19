@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "https://ficschedulerapp.onrender.com/", allowCredentials = "true")
 public class InstructorAvailabilityController {
 
     private static final Logger logger = LoggerFactory.getLogger(InstructorAvailabilityController.class);

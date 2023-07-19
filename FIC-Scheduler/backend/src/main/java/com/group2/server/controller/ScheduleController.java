@@ -26,7 +26,7 @@ import com.group2.server.repository.SemesterPlanRepository;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "https://ficschedulerapp.onrender.com/", allowCredentials = "true")
 public class ScheduleController {
 
     @Autowired

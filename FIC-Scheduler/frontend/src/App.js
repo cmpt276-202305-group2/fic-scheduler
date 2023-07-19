@@ -35,11 +35,11 @@ export const fetchUserInfo = async () => {
     if (response.status === 200) {
       storeUserInfo(response.data);
     } else {
-      console.log("fetchUserInfo bad status", response.status);
+      // console.log("fetchUserInfo bad status", response.status);
       localStorage.removeItem('userInfo');
     }
   } catch (error) {
-    console.log("fetchUserInfo exception", error);
+    // console.log("fetchUserInfo exception", error);
     localStorage.removeItem('userInfo');
   }
 };
@@ -47,7 +47,7 @@ export const fetchUserInfo = async () => {
 function App() {
   // console.log("App render");
 
-  axios.defaults.baseURL = "http://localhost:8080/";
+  axios.defaults.baseURL = "https://ficbackend.onrender.com/";
   axios.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
 
   const lsUserInfoItem = JSON.parse(localStorage.getItem('userInfo')) ?? null;

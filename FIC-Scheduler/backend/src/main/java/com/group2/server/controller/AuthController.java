@@ -33,7 +33,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "https://ficschedulerapp.onrender.com/", allowCredentials = "true")
 public class AuthController {
 
     @Autowired
