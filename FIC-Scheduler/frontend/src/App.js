@@ -20,7 +20,7 @@ export const validRoles = new Set('ADMIN', 'COORDINATOR', 'INSTRUCTOR')
 function App() {
   // console.log("App render");
 
-  axios.defaults.baseURL = "http://localhost:8080";//"https://ficbackend.onrender.com";
+  axios.defaults.baseURL = "https://ficbackend.onrender.com";
   axios.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
 
   const lsUserInfoItem = (() => {
