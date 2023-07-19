@@ -47,7 +47,7 @@ export const fetchUserInfo = async () => {
 function App() {
   // console.log("App render");
 
-  axios.defaults.baseURL = "https://ficbackend.onrender.com/";
+  axios.defaults.baseURL = "https://ficbackend.onrender.com";
   axios.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
 
   const lsUserInfoItem = JSON.parse(localStorage.getItem('userInfo')) ?? null;
