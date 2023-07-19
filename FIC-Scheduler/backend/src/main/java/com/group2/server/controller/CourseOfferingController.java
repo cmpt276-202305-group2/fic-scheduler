@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "https://ficschedulerapp.onrender.com", allowCredentials = "true")
+@CrossOrigin(origins = "*")
 public class CourseOfferingController {
 
     private static final Logger logger = LoggerFactory.getLogger(CourseOfferingController.class);
@@ -29,8 +29,8 @@ public class CourseOfferingController {
     @Autowired
     private AccreditationRepository accreditationRepository;
 
-    //@Autowired
-    //private SemesterPlanRepository semesterPlanRepository;
+    // @Autowired
+    // private SemesterPlanRepository semesterPlanRepository;
 
     @Autowired
     private FacilityRepository facilityRepository;
@@ -44,7 +44,8 @@ public class CourseOfferingController {
         List<String> conflictCourseNumbers = new ArrayList<>();
         try {
             for (CourseOfferingDto courseOfferingDto : courseOfferingDtos) {
-                CourseOffering existingCourseOffering = courseOfferingRepository.findByCourseNumber(courseOfferingDto.getCourseNumber());
+                CourseOffering existingCourseOffering = courseOfferingRepository
+                        .findByCourseNumber(courseOfferingDto.getCourseNumber());
 
                 // Check if the CourseOffering already exists
                 if (existingCourseOffering != null) {
@@ -57,15 +58,20 @@ public class CourseOfferingController {
                 courseOffering.setCourseNumber(courseOfferingDto.getCourseNumber());
 
                 /*
-                SemesterPlan semesterPlan = semesterPlanRepository.findById(courseOfferingDto.getSemesterPlanId())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Semester plan not found with ID " + courseOfferingDto.getSemesterPlanId()));
-                courseOffering.setSemesterPlan(semesterPlan);
-                */
+                 * SemesterPlan semesterPlan =
+                 * semesterPlanRepository.findById(courseOfferingDto.getSemesterPlanId())
+                 * .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                 * "Semester plan not found with ID " + courseOfferingDto.getSemesterPlanId()));
+                 * courseOffering.setSemesterPlan(semesterPlan);
+                 */
 
-                Accreditation accreditation = accreditationRepository.findByName(courseOfferingDto.getAccreditationRequiredName());
+                Accreditation accreditation = accreditationRepository
+                        .findByName(courseOfferingDto.getAccreditationRequiredName());
                 if (accreditation == null) {
-                    logger.error("Accreditation not found with name {}", courseOfferingDto.getAccreditationRequiredName());
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Accreditation not found with name " + courseOfferingDto.getAccreditationRequiredName());
+                    logger.error("Accreditation not found with name {}",
+                            courseOfferingDto.getAccreditationRequiredName());
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Accreditation not found with name " + courseOfferingDto.getAccreditationRequiredName());
                 }
                 courseOffering.setAccreditationRequired(accreditation);
 
@@ -83,7 +89,8 @@ public class CourseOfferingController {
                 BlockType blockType = blockTypeRepository.findByName(courseOfferingDto.getBlockTypeName());
                 if (blockType == null) {
                     logger.error("BlockType not found with name {}", courseOfferingDto.getBlockTypeName());
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "BlockType not found with name " + courseOfferingDto.getBlockTypeName());
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "BlockType not found with name " + courseOfferingDto.getBlockTypeName());
                 }
                 courseOffering.setBlockType(blockType);
 
@@ -94,7 +101,8 @@ public class CourseOfferingController {
             }
 
             if (!conflictCourseNumbers.isEmpty()) {
-                // If there were conflict course numbers, return them along with the created course offerings
+                // If there were conflict course numbers, return them along with the created
+                // course offerings
                 return new ResponseEntity<>(savedCourseOfferings, HttpStatus.CONFLICT);
             } else {
                 return new ResponseEntity<>(savedCourseOfferings, HttpStatus.CREATED);

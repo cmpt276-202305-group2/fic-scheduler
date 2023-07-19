@@ -6,7 +6,7 @@ import Sidebar from "../components/Sidebar";
 import ExcelViewer from "../components/ExcelViewer";
 
 function UploadInstructorAvailabilityPage() {
-  const [spreadsheetData, setSpreadsheetData] = useState([]); 
+  const [spreadsheetData, setSpreadsheetData] = useState([]);
   return (
     <CheckAuth permittedRoles={["ADMIN", "COORDINATOR"]} fallback={<Navigate to="/" replace />}>
       <div className={styles.Container}>
@@ -14,7 +14,7 @@ function UploadInstructorAvailabilityPage() {
           <Sidebar />
         </div>
         <div className={styles.PageContent} data-testid="schedule">
-          <ExcelViewer spreadsheetData={spreadsheetData} setSpreadsheetData={setSpreadsheetData}/>
+          <ExcelViewer spreadsheetData={spreadsheetData} setSpreadsheetData={setSpreadsheetData} />
         </div>
       </div>
     </CheckAuth>

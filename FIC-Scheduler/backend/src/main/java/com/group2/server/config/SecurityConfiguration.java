@@ -8,7 +8,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,9 +19,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.nimbusds.jose.jwk.JWK;
@@ -31,8 +27,6 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-
-import jakarta.servlet.http.Cookie;
 
 @Configuration
 public class SecurityConfiguration {
@@ -57,21 +51,6 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public BearerTokenResolver cookieBearerTokenResolver() {
-        return request -> {
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals("jwtToken")) {
-                        return cookie.getValue();
-                    }
-                }
-            }
-            return null;
-        };
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults());
         http
@@ -85,29 +64,8 @@ public class SecurityConfiguration {
                     auth.anyRequest().authenticated();
                 })
                 .oauth2ResourceServer(
-                        oauth -> oauth.bearerTokenResolver(cookieBearerTokenResolver())
-                                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                                .withObjectPostProcessor(new ObjectPostProcessor<BearerTokenAuthenticationFilter>() {
-                                    // Reference for this issue at
-                                    // https://stackoverflow.com/questions/72943493/how-to-set-authentication-failure-handler-on-bearertokenauthenticationfilter
-                                    @Override
-                                    public <O extends BearerTokenAuthenticationFilter> O postProcess(O filter) {
-                                        filter.setAuthenticationFailureHandler((request, response, exception) -> {
-                                            if (request.getRequestURI().equals("/auth/login")
-                                                    || request.getRequestURI().equals("/auth/logout")) {
-                                                var cookie = new Cookie("jwtToken", "");
-                                                cookie.setMaxAge(0);
-                                                cookie.setPath("/");
-                                                response.addCookie(cookie);
-                                                // Skip delegate -- this will result in an empty 200 response
-                                                return;
-                                            }
-                                            var delegate = new BearerTokenAuthenticationEntryPoint();
-                                            delegate.commence(request, response, exception);
-                                        });
-                                        return filter;
-                                    }
-                                }))
+                        oauth -> oauth
+                                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
 
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

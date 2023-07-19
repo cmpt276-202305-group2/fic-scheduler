@@ -1,4 +1,3 @@
-import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 
 export function parseJwtToken(token) {
@@ -26,57 +25,17 @@ export function isJwtTokenExpired(token) {
   }
 }
 
-export function getAsync(url, setResult) {
-  axios.get(url, {
-    withCredentials: true
-  }).then(
-    (r) => {
-      setResult(r.data);
-    },
-    (e) => {
-      // console.log('fetch fail:', e);
-      setResult(undefined);
-    }
-  );
-}
-
-export async function postAsync(url, setResult) {
-  axios.post(url, {
-    withCredentials: true
-  }).then(
-    (r) => {
-      setResult(r.data);
-    },
-    (e) => {
-      // console.log('fetch fail:', e);
-      setResult(undefined);
-    }
-  );
-}
-
-export function getSuspense(url) {
-  let status = "pending";
-  let result;
-  let suspender = getAsync(url).then(
-    (r) => {
-      status = "success";
-      result = r.data;
-    },
-    (e) => {
-      status = "error";
-      result = e;
-    }
-  );
-  return {
-    read() {
-      if (status === "pending") {
-        throw suspender;
-      } else if (status === "error") {
-        throw result;
-      } else if (status === "success") {
-        return result;
+export function tokenConfig() {
+  const token = localStorage.getItem('jwtToken');
+  if ((token ?? null) !== null) {
+    return {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem('jwtToken')
       }
-    },
-  };
+    };
+  } else {
+    return {};
+  }
+
 }
 

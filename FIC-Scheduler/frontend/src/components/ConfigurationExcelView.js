@@ -11,7 +11,8 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import readExcelFile from "./readExcelfile";
-import styles from "./ExcelViewer.module.css"; 
+import styles from "./ExcelViewer.module.css";
+import { tokenConfig } from "../utils";
 
 const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurationSpreadsheetDataOne, configurationSpreadsheetDataTwo, setConfigurationSpreadsheetDataTwo, configurationSpreadsheetDataThree, setConfigurationSpreadsheetDataThree, configurationSpreadsheetDataFour, setConfigurationSpreadsheetDataFour, configurationSpreadsheetDataFive, setConfigurationSpreadsheetDataFive}) => {
   const [selectedFileOne, setSelectedFileOne] = useState(null);
@@ -56,7 +57,7 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
 
       try {
         const response = await axios.post("post_to_db", formData);
-        
+
         if (response.status === 200) {
           const result = response.data;
           console.log("File upload successful:", result);
@@ -95,13 +96,13 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
 
       try {
         const response = await axios.post("post_to_db", formData);
-        
+
         if (response.status === 200) {
           const result = response.json();
           console.log("File upload successful:", result);
         } else {
           console.error("Error uploading Excel file:", response.statusText);
-        } 
+        }
       } catch (error) {
         console.error("Error reading Excel file:", error);
       }
@@ -134,7 +135,7 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
 
       try {
         const response = await axios.post("post_to_db", formData);
-        
+
         if (response.status === 200) {
           const result = response.data;
           console.log("File upload successful:", result);
@@ -173,7 +174,7 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
 
       try {
         const response = await axios.post("post_to_db", formData);
-        
+
         if (response.status === 200) {
           const result = response.data;
           console.log("File upload successful:", result);
@@ -211,8 +212,8 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
       formData.append("file", selectedFileFive);
 
       try {
-        const response = await axios.post("post_to_db", formData);
-        
+        const response = await axios.post("post_to_db", formData, tokenConfig());
+
         if (response.status === 200) {
           const result = response.data;
           console.log("File upload successful:", result);
@@ -226,10 +227,10 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
   };
   return (
     <>
-    <div 
-      style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
         alignItems: 'flex-start',
         marginBottom: 30
         }}
@@ -262,13 +263,13 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
           style={{ display: 'none'}}
         />
         <label htmlFor="file-upload">
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             component="span"
             color = "primary"
             sx={{
-              color: "white", 
-              backgroundColor: "#417A1A", 
+              color: "white",
+              backgroundColor: "#417A1A",
               '&:hover': { backgroundColor: '#417A1A' }
             }}
             style={{ marginBottom: 10}}
@@ -278,9 +279,9 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
         </label>
         {showErrorMessage && (
           <div style={{
-            color: 'red', 
-            fontSize: "13px", 
-            marginLeft: "5px", 
+            color: 'red',
+            fontSize: "13px",
+            marginLeft: "5px",
             marginBottom: "12px"
             }}
           >
@@ -303,30 +304,30 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
             </Button>
         )}
       </div>
-      <h1 
-        style={{ 
-          color: 'black', 
-          fontSize: 30, 
-          position: 'sticky', 
-          left: 0, 
-          marginTop: 0 
+      <h1
+        style={{
+          color: 'black',
+          fontSize: 30,
+          position: 'sticky',
+          left: 0,
+          marginTop: 0
         }}
       >
         Preview
       </h1>
       {configurationSpreadsheetDataOne.length > 0 ? (
-        <div 
-          style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'flex-start' 
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start'
           }}
         >
           <Box sx={{width: '100%'}}>
             <Paper sx={{width: '100%', overflow: 'hidden'}}>
-              <TableContainer 
+              <TableContainer
                 sx={{
-                  width: '100%', 
+                  width: '100%',
                   maxHeight: window.innerWidth >= 600 ? 700 : 350
                 }}
               >
@@ -334,10 +335,10 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
                   <TableHead>
                     <TableRow>
                       {configurationSpreadsheetDataOne[0].map((header, index) => (
-                        <TableCell 
-                          key={index} 
+                        <TableCell
+                          key={index}
                           sx={{
-                            fontWeight: 'bold', 
+                            fontWeight: 'bold',
                             backgroundColor: '#f0f0f0'
                           }}
                         >
@@ -364,10 +365,10 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
         <div className={styles.emptyMessage}>No data to display</div>
       )}
     </div>
-    <div 
-      style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
         alignItems: 'flex-start',
         marginBottom: 30
       }}
@@ -400,13 +401,13 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
           style={{ display: 'none'}}
         />
         <label htmlFor="file-upload-two">
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             component="span"
             color = "primary"
             sx={{
-              color: "white", 
-              backgroundColor: "#417A1A", 
+              color: "white",
+              backgroundColor: "#417A1A",
               '&:hover': { backgroundColor: '#417A1A' }
             }}
             style={{ marginBottom: 10}}
@@ -415,11 +416,11 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
           </Button>
         </label>
         {showErrorMessageTwo && (
-          <div 
+          <div
             style={{
-              color: 'red', 
-              fontSize: "13px", 
-              marginLeft: "5px", 
+              color: 'red',
+              fontSize: "13px",
+              marginLeft: "5px",
               marginBottom: "12px"
             }}
           >
@@ -442,30 +443,30 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
           </Button>
         )}
       </div>
-      <h1 
-        style={{ 
-          color: 'black', 
-          fontSize: 30, 
-          position: 'sticky', 
-          left: 0, 
-          marginTop: 0 
+      <h1
+        style={{
+          color: 'black',
+          fontSize: 30,
+          position: 'sticky',
+          left: 0,
+          marginTop: 0
         }}
       >
         Preview
       </h1>
       {configurationSpreadsheetDataTwo.length > 0 ? (
-        <div 
-          style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'flex-start' 
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start'
           }}
         >
           <Box sx={{width: '100%'}}>
             <Paper sx={{width: '100%', overflow: 'hidden'}}>
-              <TableContainer 
+              <TableContainer
                 sx={{
-                  width: '100%', 
+                  width: '100%',
                   maxHeight: window.innerWidth >= 600 ? 700 : 350
                 }}
               >
@@ -473,10 +474,10 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
                   <TableHead>
                     <TableRow>
                       {configurationSpreadsheetDataTwo[0].map((header, index) => (
-                        <TableCell 
-                          key={index} 
+                        <TableCell
+                          key={index}
                           sx={{
-                            fontWeight: 'bold', 
+                            fontWeight: 'bold',
                             backgroundColor: '#f0f0f0'
                           }}
                         >
@@ -503,10 +504,10 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
         <div className={styles.emptyMessage}>No data to display</div>
       )}
     </div>
-    <div 
-      style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
         alignItems: 'flex-start',
         marginTop: '5px',
         marginBottom: 30
@@ -540,13 +541,13 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
           style={{ display: 'none'}}
         />
         <label htmlFor="file-upload-three">
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             component="span"
             color = "primary"
             sx={{
-              color: "white", 
-              backgroundColor: "#417A1A", 
+              color: "white",
+              backgroundColor: "#417A1A",
               '&:hover': { backgroundColor: '#417A1A' }
             }}
             style={{ marginBottom: 10}}
@@ -556,9 +557,9 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
         </label>
         {showErrorMessageThree && (
           <div style={{
-            color: 'red', 
-            fontSize: "13px", 
-            marginLeft: "5px", 
+            color: 'red',
+            fontSize: "13px",
+            marginLeft: "5px",
             marginBottom: "12px"
             }}
           >
@@ -581,30 +582,30 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
             </Button>
         )}
       </div>
-      <h1 
-        style={{ 
-          color: 'black', 
-          fontSize: 30, 
-          position: 'sticky', 
-          left: 0, 
-          marginTop: 0 
+      <h1
+        style={{
+          color: 'black',
+          fontSize: 30,
+          position: 'sticky',
+          left: 0,
+          marginTop: 0
         }}
       >
         Preview
       </h1>
       {configurationSpreadsheetDataThree.length > 0 ? (
-        <div 
-          style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'flex-start' 
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start'
           }}
         >
           <Box sx={{width: '100%'}}>
             <Paper sx={{width: '100%', overflow: 'hidden'}}>
-              <TableContainer 
+              <TableContainer
                 sx={{
-                  width: '100%', 
+                  width: '100%',
                   maxHeight: window.innerWidth >= 600 ? 700 : 350
                 }}
               >
@@ -612,10 +613,10 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
                   <TableHead>
                     <TableRow>
                       {configurationSpreadsheetDataThree[0].map((header, index) => (
-                        <TableCell 
-                          key={index} 
+                        <TableCell
+                          key={index}
                           sx={{
-                            fontWeight: 'bold', 
+                            fontWeight: 'bold',
                             backgroundColor: '#f0f0f0'
                           }}
                         >
@@ -642,12 +643,12 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
         <div className={styles.emptyMessage}>No data to display</div>
       )}
     </div>
-    <div 
-      style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
         alignItems: 'flex-start',
-        marginBottom: 35 
+        marginBottom: 35
         }}
     >
       <header
@@ -678,13 +679,13 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
           style={{ display: 'none'}}
         />
         <label htmlFor="file-upload-four">
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             component="span"
             color = "primary"
             sx={{
-              color: "white", 
-              backgroundColor: "#417A1A", 
+              color: "white",
+              backgroundColor: "#417A1A",
               '&:hover': { backgroundColor: '#417A1A' }
             }}
             style={{ marginBottom: 10}}
@@ -694,9 +695,9 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
         </label>
         {showErrorMessageFour && (
           <div style={{
-            color: 'red', 
-            fontSize: "13px", 
-            marginLeft: "5px", 
+            color: 'red',
+            fontSize: "13px",
+            marginLeft: "5px",
             marginBottom: "12px"
             }}
           >
@@ -719,30 +720,30 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
             </Button>
         )}
       </div>
-      <h1 
-        style={{ 
-          color: 'black', 
-          fontSize: 30, 
-          position: 'sticky', 
-          left: 0, 
-          marginTop: 0 
+      <h1
+        style={{
+          color: 'black',
+          fontSize: 30,
+          position: 'sticky',
+          left: 0,
+          marginTop: 0
         }}
       >
         Preview
       </h1>
       {configurationSpreadsheetDataFour.length > 0 ? (
-        <div 
-          style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'flex-start' 
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start'
           }}
         >
           <Box sx={{width: '100%'}}>
             <Paper sx={{width: '100%', overflow: 'hidden'}}>
-              <TableContainer 
+              <TableContainer
                 sx={{
-                  width: '100%', 
+                  width: '100%',
                   maxHeight: window.innerWidth >= 600 ? 700 : 350
                 }}
               >
@@ -750,10 +751,10 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
                   <TableHead>
                     <TableRow>
                       {configurationSpreadsheetDataFour[0].map((header, index) => (
-                        <TableCell 
-                          key={index} 
+                        <TableCell
+                          key={index}
                           sx={{
-                            fontWeight: 'bold', 
+                            fontWeight: 'bold',
                             backgroundColor: '#f0f0f0'
                           }}
                         >
@@ -781,11 +782,11 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
       )}
     </div>
 
-    <div 
-      style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'flex-start' 
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start'
         }}
     >
       <header
@@ -816,13 +817,13 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
           style={{ display: 'none'}}
         />
         <label htmlFor="file-upload-five">
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             component="span"
             color = "primary"
             sx={{
-              color: "white", 
-              backgroundColor: "#417A1A", 
+              color: "white",
+              backgroundColor: "#417A1A",
               '&:hover': { backgroundColor: '#417A1A' }
             }}
             style={{ marginBottom: 10}}
@@ -832,9 +833,9 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
         </label>
         {showErrorMessageFive && (
           <div style={{
-            color: 'red', 
-            fontSize: "13px", 
-            marginLeft: "5px", 
+            color: 'red',
+            fontSize: "13px",
+            marginLeft: "5px",
             marginBottom: "12px"
             }}
           >
@@ -857,30 +858,30 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
             </Button>
         )}
       </div>
-      <h1 
-        style={{ 
-          color: 'black', 
-          fontSize: 30, 
-          position: 'sticky', 
-          left: 0, 
-          marginTop: 0 
+      <h1
+        style={{
+          color: 'black',
+          fontSize: 30,
+          position: 'sticky',
+          left: 0,
+          marginTop: 0
         }}
       >
         Preview
       </h1>
       {configurationSpreadsheetDataFive.length > 0 ? (
-        <div 
-          style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'flex-start' 
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start'
           }}
         >
           <Box sx={{width: '100%'}}>
             <Paper sx={{width: '100%', overflow: 'hidden'}}>
-              <TableContainer 
+              <TableContainer
                 sx={{
-                  width: '100%', 
+                  width: '100%',
                   maxHeight: window.innerWidth >= 600 ? 700 : 350
                 }}
               >
@@ -888,10 +889,10 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
                   <TableHead>
                     <TableRow>
                       {configurationSpreadsheetDataFive[0].map((header, index) => (
-                        <TableCell 
-                          key={index} 
+                        <TableCell
+                          key={index}
                           sx={{
-                            fontWeight: 'bold', 
+                            fontWeight: 'bold',
                             backgroundColor: '#f0f0f0'
                           }}
                         >

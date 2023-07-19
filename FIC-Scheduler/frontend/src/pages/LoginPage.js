@@ -1,15 +1,21 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import { storeUserInfo, fetchUserInfo } from "../App";
+import { UserInfoContext } from "../App";
 import styles from "./LoginPage.module.css";
+import { tokenConfig } from "../utils";
 
 function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const { userInfo, setUserInfo } = useContext(UserInfoContext);
   const navigate = useNavigate();
+
+  if ((userInfo !== null) && tokenConfig()) {
+    return (<Navigate to="/" replace />);
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -24,26 +30,22 @@ function LoginPage() {
       password: password,
     };
 
-    try {
-      // console.log("login request");
-      const loginResponse = await axios.post("auth/login", payload, { withCredentials: true });
+    axios.post("auth/login", payload, { withCredentials: false }).then(
+      (loginResponse) => {
+        if ((loginResponse.status === 200) && ((loginResponse.data.user ?? null) !== null)
+          && ((loginResponse.data.jwt ?? null) !== null)) {
 
-      if (loginResponse.status === 200) {
-        // console.log("login OK response", loginResponse.data);
-        if (loginResponse.data.user) {
-          storeUserInfo(loginResponse.data.user);
-        } else {
-          // console.log("login bad user, fallback to fetchUserInfo");
-          await fetchUserInfo();
+          // console.log('valid login response:', loginResponse.data.jwt);
+          setUserInfo(loginResponse.data.user);
+          localStorage.setItem('jwtToken', loginResponse.data.jwt);
+          navigate("/");
         }
-      }
-
-      navigate("/");
-    } catch (err) {
-      console.log("login request exception", err);
-      console.error(err);
-      setError("Failed to login. Please try again.");
-    }
+      },
+      (err) => {
+        // console.log("login request exception", err);
+        console.error(err);
+        setError("Failed to login. Please try again.");
+      });
   };
 
   return (

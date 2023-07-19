@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "https://ficschedulerapp.onrender.com", allowCredentials = "true")
+@CrossOrigin(origins = "*")
 public class InstructorAvailabilityController {
 
     private static final Logger logger = LoggerFactory.getLogger(InstructorAvailabilityController.class);
@@ -30,7 +30,8 @@ public class InstructorAvailabilityController {
     private AvailabilityRepository availabilityRepository;
 
     @PostMapping("/instructorAvailabilities")
-    public ResponseEntity<?> createInstructorAvailabilities(@RequestBody List<InstructorAvailabilityDto> instructorAvailabilityDtos) {
+    public ResponseEntity<?> createInstructorAvailabilities(
+            @RequestBody List<InstructorAvailabilityDto> instructorAvailabilityDtos) {
         List<InstructorAvailabilityDto> savedInstructorAvailabilities = new ArrayList<>();
         List<InstructorAvailabilityDto> conflictInstructorAvailabilities = new ArrayList<>();
 
@@ -39,10 +40,12 @@ public class InstructorAvailabilityController {
                 Instructor instructor = instructorRepository.findByName(instructorAvailabilityDto.getInstructorName());
                 if (instructor == null) {
                     logger.error("Instructor not found with name {}", instructorAvailabilityDto.getInstructorName());
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Instructor not found with name " + instructorAvailabilityDto.getInstructorName());
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Instructor not found with name " + instructorAvailabilityDto.getInstructorName());
                 }
 
-                Set<InstructorAvailability> instructorAvailabilities = instructorAvailabilityRepository.findByInstructor_Name(instructorAvailabilityDto.getInstructorName());
+                Set<InstructorAvailability> instructorAvailabilities = instructorAvailabilityRepository
+                        .findByInstructor_Name(instructorAvailabilityDto.getInstructorName());
                 InstructorAvailability instructorAvailability;
 
                 // Check if the InstructorAvailability already exists
@@ -60,13 +63,14 @@ public class InstructorAvailabilityController {
                 for (Availability existingAvailability : instructorAvailability.getAvailabilities()) {
                     if (existingAvailability.getDayOfWeek().equals(instructorAvailabilityDto.getDayOfWeek())
                             && existingAvailability.getPartOfDay().equals(instructorAvailabilityDto.getPartOfDay())) {
-                        logger.warn("Availability for {} on {} {} already exists.", instructorAvailabilityDto.getInstructorName(),
+                        logger.warn("Availability for {} on {} {} already exists.",
+                                instructorAvailabilityDto.getInstructorName(),
                                 instructorAvailabilityDto.getDayOfWeek(), instructorAvailabilityDto.getPartOfDay());
                         conflict = true;
                         break;
                     }
                 }
-                
+
                 if (conflict) {
                     conflictInstructorAvailabilities.add(instructorAvailabilityDto);
                     continue;
@@ -81,7 +85,8 @@ public class InstructorAvailabilityController {
             }
 
             if (!conflictInstructorAvailabilities.isEmpty()) {
-                // If there were conflict instructor availabilities, return them along with the created ones
+                // If there were conflict instructor availabilities, return them along with the
+                // created ones
                 Map<String, Object> response = new HashMap<>();
                 response.put("created", savedInstructorAvailabilities);
                 response.put("conflicts", conflictInstructorAvailabilities);
@@ -94,7 +99,6 @@ public class InstructorAvailabilityController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @GetMapping("/instructorAvailabilities")
     public ResponseEntity<List<InstructorAvailability>> getAllInstructorAvailabilities() {

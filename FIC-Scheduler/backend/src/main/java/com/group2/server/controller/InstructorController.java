@@ -1,22 +1,15 @@
 package com.group2.server.controller;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "https://ficschedulerapp.onrender.com", allowCredentials = "true")
+@CrossOrigin(origins = "*")
 public class InstructorController {
 
     @GetMapping("/instructor")
     public String verifiedInstructorController() {
-        return "instructor level access"; 
+        return "instructor level access";
     }
 
-    
 }

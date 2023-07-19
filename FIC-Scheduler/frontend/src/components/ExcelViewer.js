@@ -12,6 +12,7 @@ import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import readExcelFile from "./readExcelfile";
 import styles from "./ExcelViewer.module.css";
+import { tokenConfig } from "../utils";
 
 const ExcelViewer = ({ spreadsheetData, setSpreadsheetData }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -38,15 +39,15 @@ const ExcelViewer = ({ spreadsheetData, setSpreadsheetData }) => {
       console.error("Error reading Excel file:", error);
     }
   };
-  
+
 
   const handleSendToBackend = async () => {
     if (spreadsheetData.length > 0) {
       const formData = new FormData();
       formData.append("file", selectedFile);
-      
+
       try {
-        const response = await axios.post("post_to_db", formData);
+        const response = await axios.post("post_to_db", formData, tokenConfig());
 
         if (response.status === 200) {
           const result = response.data;
