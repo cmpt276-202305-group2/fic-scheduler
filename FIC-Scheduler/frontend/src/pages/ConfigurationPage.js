@@ -9,6 +9,8 @@ function ConfigurationPage() {
     const [configurationSpreadsheetDataOne, setConfigurationSpreadsheetDataOne] = useState([]); 
     const [configurationSpreadsheetDataTwo, setConfigurationSpreadsheetDataTwo] = useState([]); 
     const [configurationSpreadsheetDataThree, setConfigurationSpreadsheetDataThree] = useState([]);
+    const [configurationSpreadsheetDataFour, setConfigurationSpreadsheetDataFour] = useState([]);
+    const [configurationSpreadsheetDataFive, setConfigurationSpreadsheetDataFive] = useState([]);
   return (
     <CheckAuth permittedRoles={["ADMIN", "COORDINATOR"]} fallback={<Navigate to="/" replace />}>
       <div className={styles.Container}>
@@ -23,6 +25,10 @@ function ConfigurationPage() {
             setConfigurationSpreadsheetDataTwo={setConfigurationSpreadsheetDataTwo}
             configurationSpreadsheetDataThree={configurationSpreadsheetDataThree}
             setConfigurationSpreadsheetDataThree={setConfigurationSpreadsheetDataThree}
+            configurationSpreadsheetDataFour={configurationSpreadsheetDataFour}
+            setConfigurationSpreadsheetDataFour={setConfigurationSpreadsheetDataFour}
+            configurationSpreadsheetDataFive={configurationSpreadsheetDataFive}
+            setConfigurationSpreadsheetDataFive={setConfigurationSpreadsheetDataFive}
           />
         </div>
       </div>
