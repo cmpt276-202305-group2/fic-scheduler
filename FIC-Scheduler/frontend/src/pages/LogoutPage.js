@@ -4,6 +4,7 @@ import axios from 'axios';
 import styles from "./LogoutPage.module.css";
 import { useNavigate } from "react-router-dom";
 import { UserInfoContext } from "../App"; // Import UserInfoContext from App.js
+import { tokenConfig } from "../utils"
 
 function LogoutPage() {
   const navigate = useNavigate();
@@ -11,11 +12,12 @@ function LogoutPage() {
   const { setUserInfo } = useContext(UserInfoContext); // Access setUserInfo from UserInfoContext
 
   useEffect(() => {
+    // console.log("logout useEffect");
     setUserInfo(null);
 
-    axios.post('auth/logout', {}, { withCredentials: true })
+    axios.post('auth/logout', {}, tokenConfig())
       .then((response) => {
-        console.log("Logout successful");
+        // console.log("Logout successful");
       })
       .catch((error) => {
         console.error(error);
@@ -33,7 +35,7 @@ function LogoutPage() {
       clearTimeout(redirect);
       clearInterval(countdown);
     };
-  });
+  }, [setUserInfo]);
 
   return (
     <div className={styles.container}>

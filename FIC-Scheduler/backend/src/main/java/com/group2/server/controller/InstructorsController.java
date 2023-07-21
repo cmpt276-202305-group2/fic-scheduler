@@ -14,7 +14,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "*")
 public class InstructorsController {
 
     @Autowired
@@ -45,7 +45,8 @@ public class InstructorsController {
                 for (String name : instructorDto.getAccreditationNames()) {
                     Accreditation accreditation = accreditationRepository.findByName(name);
                     if (accreditation == null) {
-                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Accreditation not found with name " + name);
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Accreditation not found with name " + name);
                     }
                     accreditations.add(accreditation);
                 }
@@ -54,7 +55,8 @@ public class InstructorsController {
             }
 
             if (!conflictInstructors.isEmpty()) {
-                // If there were conflict instructors, return them along with the created instructors
+                // If there were conflict instructors, return them along with the created
+                // instructors
                 Map<String, Object> response = new HashMap<>();
                 response.put("created", savedInstructors);
                 response.put("conflicts", conflictInstructors);

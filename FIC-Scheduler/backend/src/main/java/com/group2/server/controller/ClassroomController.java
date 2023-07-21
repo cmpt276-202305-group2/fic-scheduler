@@ -19,7 +19,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "*")
 public class ClassroomController {
 
     @Autowired
@@ -55,7 +55,7 @@ public class ClassroomController {
                 classroom.setFacilitiesAvailable(facilities);
                 savedClassrooms.add(classroomRepository.save(classroom));
             }
-            
+
             if (!conflictClassrooms.isEmpty()) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("created", savedClassrooms);
@@ -68,8 +68,6 @@ public class ClassroomController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 
     @GetMapping("/classroom")
     public ResponseEntity<List<Classroom>> getAllClassrooms() {

@@ -1,15 +1,20 @@
-import React, { useState } from "react";
+import axios from 'axios';
+import React, { useEffect, useState } from "react";
 
 import styles from "../pages/Common.module.css";
 
-import { getAsync } from "../utils"
+import { tokenConfig } from "../utils"
 
 export function ScheduleTable() {
   const [fetchResult, setFetchResult] = useState(null);
 
-  getAsync("schedules/latest", setFetchResult);
+  useEffect(() => {
+    axios.get("api/schedules/latest", tokenConfig()).then(
+      (response) => { setFetchResult(response.data); },
+      (_) => { setFetchResult(null); });
+  }, [setFetchResult]);
 
-  if ((fetchResult == null) || !(fetchResult.classScheduleAssignments instanceof Array)) {
+  if ((fetchResult === null) || !(fetchResult.classScheduleAssignments instanceof Array)) {
     return (
       <div className={styles.PageContent} data-testid="schedule">
         <div>No schedules generated!</div>

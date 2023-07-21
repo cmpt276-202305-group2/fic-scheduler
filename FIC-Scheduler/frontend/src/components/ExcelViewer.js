@@ -12,6 +12,7 @@ import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import readExcelFile from "./readExcelfile";
 import styles from "./ExcelViewer.module.css";
+import { tokenConfig } from "../utils";
 
 const ExcelViewer = ({ spreadsheetData, setSpreadsheetData }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -45,17 +46,21 @@ const ExcelViewer = ({ spreadsheetData, setSpreadsheetData }) => {
       formData.append("file", selectedFile);
 
       try {
-        const response = await axios.post("post_to_db", formData);
+        const response = await axios.post(
+          "post_to_db",
+          formData,
+          tokenConfig()
+        );
 
         if (response.status === 200) {
           const result = response.data;
           console.log("File upload successful:", result);
           // Add any further actions or state updates upon successful backend upload
         } else {
-          console.error("Error uploading Excel file:", response.statusText);
+          // console.error("Error uploading Excel file:", response.statusText);
         }
       } catch (error) {
-        console.error("Error uploading Excel file:", error);
+        // console.error("Error uploading Excel file:", error);
       }
     }
   };

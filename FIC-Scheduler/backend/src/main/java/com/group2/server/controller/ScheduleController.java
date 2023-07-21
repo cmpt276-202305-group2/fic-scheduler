@@ -5,14 +5,7 @@ import java.util.HashSet;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.group2.server.model.ClassSchedule;
 import com.group2.server.model.ClassScheduleAssignment;
@@ -26,7 +19,7 @@ import com.group2.server.repository.SemesterPlanRepository;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "*")
 public class ScheduleController {
 
     @Autowired
@@ -56,9 +49,12 @@ public class ScheduleController {
             var chenoa = new Instructor(null, "Chenoa", null);
             var room2400 = new Classroom(null, "DIS1 2400", null);
             var room2550 = new Classroom(null, "DIS1 2550", null);
-            assignments.add(new ClassScheduleAssignment(null, latestSchedule, "CMPT 120", PartOfDay.MORNING, room2400, chenoa));
-            assignments.add(new ClassScheduleAssignment(null, latestSchedule, "PHYS 125", PartOfDay.AFTERNOON, room2550, alfred));
-            assignments.add(new ClassScheduleAssignment(null, latestSchedule, "ENGL 105W", PartOfDay.EVENING, room2400, shaniqua));
+            assignments.add(
+                    new ClassScheduleAssignment(null, latestSchedule, "CMPT 120", PartOfDay.MORNING, room2400, chenoa));
+            assignments.add(new ClassScheduleAssignment(null, latestSchedule, "PHYS 125", PartOfDay.AFTERNOON, room2550,
+                    alfred));
+            assignments.add(new ClassScheduleAssignment(null, latestSchedule, "ENGL 105W", PartOfDay.EVENING, room2400,
+                    shaniqua));
             latestSchedule.setClassScheduleAssignments(assignments);
         }
 

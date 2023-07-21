@@ -6,11 +6,11 @@ import Sidebar from "../components/Sidebar";
 import ConfigurationExcelView from "../components/ConfigurationExcelView";
 
 function ConfigurationPage() {
-    const [configurationSpreadsheetDataOne, setConfigurationSpreadsheetDataOne] = useState([]); 
-    const [configurationSpreadsheetDataTwo, setConfigurationSpreadsheetDataTwo] = useState([]); 
-    const [configurationSpreadsheetDataThree, setConfigurationSpreadsheetDataThree] = useState([]);
-    const [configurationSpreadsheetDataFour, setConfigurationSpreadsheetDataFour] = useState([]);
-    const [configurationSpreadsheetDataFive, setConfigurationSpreadsheetDataFive] = useState([]);
+  const [configurationSpreadsheetDataOne, setConfigurationSpreadsheetDataOne] = useState([]);
+  const [configurationSpreadsheetDataTwo, setConfigurationSpreadsheetDataTwo] = useState([]);
+  const [configurationSpreadsheetDataThree, setConfigurationSpreadsheetDataThree] = useState([]);
+  const [configurationSpreadsheetDataFour, setConfigurationSpreadsheetDataFour] = useState([]);
+  const [configurationSpreadsheetDataFive, setConfigurationSpreadsheetDataFive] = useState([]);
   return (
     <CheckAuth permittedRoles={["ADMIN", "COORDINATOR"]} fallback={<Navigate to="/" replace />}>
       <div className={styles.Container}>
@@ -18,8 +18,8 @@ function ConfigurationPage() {
           <Sidebar />
         </div>
         <div className={styles.PageContent} data-testid="schedule">
-          <ConfigurationExcelView 
-            configurationSpreadsheetDataOne={configurationSpreadsheetDataOne} 
+          <ConfigurationExcelView
+            configurationSpreadsheetDataOne={configurationSpreadsheetDataOne}
             setConfigurationSpreadsheetDataOne={setConfigurationSpreadsheetDataOne}
             configurationSpreadsheetDataTwo={configurationSpreadsheetDataTwo}
             setConfigurationSpreadsheetDataTwo={setConfigurationSpreadsheetDataTwo}
