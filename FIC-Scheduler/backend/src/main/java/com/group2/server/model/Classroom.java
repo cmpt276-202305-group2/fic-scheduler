@@ -9,22 +9,24 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import lombok.Getter;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "classroom")
 public class Classroom {
-    @Getter
+    @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Getter
-    @Setter
     private String roomNumber;
 
-    @Getter
-    @Setter
     @ManyToMany
     @JoinTable(name = "classroom_facilities", joinColumns = @JoinColumn(name = "classroom_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "facilities_id", referencedColumnName = "id"))
     private Set<Facilities> facilitiesAvailable;

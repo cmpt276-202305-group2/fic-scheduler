@@ -7,22 +7,24 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import lombok.Getter;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "class_schedule")
 public class ClassSchedule {
-    @Getter
+    @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Getter
-    @Setter
     private String semester;
 
-    @Getter
-    @Setter
     @OneToMany(mappedBy = "classSchedule")
     private Set<ClassScheduleAssignment> classScheduleAssignments;
 

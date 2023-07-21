@@ -9,11 +9,12 @@
     color: white;
     height: 100vh;
     width: 280px;
-    position: sticky;
+    position: fixed;
     top: 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    z-index: 2;
 }
 
 .Sidebar li:last-child {
@@ -44,16 +45,16 @@
     display: flex;
     height: 100vh;
 }
-  
-.Schedule {
+
+.PageContent {
     flex-grow: 1;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 50px;
+    flex-direction: column;
+    font-size: 9px;
     color: grey;
-    border: solid grey 1px;
-    margin: 20px;  
+    margin: 20px;
+    margin-left: 300px;
+    z-index: 1;
 }
 
 /* this is gonna make sure it works for the smaller devices */
@@ -61,7 +62,7 @@
   .Container {
     flex-direction: column;
   }
-  
+
   .Sidebar {
     width: 100%;
     height: auto;
@@ -77,5 +78,5 @@
   .Sidebar li:last-child {
     margin-top: auto;
     width: 100%;
-}
+  }
 }

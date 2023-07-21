@@ -1,19 +1,19 @@
 // CheckAuth.js
-import { Navigate, useLocation } from "react-router-dom";
-import { useContext } from 'react'; 
-import { UserRoleContext } from '../App';
+import React from "react";
+import { useContext } from 'react';
+import { UserInfoContext } from '../App';
 
-function CheckAuth({children, roles}) {
-  const { userRole } = useContext(UserRoleContext);
-  const location = useLocation();
+function CheckAuth({ children, permittedRoles, fallback }) {
+  const { userInfo } = useContext(UserInfoContext);
 
-  if (!userRole || !roles.includes(userRole)) {
-    // If userRole is undefined or not included in the roles prop, navigate to their role's page
-    // If userRole is null (user is not logged in), this will fall back to /login
-    return <Navigate to={`/${userRole ? userRole.toLowerCase() : "login"}`} state={{ from: location }} replace />;
+  if ((userInfo ?? null) !== null) {
+    for (const role of (userInfo.roles ?? [])) {
+      if (permittedRoles.includes(role)) {
+        return children;
+      }
+    }
   }
-
-  return children;
+  return fallback ?? (<React.Fragment />);
 }
 
 export default CheckAuth;

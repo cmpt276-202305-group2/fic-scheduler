@@ -1,70 +1,87 @@
-import React, { useState, useEffect } from 'react';
-import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import InstructorHomePage from "./pages/InstructorHomePage";
-import CoordinatorHomePage from "./pages/CoordinatorHomePage";
-import { createContext } from 'react';
-import LogoutPage from "./pages/LogoutPage";
-import CheckAuth from "./components/CheckAuth";
 import axios from 'axios';
+import React, { createContext, useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
-export const UserRoleContext = createContext();
+import "./App.css";
+
+import GenerateSchedulePage from "./pages/GenerateSchedulePage";
+import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
+import LogoutPage from "./pages/LogoutPage";
+import UploadInstructorAvailabilityPage from "./pages/UploadInstructorAvailabilityPage";
+import ConfigurationPage from "./pages/ConfigurationPage";
+import ViewFullSchedulePage from "./pages/ViewFullSchedulePage";
+import ViewInstructorSchedulePage from "./pages/ViewInstructorSchedulePage";
+
+var setUserInfo = (_) => { console.log('dummy setUserInfo'); };
+
+export const UserInfoContext = createContext();
+export const validRoles = new Set('ADMIN', 'COORDINATOR', 'INSTRUCTOR')
+export const storeUserInfo = async (userInfoDto) => {
+  // console.log("storeUserInfo");
+  const userInfo = {
+    username: '' + (userInfoDto.username ?? 'nouser'),
+    roles: Array.from(userInfoDto.roles ?? []),
+    fullName: '' + (userInfoDto.fullName ?? 'No User')
+  };
+  localStorage.setItem('userInfo', JSON.stringify(userInfoDto));
+  setUserInfo(userInfo);
+  // console.log("storeUserInfo done");
+};
+export const fetchUserInfo = async () => {
+  // console.log("fetchUserInfo");
+  try {
+    const response = await axios.get("auth/userinfo", { withCredentials: true });
+    if (response.status === 200) {
+      storeUserInfo(response.data);
+    } else {
+      console.log("fetchUserInfo bad status", response.status);
+      localStorage.removeItem('userInfo');
+    }
+  } catch (error) {
+    console.log("fetchUserInfo exception", error);
+    localStorage.removeItem('userInfo');
+  }
+};
 
 function App() {
-  const [userRole, setUserRole] = useState(null);
-  const [userInfoFetched, setUserInfoFetched] = useState(false); 
+  // console.log("App render");
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await axios.get("http://localhost:8080/auth/userinfo", { withCredentials: true });
-        const { roles } = response.data;
-        setUserRole(roles[0]);
-      } catch (error) {
-        setUserRole(null);
-      } finally {
-        setUserInfoFetched(true);
-      }
-    };
-    
-    fetchUserInfo();
-  }, []);  
+  axios.defaults.baseURL = "http://localhost:8080/";
+  axios.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
 
-  if (!userInfoFetched) {
-    return <div>Loading...</div>;
+  const lsUserInfoItem = localStorage.getItem('userInfo') ?? null;
+  const lsUserInfo = (lsUserInfoItem === null) ? null : {
+    username: lsUserInfoItem.username ?? 'nouser',
+    roles: Array.from(lsUserInfoItem.roles ?? []),
+    fullName: lsUserInfoItem.fullName ?? 'No User'
+  };
+
+  var userInfo;
+  [userInfo, setUserInfo] = useState(lsUserInfo);
+  const navigate = useNavigate();
+
+  useEffect(() => { fetchUserInfo(); }, []);
+
+  if (lsUserInfo === null) {
+    navigate('/login');
   }
 
   return (
     <div className="App">
-      <UserRoleContext.Provider value={{ userRole, setUserRole }}>
+      <UserInfoContext.Provider value={{ userInfo, setUserInfo }}>
         <Routes>
-          <Route
-            path="/login"
-            element={
-              userRole ? <Navigate to={`/${userRole.toLowerCase()}`} replace /> : <LoginPage />
-            }
-          />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/generateSchedule" element={<GenerateSchedulePage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/logout" element={<LogoutPage />} />
-          <Route
-            path="/instructor"
-            element={
-              <CheckAuth roles={["INSTRUCTOR"]}>
-                <InstructorHomePage />
-              </CheckAuth>
-            }
-          />
-          <Route
-            path="/coordinator"
-            element={
-              <CheckAuth roles={["COORDINATOR"]}>
-                <CoordinatorHomePage />
-              </CheckAuth>
-            }
-          />
-          <Route path="/*" element={<Navigate to={`/${userRole ? userRole.toLowerCase() : "login"}`} replace />} />
+          <Route path="/Configuration" element={<ConfigurationPage />} />
+          <Route path="/uploadInstructorAvailability" element={<UploadInstructorAvailabilityPage />} />
+          <Route path="/viewFullSchedule" element={<ViewFullSchedulePage />} />
+          <Route path="/viewInstructorSchedule" element={<ViewInstructorSchedulePage />} />
+          <Route path="/*" element={<Navigate to="/" replace />} />
         </Routes>
-      </UserRoleContext.Provider>
+      </UserInfoContext.Provider>
     </div>
   );
 }
