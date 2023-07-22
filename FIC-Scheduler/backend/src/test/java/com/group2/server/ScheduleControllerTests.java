@@ -27,6 +27,7 @@ import com.group2.server.model.ClassSchedule;
 import com.group2.server.model.SemesterPlan;
 import com.group2.server.repository.ClassScheduleRepository;
 import com.group2.server.repository.SemesterPlanRepository;
+import com.group2.server.services.TokenService;
 import com.group2.server.model.ApplicationUser;
 import com.group2.server.model.Role;
 
@@ -50,10 +51,15 @@ public class ScheduleControllerTests {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TokenService tokenService;
+
+    private String mockJwt;
+
     @BeforeEach
     public void setup() {
         // Create a mock user for authentication
-        mockUser = makeMockUser("testUser", "testPassword", Role.ADMIN);
+        mockUser = makeMockUser("testUser", "testPassword", Role.COORDINATOR);
 
         try {
             // Create a mock schedule
@@ -79,6 +85,9 @@ public class ScheduleControllerTests {
         if (role != null) {
             roles.add(role);
         }
+
+        mockJwt = tokenService.generateJwt(username, roles);
+
         return new ApplicationUser((Integer) 1, username, passwordEncoder.encode(password), roles, "");
     }
 
@@ -117,6 +126,7 @@ public class ScheduleControllerTests {
 
         // Perform the request
         mockMvc.perform(MockMvcRequestBuilders.get("/api/schedules/latest")
+                .header("Authorization", "Bearer " + mockJwt)
                 .with(SecurityMockMvcRequestPostProcessors.user(mockUser)) // Include the mock user for authentication
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -132,6 +142,7 @@ public class ScheduleControllerTests {
 
         // Perform the request and verify the response
         mockMvc.perform(MockMvcRequestBuilders.get("/api/schedules/{id}", scheduleId)
+                .header("Authorization", "Bearer " + mockJwt)
                 .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.semester").value(mockSchedule.getSemester()))
@@ -146,6 +157,7 @@ public class ScheduleControllerTests {
     
         // Perform the request and verify the response
         mockMvc.perform(MockMvcRequestBuilders.get("/api/schedules").param("semester", "Fall 2023")
+                .header("Authorization", "Bearer " + mockJwt)
                 .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].semester").value(mockSchedule.getSemester()))
@@ -158,10 +170,11 @@ public class ScheduleControllerTests {
         when(semesterPlanRepository.findById(1)).thenReturn(Optional.ofNullable(mockPlan));
 
         // Perform the request and verify the response
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/generate")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"semesterPlanId\": 1}")
-                        .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/generate-schedule")
+                .header("Authorization", "Bearer " + mockJwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"semesterPlanId\": 1}")
+                .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.semester").value(mockPlan.getSemester()))
                 .andDo(print());

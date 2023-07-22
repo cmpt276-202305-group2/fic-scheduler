@@ -75,7 +75,7 @@ public class ScheduleController {
         return schedules.toArray(new ClassSchedule[0]);
     }
 
-    @PostMapping("/generate")
+    @PostMapping("/generate-schedule")
     public ClassSchedule generateSchedule(@RequestBody GenerateScheduleDto body) {
         ClassSchedule sched = new ClassSchedule();
         Integer planId = body.getSemesterPlanId();

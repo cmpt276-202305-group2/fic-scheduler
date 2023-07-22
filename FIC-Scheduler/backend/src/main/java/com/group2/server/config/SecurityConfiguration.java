@@ -65,12 +65,16 @@ public class SecurityConfiguration {
 
                     MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
                     auth.requestMatchers(mvcMatcherBuilder.pattern("/auth/**")).permitAll();
-                    auth.requestMatchers(mvcMatcherBuilder.pattern("/api/users")).hasRole(Role.ADMIN.toString());
-                    auth.requestMatchers(mvcMatcherBuilder.pattern("/api/users/**")).hasRole(Role.ADMIN.toString());
-                    auth.requestMatchers(mvcMatcherBuilder.pattern("/api/coordinator/**"))
-                            .hasRole(Role.COORDINATOR.toString());
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/api/users"))
+                            .hasAnyRole(Role.ADMIN.toString());
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/api/users/**"))
+                            .hasAnyRole(Role.ADMIN.toString());
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/api/generate-schedule"))
+                            .hasAnyRole(Role.ADMIN.toString(), Role.COORDINATOR.toString());
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/api/schedules/**"))
+                            .hasAnyRole(Role.ADMIN.toString(), Role.COORDINATOR.toString());
                     auth.requestMatchers(mvcMatcherBuilder.pattern("/api/instructor/**"))
-                            .hasRole(Role.INSTRUCTOR.toString());
+                            .hasAnyRole(Role.ADMIN.toString(), Role.COORDINATOR.toString());
                     auth.anyRequest().denyAll();
                 })
                 .oauth2ResourceServer(

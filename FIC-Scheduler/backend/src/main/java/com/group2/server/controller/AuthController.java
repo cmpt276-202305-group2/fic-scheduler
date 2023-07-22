@@ -43,7 +43,7 @@ public class AuthController {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password));
 
-            String token = tokenService.generateJWT(auth);
+            String token = tokenService.generateJwt(auth);
 
             Optional<ApplicationUser> user = userRepository.findByUsername(username);
 
@@ -55,11 +55,11 @@ public class AuthController {
                                 Optional.of(user.get().getFullName())),
                         token);
             }
-
+            // Fall through to error
         } catch (AuthenticationException e) {
-            response.setStatus(401);
-            return null;
+            // Fall through to error
         }
+        response.setStatus(403);
         return new AuthResponseDto("Authentication failed", null, null);
     }
 
