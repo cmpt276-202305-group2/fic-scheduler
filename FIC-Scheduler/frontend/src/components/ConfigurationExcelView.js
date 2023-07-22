@@ -14,7 +14,18 @@ import readExcelFile from "./readExcelfile";
 import styles from "./ExcelViewer.module.css";
 import { tokenConfig } from "../utils";
 
-const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurationSpreadsheetDataOne, configurationSpreadsheetDataTwo, setConfigurationSpreadsheetDataTwo, configurationSpreadsheetDataThree, setConfigurationSpreadsheetDataThree, configurationSpreadsheetDataFour, setConfigurationSpreadsheetDataFour, configurationSpreadsheetDataFive, setConfigurationSpreadsheetDataFive}) => {
+const ConfigurationExcelView = ({
+  configurationSpreadsheetDataOne,
+  setConfigurationSpreadsheetDataOne,
+  configurationSpreadsheetDataTwo,
+  setConfigurationSpreadsheetDataTwo,
+  configurationSpreadsheetDataThree,
+  setConfigurationSpreadsheetDataThree,
+  configurationSpreadsheetDataFour,
+  setConfigurationSpreadsheetDataFour,
+  configurationSpreadsheetDataFive,
+  setConfigurationSpreadsheetDataFive,
+}) => {
   const [selectedFileOne, setSelectedFileOne] = useState(null);
   const [selectedFileTwo, setSelectedFileTwo] = useState(null);
   const [selectedFileThree, setSelectedFileThree] = useState(null);
@@ -33,10 +44,10 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
 
   const handleFileUploadOne = async (event) => {
     const file = event.target.files[0];
-    if(!file) return;
+    if (!file) return;
     const allowedFormats = ["xlsx", "csv"];
     const fileExtension = file.name.split(".").pop().toLowerCase();
-    if(!allowedFormats.includes(fileExtension)) {
+    if (!allowedFormats.includes(fileExtension)) {
       setShowErrorMessage(true);
       return;
     }
@@ -52,11 +63,38 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
   };
   const handleSendToBackEndOne = async () => {
     if (configurationSpreadsheetDataOne.length > 0) {
-      const formData = new FormData();
-      formData.append("file", selectedFileOne);
+      // Convert data to JSON format
+      const jsonData = configurationSpreadsheetDataOne.map((row) => {
+        return {
+          courseNumber: row.courseNumber,
+          semesterPlanID: row.semesterPlanId,
+          accredationRequiredName: row.accredationRequiredName,
+          blockTypeName: row.blockTypeName,
+          facilitesRequiredNames: [
+            row.facilitesRequiredNames1,
+            row.facilitesRequiredNames2,
+            row.facilitesRequiredNames3,
+          ].filter(Boolean),
+          conflictedCourseNumbers: [
+            row.conflictedCourseNumbers1,
+            row.conflictedCourseNumbers2,
+            row.conflictedCourseNumbers3,
+          ].filter(Boolean),
+        };
+      });
 
       try {
-        const response = await axios.post("post_to_db", formData);
+        // Instead of sending the formData, we send jsonData as the request data
+        const response = await axios.post(
+          " http://localhost:8080/api/courseOffering ",
+          jsonData,
+          tokenConfig(),
+          {
+            headers: {
+              "Content-Type": "application/json", // Set the appropriate content type for JSON data
+            },
+          }
+        );
 
         if (response.status === 200) {
           const result = response.data;
@@ -65,16 +103,16 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
           console.error("Error uploading Excel file:", response.statusText);
         }
       } catch (error) {
-        console.error("Error reading Excel file:", error);
+        console.error("Error sending JSON data to the backend:", error);
       }
     }
   };
   const handleFileUploadTwo = async (event) => {
     const file = event.target.files[0];
-    if(!file) return;
+    if (!file) return;
     const allowedFormats = ["xlsx", "csv"];
     const fileExtension = file.name.split(".").pop().toLowerCase();
-    if(!allowedFormats.includes(fileExtension)) {
+    if (!allowedFormats.includes(fileExtension)) {
       setShowErrorMessageTwo(true);
       return;
     }
@@ -91,11 +129,29 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
 
   const handleSendToBackEndTwo = async () => {
     if (configurationSpreadsheetDataTwo.length > 0) {
-      const formData = new FormData();
-      formData.append("file", selectedFileTwo);
+      const jsonData = configurationSpreadsheetDataTwo.map((row) => {
+        return {
+          roomNumber: row.roomNumber,
+          facilitesAvaliableNames: [
+            row.facilitesAvaliableNames1,
+            row.facilitesAvaliableNames2,
+            row.facilitesAvaliableNames3,
+            row.facilitesAvaliableNames4,
+            row.facilitesAvaliableNames5,
+            row.facilitesAvaliableNames6,
+            row.facilitesAvaliableNames7,
+            row.facilitesAvaliableNames8,
+            row.facilitesAvaliableNames9,
+          ].filter(Boolean),
+        };
+      });
 
       try {
-        const response = await axios.post("post_to_db", formData);
+        const response = await axios.post(
+          "http://localhost:8080/api/classrooms",
+          jsonData,
+          tokenConfig()
+        );
 
         if (response.status === 200) {
           const result = response.json();
@@ -111,10 +167,10 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
 
   const handleFileUploadThree = async (event) => {
     const file = event.target.files[0];
-    if(!file) return;
+    if (!file) return;
     const allowedFormats = ["xlsx", "csv"];
     const fileExtension = file.name.split(".").pop().toLowerCase();
-    if(!allowedFormats.includes(fileExtension)) {
+    if (!allowedFormats.includes(fileExtension)) {
       setShowErrorMessageThree(true);
       return;
     }
@@ -130,11 +186,25 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
   };
   const handleSendToBackEndThree = async () => {
     if (configurationSpreadsheetDataThree.length > 0) {
-      const formData = new FormData();
-      formData.append("file", selectedFileThree);
+      const jsonData = configurationSpreadsheetDataThree.map((row) => {
+        return {
+          name: row.name,
+          accreditationNames: [
+            row.accreditationNames1,
+            row.accreditationNames2,
+            row.accreditationNames3,
+            row.accreditationNames4,
+            row.accreditationNames5,
+          ].filter(Boolean),
+        };
+      });
 
       try {
-        const response = await axios.post("post_to_db", formData);
+        const response = await axios.post(
+          "http://localhost:8080/api/instructors",
+          jsonData,
+          tokenConfig()
+        );
 
         if (response.status === 200) {
           const result = response.data;
@@ -150,10 +220,10 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
 
   const handleFileUploadFour = async (event) => {
     const file = event.target.files[0];
-    if(!file) return;
+    if (!file) return;
     const allowedFormats = ["xlsx", "csv"];
     const fileExtension = file.name.split(".").pop().toLowerCase();
-    if(!allowedFormats.includes(fileExtension)) {
+    if (!allowedFormats.includes(fileExtension)) {
       setShowErrorMessageFour(true);
       return;
     }
@@ -168,12 +238,17 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
     }
   };
   const handleSendToBackEndFour = async () => {
-    if (configurationSpreadsheetDataThree.length > 0) {
-      const formData = new FormData();
-      formData.append("file", selectedFileFour);
+    if (configurationSpreadsheetDataFour.length > 0) {
+      const jsonData = configurationSpreadsheetDataFive.map((item) => ({
+        name: item,
+      }));
 
       try {
-        const response = await axios.post("post_to_db", formData);
+        const response = await axios.post(
+          "http://localhost:8080/api/facilites",
+          jsonData,
+          tokenConfig()
+        );
 
         if (response.status === 200) {
           const result = response.data;
@@ -189,10 +264,10 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
 
   const handleFileUploadFive = async (event) => {
     const file = event.target.files[0];
-    if(!file) return;
+    if (!file) return;
     const allowedFormats = ["xlsx", "csv"];
     const fileExtension = file.name.split(".").pop().toLowerCase();
-    if(!allowedFormats.includes(fileExtension)) {
+    if (!allowedFormats.includes(fileExtension)) {
       setShowErrorMessageFive(true);
       return;
     }
@@ -207,718 +282,763 @@ const ConfigurationExcelView = ({configurationSpreadsheetDataOne, setConfigurati
     }
   };
   const handleSendToBackEndFive = async () => {
-    if (configurationSpreadsheetDataThree.length > 0) {
-      const formData = new FormData();
-      formData.append("file", selectedFileFive);
+    if (configurationSpreadsheetDataFive.length > 0) {
+      // Convert data to JSON format
+      const jsonData = configurationSpreadsheetDataFive.map((item) => ({
+        name: item,
+      }));
 
       try {
-        const response = await axios.post("post_to_db", formData, tokenConfig());
+        const response = await axios.post(
+          "http://localhost:8080/api/accreditations",
+          jsonData,
+          tokenConfig(),
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-        if (response.status === 200) {
-          const result = response.data;
-          console.log("File upload successful:", result);
+        if (response.status === 200 || response.status === 201) {
+          const responseData = response.data;
+          console.log("File upload successful. Response data:", responseData);
+        } else if (response.status === 409) {
+          // In case of conflicts (status code 409), the response data contains created and conflict accreditations
+          const responseData = response.data;
+          console.log("Conflict accreditations:", responseData.conflicts);
+          console.log(
+            "Successfully created accreditations:",
+            responseData.created
+          );
         } else {
           console.error("Error uploading Excel file:", response.statusText);
         }
       } catch (error) {
-        console.error("Error reading Excel file:", error);
+        console.error("Error sending JSON data to the backend:", error);
       }
     }
   };
   return (
     <>
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        marginBottom: 30
-        }}
-    >
-      <header
+      <div
         style={{
-          color: "black",
-          fontSize: 30,
-          position: "sticky",
-          left: 0,
-          marginTop: -10,
-          marginBottom: 5,
-          fontWeight: "bold"
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          marginBottom: 30,
         }}
       >
-        Upload Courses
-      </header>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        {selectedFileOne && (
-          <div className={styles.fileUploadInput}>{selectedFileOne}</div>
-        )}
-        {!selectedFileOne && (
-          <div className={styles.fileUploadInput}>No File Selected</div>
-        )}
-        <TextField
-          type="file"
-          id="file-upload"
-          onChange={handleFileUploadOne}
-          accept=".xlsx,.csv"
-          style={{ display: 'none'}}
-        />
-        <label htmlFor="file-upload">
-          <Button
-            variant="contained"
-            component="span"
-            color = "primary"
-            sx={{
-              color: "white",
-              backgroundColor: "#417A1A",
-              '&:hover': { backgroundColor: '#417A1A' }
-            }}
-            style={{ marginBottom: 10}}
+        <header
+          style={{
+            color: "black",
+            fontSize: 30,
+            position: "sticky",
+            left: 0,
+            marginTop: -10,
+            marginBottom: 5,
+            fontWeight: "bold",
+          }}
+        >
+          Upload Courses
+        </header>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {selectedFileOne && (
+            <div className={styles.fileUploadInput}>{selectedFileOne}</div>
+          )}
+          {!selectedFileOne && (
+            <div className={styles.fileUploadInput}>No File Selected</div>
+          )}
+          <TextField
+            type="file"
+            id="file-upload"
+            onChange={handleFileUploadOne}
+            accept=".xlsx,.csv"
+            style={{ display: "none" }}
+          />
+          <label htmlFor="file-upload">
+            <Button
+              variant="contained"
+              component="span"
+              color="primary"
+              sx={{
+                color: "white",
+                backgroundColor: "#417A1A",
+                "&:hover": { backgroundColor: "#417A1A" },
+              }}
+              style={{ marginBottom: 10 }}
             >
-            Preview File
-          </Button>
-        </label>
-        {showErrorMessage && (
-          <div style={{
-            color: 'red',
-            fontSize: "13px",
-            marginLeft: "5px",
-            marginBottom: "12px"
-            }}
-          >
-          Please Upload Valid .csv, .xlsx File
-          </div>
-        )}
-        {isPreviewVisibleOne && (
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{
-              color: "white",
-              backgroundColor: "#417A1A",
-              "&:hover": { backgroundColor: "#417A1A" },
-            }}
-            style={{ marginBottom: 10, marginLeft: 10 }}
-            onClick={handleSendToBackEndOne}
+              Preview File
+            </Button>
+          </label>
+          {showErrorMessage && (
+            <div
+              style={{
+                color: "red",
+                fontSize: "13px",
+                marginLeft: "5px",
+                marginBottom: "12px",
+              }}
+            >
+              Please Upload Valid .csv, .xlsx File
+            </div>
+          )}
+          {isPreviewVisibleOne && (
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{
+                color: "white",
+                backgroundColor: "#417A1A",
+                "&:hover": { backgroundColor: "#417A1A" },
+              }}
+              style={{ marginBottom: 10, marginLeft: 10 }}
+              onClick={handleSendToBackEndOne}
             >
               Upload File
             </Button>
-        )}
-      </div>
-      <h1
-        style={{
-          color: 'black',
-          fontSize: 30,
-          position: 'sticky',
-          left: 0,
-          marginTop: 0
-        }}
-      >
-        Preview
-      </h1>
-      {configurationSpreadsheetDataOne.length > 0 ? (
-        <div
+          )}
+        </div>
+        <h1
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start'
+            color: "black",
+            fontSize: 30,
+            position: "sticky",
+            left: 0,
+            marginTop: 0,
           }}
         >
-          <Box sx={{width: '100%'}}>
-            <Paper sx={{width: '100%', overflow: 'hidden'}}>
-              <TableContainer
-                sx={{
-                  width: '100%',
-                  maxHeight: window.innerWidth >= 600 ? 700 : 350
-                }}
-              >
-                <Table stickyHeader aria-label="sticky table">
-                  <TableHead>
-                    <TableRow>
-                      {configurationSpreadsheetDataOne[0].map((header, index) => (
-                        <TableCell
-                          key={index}
-                          sx={{
-                            fontWeight: 'bold',
-                            backgroundColor: '#f0f0f0'
-                          }}
-                        >
-                          {header}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {configurationSpreadsheetDataOne.slice(1).map((row, rowIndex) => (
-                      <TableRow key={rowIndex}>
-                        {row.map((cell, cellIndex) => (
-                          <TableCell key={cellIndex}>{cell}</TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Box>
-        </div>
-      ) : (
-        <div className={styles.emptyMessage}>No data to display</div>
-      )}
-    </div>
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        marginBottom: 30
-      }}
-    >
-      <header
-        style={{
-          color: "black",
-          fontSize: 30,
-          position: "sticky",
-          left: 0,
-          marginTop: 10,
-          marginBottom: -25,
-          fontWeight: "bold"
-        }}
-      >
-        Upload Classrooms
-      </header>
-      <div style={{ display: 'flex', alignItems: 'center', marginTop: '30px'}}>
-        {selectedFileTwo && (
-          <div className={styles.fileUploadInput}>{selectedFileTwo}</div>
-        )}
-        {!selectedFileTwo && (
-          <div className={styles.fileUploadInput}>No File Selected</div>
-        )}
-        <TextField
-          type="file"
-          id="file-upload-two"
-          onChange={handleFileUploadTwo}
-          accept=".xlsx,.csv"
-          style={{ display: 'none'}}
-        />
-        <label htmlFor="file-upload-two">
-          <Button
-            variant="contained"
-            component="span"
-            color = "primary"
-            sx={{
-              color: "white",
-              backgroundColor: "#417A1A",
-              '&:hover': { backgroundColor: '#417A1A' }
-            }}
-            style={{ marginBottom: 10}}
-            >
-            Preview File
-          </Button>
-        </label>
-        {showErrorMessageTwo && (
+          Preview
+        </h1>
+        {configurationSpreadsheetDataOne.length > 0 ? (
           <div
             style={{
-              color: 'red',
-              fontSize: "13px",
-              marginLeft: "5px",
-              marginBottom: "12px"
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
             }}
           >
-            Please Upload Valid .csv, .xlsx File
+            <Box sx={{ width: "100%" }}>
+              <Paper sx={{ width: "100%", overflow: "hidden" }}>
+                <TableContainer
+                  sx={{
+                    width: "100%",
+                    maxHeight: window.innerWidth >= 600 ? 700 : 350,
+                  }}
+                >
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        {configurationSpreadsheetDataOne[0].map(
+                          (header, index) => (
+                            <TableCell
+                              key={index}
+                              sx={{
+                                fontWeight: "bold",
+                                backgroundColor: "#f0f0f0",
+                              }}
+                            >
+                              {header}
+                            </TableCell>
+                          )
+                        )}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {configurationSpreadsheetDataOne
+                        .slice(1)
+                        .map((row, rowIndex) => (
+                          <TableRow key={rowIndex}>
+                            {row.map((cell, cellIndex) => (
+                              <TableCell key={cellIndex}>{cell}</TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Box>
           </div>
-        )}
-        {isPreviewVisibleTwo && (
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{
-              color: "white",
-              backgroundColor: "#417A1A",
-              "&:hover": { backgroundColor: "#417A1A" },
-            }}
-            style={{ marginBottom: 10, marginLeft: 10 }}
-            onClick={handleSendToBackEndTwo}
-          >
-            Upload File
-          </Button>
+        ) : (
+          <div className={styles.emptyMessage}>No data to display</div>
         )}
       </div>
-      <h1
+      <div
         style={{
-          color: 'black',
-          fontSize: 30,
-          position: 'sticky',
-          left: 0,
-          marginTop: 0
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          marginBottom: 30,
         }}
       >
-        Preview
-      </h1>
-      {configurationSpreadsheetDataTwo.length > 0 ? (
-        <div
+        <header
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start'
+            color: "black",
+            fontSize: 30,
+            position: "sticky",
+            left: 0,
+            marginTop: 10,
+            marginBottom: -25,
+            fontWeight: "bold",
           }}
         >
-          <Box sx={{width: '100%'}}>
-            <Paper sx={{width: '100%', overflow: 'hidden'}}>
-              <TableContainer
-                sx={{
-                  width: '100%',
-                  maxHeight: window.innerWidth >= 600 ? 700 : 350
-                }}
-              >
-                <Table stickyHeader aria-label="sticky table">
-                  <TableHead>
-                    <TableRow>
-                      {configurationSpreadsheetDataTwo[0].map((header, index) => (
-                        <TableCell
-                          key={index}
-                          sx={{
-                            fontWeight: 'bold',
-                            backgroundColor: '#f0f0f0'
-                          }}
-                        >
-                          {header}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {configurationSpreadsheetDataTwo.slice(1).map((row, rowIndex) => (
-                      <TableRow key={rowIndex}>
-                        {row.map((cell, cellIndex) => (
-                          <TableCell key={cellIndex}>{cell}</TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Box>
-        </div>
-      ) : (
-        <div className={styles.emptyMessage}>No data to display</div>
-      )}
-    </div>
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        marginTop: '5px',
-        marginBottom: 30
-        }}
-    >
-      <header
-        style={{
-          color: "black",
-          fontSize: 30,
-          position: "sticky",
-          left: 0,
-          marginTop: 10,
-          marginBottom: 5,
-          fontWeight: "bold"
-        }}
-      >
-        Upload Instructors
-      </header>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        {selectedFileThree && (
-          <div className={styles.fileUploadInput}>{selectedFileOne}</div>
-        )}
-        {!selectedFileThree && (
-          <div className={styles.fileUploadInput}>No File Selected</div>
-        )}
-        <TextField
-          type="file"
-          id="file-upload-three"
-          onChange={handleFileUploadThree}
-          accept=".xlsx,.csv"
-          style={{ display: 'none'}}
-        />
-        <label htmlFor="file-upload-three">
-          <Button
-            variant="contained"
-            component="span"
-            color = "primary"
-            sx={{
-              color: "white",
-              backgroundColor: "#417A1A",
-              '&:hover': { backgroundColor: '#417A1A' }
-            }}
-            style={{ marginBottom: 10}}
+          Upload Classrooms
+        </header>
+        <div
+          style={{ display: "flex", alignItems: "center", marginTop: "30px" }}
+        >
+          {selectedFileTwo && (
+            <div className={styles.fileUploadInput}>{selectedFileTwo}</div>
+          )}
+          {!selectedFileTwo && (
+            <div className={styles.fileUploadInput}>No File Selected</div>
+          )}
+          <TextField
+            type="file"
+            id="file-upload-two"
+            onChange={handleFileUploadTwo}
+            accept=".xlsx,.csv"
+            style={{ display: "none" }}
+          />
+          <label htmlFor="file-upload-two">
+            <Button
+              variant="contained"
+              component="span"
+              color="primary"
+              sx={{
+                color: "white",
+                backgroundColor: "#417A1A",
+                "&:hover": { backgroundColor: "#417A1A" },
+              }}
+              style={{ marginBottom: 10 }}
             >
-            Preview File
-          </Button>
-        </label>
-        {showErrorMessageThree && (
-          <div style={{
-            color: 'red',
-            fontSize: "13px",
-            marginLeft: "5px",
-            marginBottom: "12px"
-            }}
-          >
-          Please Upload Valid .csv, .xlsx File
-          </div>
-        )}
-        {isPreviewVisibleThree && (
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{
-              color: "white",
-              backgroundColor: "#417A1A",
-              "&:hover": { backgroundColor: "#417A1A" },
-            }}
-            style={{ marginBottom: 10, marginLeft: 10 }}
-            onClick={handleSendToBackEndThree}
+              Preview File
+            </Button>
+          </label>
+          {showErrorMessageTwo && (
+            <div
+              style={{
+                color: "red",
+                fontSize: "13px",
+                marginLeft: "5px",
+                marginBottom: "12px",
+              }}
+            >
+              Please Upload Valid .csv, .xlsx File
+            </div>
+          )}
+          {isPreviewVisibleTwo && (
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{
+                color: "white",
+                backgroundColor: "#417A1A",
+                "&:hover": { backgroundColor: "#417A1A" },
+              }}
+              style={{ marginBottom: 10, marginLeft: 10 }}
+              onClick={handleSendToBackEndTwo}
             >
               Upload File
             </Button>
-        )}
-      </div>
-      <h1
-        style={{
-          color: 'black',
-          fontSize: 30,
-          position: 'sticky',
-          left: 0,
-          marginTop: 0
-        }}
-      >
-        Preview
-      </h1>
-      {configurationSpreadsheetDataThree.length > 0 ? (
-        <div
+          )}
+        </div>
+        <h1
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start'
+            color: "black",
+            fontSize: 30,
+            position: "sticky",
+            left: 0,
+            marginTop: 0,
           }}
         >
-          <Box sx={{width: '100%'}}>
-            <Paper sx={{width: '100%', overflow: 'hidden'}}>
-              <TableContainer
-                sx={{
-                  width: '100%',
-                  maxHeight: window.innerWidth >= 600 ? 700 : 350
-                }}
-              >
-                <Table stickyHeader aria-label="sticky table">
-                  <TableHead>
-                    <TableRow>
-                      {configurationSpreadsheetDataThree[0].map((header, index) => (
-                        <TableCell
-                          key={index}
-                          sx={{
-                            fontWeight: 'bold',
-                            backgroundColor: '#f0f0f0'
-                          }}
-                        >
-                          {header}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {configurationSpreadsheetDataThree.slice(1).map((row, rowIndex) => (
-                      <TableRow key={rowIndex}>
-                        {row.map((cell, cellIndex) => (
-                          <TableCell key={cellIndex}>{cell}</TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Box>
-        </div>
-      ) : (
-        <div className={styles.emptyMessage}>No data to display</div>
-      )}
-    </div>
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        marginBottom: 35
-        }}
-    >
-      <header
-        style={{
-          color: "black",
-          fontSize: 30,
-          position: "sticky",
-          left: 0,
-          marginTop: 15,
-          marginBottom: 5,
-          fontWeight: "bold"
-        }}
-      >
-        Upload Facilities
-      </header>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        {selectedFileFour && (
-          <div className={styles.fileUploadInput}>{selectedFileOne}</div>
-        )}
-        {!selectedFileFour && (
-          <div className={styles.fileUploadInput}>No File Selected</div>
-        )}
-        <TextField
-          type="file"
-          id="file-upload-four"
-          onChange={handleFileUploadFour}
-          accept=".xlsx,.csv"
-          style={{ display: 'none'}}
-        />
-        <label htmlFor="file-upload-four">
-          <Button
-            variant="contained"
-            component="span"
-            color = "primary"
-            sx={{
-              color: "white",
-              backgroundColor: "#417A1A",
-              '&:hover': { backgroundColor: '#417A1A' }
-            }}
-            style={{ marginBottom: 10}}
-            >
-            Preview File
-          </Button>
-        </label>
-        {showErrorMessageFour && (
-          <div style={{
-            color: 'red',
-            fontSize: "13px",
-            marginLeft: "5px",
-            marginBottom: "12px"
+          Preview
+        </h1>
+        {configurationSpreadsheetDataTwo.length > 0 ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
             }}
           >
-          Please Upload Valid .csv, .xlsx File
+            <Box sx={{ width: "100%" }}>
+              <Paper sx={{ width: "100%", overflow: "hidden" }}>
+                <TableContainer
+                  sx={{
+                    width: "100%",
+                    maxHeight: window.innerWidth >= 600 ? 700 : 350,
+                  }}
+                >
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        {configurationSpreadsheetDataTwo[0].map(
+                          (header, index) => (
+                            <TableCell
+                              key={index}
+                              sx={{
+                                fontWeight: "bold",
+                                backgroundColor: "#f0f0f0",
+                              }}
+                            >
+                              {header}
+                            </TableCell>
+                          )
+                        )}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {configurationSpreadsheetDataTwo
+                        .slice(1)
+                        .map((row, rowIndex) => (
+                          <TableRow key={rowIndex}>
+                            {row.map((cell, cellIndex) => (
+                              <TableCell key={cellIndex}>{cell}</TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Box>
           </div>
+        ) : (
+          <div className={styles.emptyMessage}>No data to display</div>
         )}
-        {isPreviewVisibleFour && (
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{
-              color: "white",
-              backgroundColor: "#417A1A",
-              "&:hover": { backgroundColor: "#417A1A" },
-            }}
-            style={{ marginBottom: 10, marginLeft: 10 }}
-            onClick={handleSendToBackEndFour}
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          marginTop: "5px",
+          marginBottom: 30,
+        }}
+      >
+        <header
+          style={{
+            color: "black",
+            fontSize: 30,
+            position: "sticky",
+            left: 0,
+            marginTop: 10,
+            marginBottom: 5,
+            fontWeight: "bold",
+          }}
+        >
+          Upload Instructors
+        </header>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {selectedFileThree && (
+            <div className={styles.fileUploadInput}>{selectedFileOne}</div>
+          )}
+          {!selectedFileThree && (
+            <div className={styles.fileUploadInput}>No File Selected</div>
+          )}
+          <TextField
+            type="file"
+            id="file-upload-three"
+            onChange={handleFileUploadThree}
+            accept=".xlsx,.csv"
+            style={{ display: "none" }}
+          />
+          <label htmlFor="file-upload-three">
+            <Button
+              variant="contained"
+              component="span"
+              color="primary"
+              sx={{
+                color: "white",
+                backgroundColor: "#417A1A",
+                "&:hover": { backgroundColor: "#417A1A" },
+              }}
+              style={{ marginBottom: 10 }}
+            >
+              Preview File
+            </Button>
+          </label>
+          {showErrorMessageThree && (
+            <div
+              style={{
+                color: "red",
+                fontSize: "13px",
+                marginLeft: "5px",
+                marginBottom: "12px",
+              }}
+            >
+              Please Upload Valid .csv, .xlsx File
+            </div>
+          )}
+          {isPreviewVisibleThree && (
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{
+                color: "white",
+                backgroundColor: "#417A1A",
+                "&:hover": { backgroundColor: "#417A1A" },
+              }}
+              style={{ marginBottom: 10, marginLeft: 10 }}
+              onClick={handleSendToBackEndThree}
             >
               Upload File
             </Button>
-        )}
-      </div>
-      <h1
-        style={{
-          color: 'black',
-          fontSize: 30,
-          position: 'sticky',
-          left: 0,
-          marginTop: 0
-        }}
-      >
-        Preview
-      </h1>
-      {configurationSpreadsheetDataFour.length > 0 ? (
-        <div
+          )}
+        </div>
+        <h1
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start'
+            color: "black",
+            fontSize: 30,
+            position: "sticky",
+            left: 0,
+            marginTop: 0,
           }}
         >
-          <Box sx={{width: '100%'}}>
-            <Paper sx={{width: '100%', overflow: 'hidden'}}>
-              <TableContainer
-                sx={{
-                  width: '100%',
-                  maxHeight: window.innerWidth >= 600 ? 700 : 350
-                }}
-              >
-                <Table stickyHeader aria-label="sticky table">
-                  <TableHead>
-                    <TableRow>
-                      {configurationSpreadsheetDataFour[0].map((header, index) => (
-                        <TableCell
-                          key={index}
-                          sx={{
-                            fontWeight: 'bold',
-                            backgroundColor: '#f0f0f0'
-                          }}
-                        >
-                          {header}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {configurationSpreadsheetDataFour.slice(1).map((row, rowIndex) => (
-                      <TableRow key={rowIndex}>
-                        {row.map((cell, cellIndex) => (
-                          <TableCell key={cellIndex}>{cell}</TableCell>
-                        ))}
+          Preview
+        </h1>
+        {configurationSpreadsheetDataThree.length > 0 ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+            }}
+          >
+            <Box sx={{ width: "100%" }}>
+              <Paper sx={{ width: "100%", overflow: "hidden" }}>
+                <TableContainer
+                  sx={{
+                    width: "100%",
+                    maxHeight: window.innerWidth >= 600 ? 700 : 350,
+                  }}
+                >
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        {configurationSpreadsheetDataThree[0].map(
+                          (header, index) => (
+                            <TableCell
+                              key={index}
+                              sx={{
+                                fontWeight: "bold",
+                                backgroundColor: "#f0f0f0",
+                              }}
+                            >
+                              {header}
+                            </TableCell>
+                          )
+                        )}
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Box>
+                    </TableHead>
+                    <TableBody>
+                      {configurationSpreadsheetDataThree
+                        .slice(1)
+                        .map((row, rowIndex) => (
+                          <TableRow key={rowIndex}>
+                            {row.map((cell, cellIndex) => (
+                              <TableCell key={cellIndex}>{cell}</TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Box>
+          </div>
+        ) : (
+          <div className={styles.emptyMessage}>No data to display</div>
+        )}
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          marginBottom: 35,
+        }}
+      >
+        <header
+          style={{
+            color: "black",
+            fontSize: 30,
+            position: "sticky",
+            left: 0,
+            marginTop: 15,
+            marginBottom: 5,
+            fontWeight: "bold",
+          }}
+        >
+          Upload Facilities
+        </header>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {selectedFileFour && (
+            <div className={styles.fileUploadInput}>{selectedFileOne}</div>
+          )}
+          {!selectedFileFour && (
+            <div className={styles.fileUploadInput}>No File Selected</div>
+          )}
+          <TextField
+            type="file"
+            id="file-upload-four"
+            onChange={handleFileUploadFour}
+            accept=".xlsx,.csv"
+            style={{ display: "none" }}
+          />
+          <label htmlFor="file-upload-four">
+            <Button
+              variant="contained"
+              component="span"
+              color="primary"
+              sx={{
+                color: "white",
+                backgroundColor: "#417A1A",
+                "&:hover": { backgroundColor: "#417A1A" },
+              }}
+              style={{ marginBottom: 10 }}
+            >
+              Preview File
+            </Button>
+          </label>
+          {showErrorMessageFour && (
+            <div
+              style={{
+                color: "red",
+                fontSize: "13px",
+                marginLeft: "5px",
+                marginBottom: "12px",
+              }}
+            >
+              Please Upload Valid .csv, .xlsx File
+            </div>
+          )}
+          {isPreviewVisibleFour && (
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{
+                color: "white",
+                backgroundColor: "#417A1A",
+                "&:hover": { backgroundColor: "#417A1A" },
+              }}
+              style={{ marginBottom: 10, marginLeft: 10 }}
+              onClick={handleSendToBackEndFour}
+            >
+              Upload File
+            </Button>
+          )}
         </div>
-      ) : (
-        <div className={styles.emptyMessage}>No data to display</div>
-      )}
-    </div>
+        <h1
+          style={{
+            color: "black",
+            fontSize: 30,
+            position: "sticky",
+            left: 0,
+            marginTop: 0,
+          }}
+        >
+          Preview
+        </h1>
+        {configurationSpreadsheetDataFour.length > 0 ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+            }}
+          >
+            <Box sx={{ width: "100%" }}>
+              <Paper sx={{ width: "100%", overflow: "hidden" }}>
+                <TableContainer
+                  sx={{
+                    width: "100%",
+                    maxHeight: window.innerWidth >= 600 ? 700 : 350,
+                  }}
+                >
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        {configurationSpreadsheetDataFour[0].map(
+                          (header, index) => (
+                            <TableCell
+                              key={index}
+                              sx={{
+                                fontWeight: "bold",
+                                backgroundColor: "#f0f0f0",
+                              }}
+                            >
+                              {header}
+                            </TableCell>
+                          )
+                        )}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {configurationSpreadsheetDataFour
+                        .slice(1)
+                        .map((row, rowIndex) => (
+                          <TableRow key={rowIndex}>
+                            {row.map((cell, cellIndex) => (
+                              <TableCell key={cellIndex}>{cell}</TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Box>
+          </div>
+        ) : (
+          <div className={styles.emptyMessage}>No data to display</div>
+        )}
+      </div>
 
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start'
-        }}
-    >
-      <header
+      <div
         style={{
-          color: "black",
-          fontSize: 30,
-          position: "sticky",
-          left: 0,
-          marginTop: 10,
-          marginBottom: 5,
-          fontWeight: "bold"
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
         }}
       >
-        Upload Accreditations
-      </header>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        {selectedFileFive && (
-          <div className={styles.fileUploadInput}>{selectedFileOne}</div>
-        )}
-        {!selectedFileFive && (
-          <div className={styles.fileUploadInput}>No File Selected</div>
-        )}
-        <TextField
-          type="file"
-          id="file-upload-five"
-          onChange={handleFileUploadFive}
-          accept=".xlsx,.csv"
-          style={{ display: 'none'}}
-        />
-        <label htmlFor="file-upload-five">
-          <Button
-            variant="contained"
-            component="span"
-            color = "primary"
-            sx={{
-              color: "white",
-              backgroundColor: "#417A1A",
-              '&:hover': { backgroundColor: '#417A1A' }
-            }}
-            style={{ marginBottom: 10}}
+        <header
+          style={{
+            color: "black",
+            fontSize: 30,
+            position: "sticky",
+            left: 0,
+            marginTop: 10,
+            marginBottom: 5,
+            fontWeight: "bold",
+          }}
+        >
+          Upload Accreditations
+        </header>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {selectedFileFive && (
+            <div className={styles.fileUploadInput}>{selectedFileOne}</div>
+          )}
+          {!selectedFileFive && (
+            <div className={styles.fileUploadInput}>No File Selected</div>
+          )}
+          <TextField
+            type="file"
+            id="file-upload-five"
+            onChange={handleFileUploadFive}
+            accept=".xlsx,.csv"
+            style={{ display: "none" }}
+          />
+          <label htmlFor="file-upload-five">
+            <Button
+              variant="contained"
+              component="span"
+              color="primary"
+              sx={{
+                color: "white",
+                backgroundColor: "#417A1A",
+                "&:hover": { backgroundColor: "#417A1A" },
+              }}
+              style={{ marginBottom: 10 }}
             >
-            Preview File
-          </Button>
-        </label>
-        {showErrorMessageFive && (
-          <div style={{
-            color: 'red',
-            fontSize: "13px",
-            marginLeft: "5px",
-            marginBottom: "12px"
-            }}
-          >
-          Please Upload Valid .csv, .xlsx File
-          </div>
-        )}
-        {isPreviewVisibleFive && (
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{
-              color: "white",
-              backgroundColor: "#417A1A",
-              "&:hover": { backgroundColor: "#417A1A" },
-            }}
-            style={{ marginBottom: 10, marginLeft: 10 }}
-            onClick={handleSendToBackEndFive}
+              Preview File
+            </Button>
+          </label>
+          {showErrorMessageFive && (
+            <div
+              style={{
+                color: "red",
+                fontSize: "13px",
+                marginLeft: "5px",
+                marginBottom: "12px",
+              }}
+            >
+              Please Upload Valid .csv, .xlsx File
+            </div>
+          )}
+          {isPreviewVisibleFive && (
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{
+                color: "white",
+                backgroundColor: "#417A1A",
+                "&:hover": { backgroundColor: "#417A1A" },
+              }}
+              style={{ marginBottom: 10, marginLeft: 10 }}
+              onClick={handleSendToBackEndFive}
             >
               Upload File
             </Button>
-        )}
-      </div>
-      <h1
-        style={{
-          color: 'black',
-          fontSize: 30,
-          position: 'sticky',
-          left: 0,
-          marginTop: 0
-        }}
-      >
-        Preview
-      </h1>
-      {configurationSpreadsheetDataFive.length > 0 ? (
-        <div
+          )}
+        </div>
+        <h1
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start'
+            color: "black",
+            fontSize: 30,
+            position: "sticky",
+            left: 0,
+            marginTop: 0,
           }}
         >
-          <Box sx={{width: '100%'}}>
-            <Paper sx={{width: '100%', overflow: 'hidden'}}>
-              <TableContainer
-                sx={{
-                  width: '100%',
-                  maxHeight: window.innerWidth >= 600 ? 700 : 350
-                }}
-              >
-                <Table stickyHeader aria-label="sticky table">
-                  <TableHead>
-                    <TableRow>
-                      {configurationSpreadsheetDataFive[0].map((header, index) => (
-                        <TableCell
-                          key={index}
-                          sx={{
-                            fontWeight: 'bold',
-                            backgroundColor: '#f0f0f0'
-                          }}
-                        >
-                          {header}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {configurationSpreadsheetDataFive.slice(1).map((row, rowIndex) => (
-                      <TableRow key={rowIndex}>
-                        {row.map((cell, cellIndex) => (
-                          <TableCell key={cellIndex}>{cell}</TableCell>
-                        ))}
+          Preview
+        </h1>
+        {configurationSpreadsheetDataFive.length > 0 ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+            }}
+          >
+            <Box sx={{ width: "100%" }}>
+              <Paper sx={{ width: "100%", overflow: "hidden" }}>
+                <TableContainer
+                  sx={{
+                    width: "100%",
+                    maxHeight: window.innerWidth >= 600 ? 700 : 350,
+                  }}
+                >
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        {configurationSpreadsheetDataFive[0].map(
+                          (header, index) => (
+                            <TableCell
+                              key={index}
+                              sx={{
+                                fontWeight: "bold",
+                                backgroundColor: "#f0f0f0",
+                              }}
+                            >
+                              {header}
+                            </TableCell>
+                          )
+                        )}
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Box>
-        </div>
-      ) : (
-        <div className={styles.emptyMessage}>No data to display</div>
-      )}
-    </div>
+                    </TableHead>
+                    <TableBody>
+                      {configurationSpreadsheetDataFive
+                        .slice(1)
+                        .map((row, rowIndex) => (
+                          <TableRow key={rowIndex}>
+                            {row.map((cell, cellIndex) => (
+                              <TableCell key={cellIndex}>{cell}</TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Box>
+          </div>
+        ) : (
+          <div className={styles.emptyMessage}>No data to display</div>
+        )}
+      </div>
     </>
   );
 };

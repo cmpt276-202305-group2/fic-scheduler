@@ -40,14 +40,34 @@ const ExcelViewer = ({ spreadsheetData, setSpreadsheetData }) => {
     }
   };
 
-
   const handleSendToBackend = async () => {
     if (spreadsheetData.length > 0) {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
+      const jsonData = [];
+      const instructorDataMap = {};
+
+      for (const row of spreadsheetData) {
+        const instructorName = row.instructorName;
+        const dayOfWeek = row.dayOfWeek;
+        const partOfDay = row.partOfDay;
+
+        const key = `${instructorName}_${dayOfWeek}_${partOfDay}`;
+
+        if (!instructorDataMap[key]) {
+          instructorDataMap[key] = {
+            instructorName,
+            dayOfWeek,
+            partOfDay,
+          };
+          jsonData.push(instructorDataMap[key]);
+        }
+      }
 
       try {
-        const response = await axios.post("post_to_db", formData, tokenConfig());
+        const response = await axios.post(
+          "http://localhost:8080/api/instructorAvailabilities",
+          jsonData,
+          tokenConfig()
+        );
 
         if (response.status === 200) {
           const result = response.data;
@@ -78,7 +98,7 @@ const ExcelViewer = ({ spreadsheetData, setSpreadsheetData }) => {
           left: 0,
           marginTop: -10,
           marginBottom: 10,
-          fontWeight: "bold"
+          fontWeight: "bold",
         }}
       >
         Upload Instructor Availability
