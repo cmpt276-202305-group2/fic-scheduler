@@ -1,14 +1,13 @@
 package com.group2.server.controller;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.annotation.*;
-import com.group2.server.model.ApplicationUser;
-import com.group2.server.model.Role;
+
+import com.group2.server.dto.*;
+import com.group2.server.model.*;
 import com.group2.server.repository.UserRepository;
 import com.group2.server.services.TokenService;
 
@@ -16,7 +15,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,14 +22,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "*")
+@CrossOrigin("*")
 public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -39,61 +34,50 @@ public class AuthController {
     @Autowired
     private TokenService tokenService;
 
-    @PostMapping("/register")
-    public UserInfoDto registerUser(@RequestBody RegistrationDto body) {
-
-        String encodedPassword = passwordEncoder.encode(body.getPassword());
-        var authorities = new HashSet<Role>();
-        authorities.add(Role.INSTRUCTOR);
-
-        ApplicationUser user = userRepository
-                .save(new ApplicationUser(null, body.getUsername(), encodedPassword, authorities, body.getUsername()));
-
-        return new UserInfoDto(user.getUsername(), applicationUserRolesToDtoRoles(user), user.getFullName());
-    }
-
     @PostMapping("/login")
-    public LoginResponseDto loginUser(@RequestBody RegistrationDto body, HttpServletResponse response) {
+    public AuthResponseDto loginUser(@RequestBody UserDto body, HttpServletResponse response) {
         try {
-            String username = body.getUsername();
-            String password = body.getPassword();
+            String username = body.getUsername().get();
+            String password = body.getPassword().get();
 
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password));
 
-            String token = tokenService.generateJWT(auth);
+            String token = tokenService.generateJwt(auth);
 
             Optional<ApplicationUser> user = userRepository.findByUsername(username);
 
             if (user.isPresent()) {
-                return new LoginResponseDto("",
-                        new UserInfoDto(user.get().getUsername(), applicationUserRolesToDtoRoles(user.get()),
-                                user.get().getFullName()),
+                return new AuthResponseDto("Login successful",
+                        new UserDto(Optional.of(user.get().getId()), Optional.of(user.get().getUsername()),
+                                Optional.empty(),
+                                Optional.of(applicationUserRolesToDtoRoles(user.get())),
+                                Optional.of(user.get().getFullName())),
                         token);
             }
-
+            // Fall through to error
         } catch (AuthenticationException e) {
-            response.setStatus(401);
-            return null;
+            // Fall through to error
         }
-        return new LoginResponseDto("Authentication failed", null, null);
+        response.setStatus(403);
+        return new AuthResponseDto("Authentication failed", null, null);
     }
 
-    @GetMapping("/userInfo")
-    public UserInfoDto getUserInfo(Authentication authentication) {
+    @GetMapping("/current-user")
+    public UserDto getUserInfo(Authentication authentication) {
         String username = authentication.getName();
         Optional<ApplicationUser> user = userRepository.findByUsername(username);
         if (!user.isPresent()) {
             throw new JwtException("Bad username in JWT");
         }
-        return new UserInfoDto(user.get().getUsername(), applicationUserRolesToDtoRoles(user.get()),
-                user.get().getFullName());
+        return new UserDto(Optional.empty(), Optional.of(user.get().getUsername()), Optional.empty(),
+                Optional.of(applicationUserRolesToDtoRoles(user.get())),
+                Optional.of(user.get().getFullName()));
 
     }
 
     @PostMapping("/logout")
-    public String logoutUser(HttpServletRequest request, HttpServletResponse response) {
-
+    public AuthResponseDto logoutUser(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -106,17 +90,13 @@ public class AuthController {
                     jwtCookie.setSecure(true);
 
                     response.addCookie(jwtCookie);
-
-                    return "logout successful";
                 }
             }
         }
-
-        throw new RuntimeException("User is not authenticated");
+        return new AuthResponseDto("Logout successful", null, null);
     }
 
     private ArrayList<String> applicationUserRolesToDtoRoles(ApplicationUser user) {
-
         var strRoles = new ArrayList<String>();
         for (var role : user.getAuthorities()) {
             strRoles.add(role.getAuthority());

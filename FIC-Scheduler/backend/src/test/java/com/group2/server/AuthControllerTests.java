@@ -19,18 +19,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import java.util.HashSet;
 import java.util.Optional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.group2.server.controller.AuthResponseDto;
 import com.group2.server.model.ApplicationUser;
 import com.group2.server.model.Role;
 import com.group2.server.repository.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserControllerTests {
+public class AuthControllerTests {
 
         @Autowired
         private PasswordEncoder passwordEncoder;
+
         @Autowired
         private MockMvc mockMvc;
+
+        @Autowired
+        private ObjectMapper objectMapper;
+
         @MockBean
         private UserRepository userRepository;
 
@@ -97,7 +104,7 @@ public class UserControllerTests {
         }
 
         @Test // Test the login endpoint with a user that does exists in the database with the
-              // role professor
+              // role coordinator
         public void testLoginSuccessCoordinator() throws Exception {
                 ApplicationUser mockCoordinator = makeMockUser("testUsername", "testPassword", Role.COORDINATOR);
                 when(userRepository.findByUsername(anyString()))
@@ -130,6 +137,34 @@ public class UserControllerTests {
                                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.roles[0]").value("INSTRUCTOR"))
                                 .andExpect(MockMvcResultMatchers.jsonPath("$.jwt").isNotEmpty())
                                 .andDo(print());
+        }
+
+        @Test // Test the login endpoint with a user that does exists in the database with the
+              // role coordinator
+        public void testCurrentUserInfo() throws Exception {
+                ApplicationUser mockCoordinator = makeMockUser("testUsername", "testPassword", Role.COORDINATOR);
+                when(userRepository.findByUsername(anyString()))
+                                .thenReturn(Optional.empty());
+                when(userRepository.findByUsername(mockCoordinator.getUsername()))
+                                .thenReturn(Optional.ofNullable(mockCoordinator));
+                var result = mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"username\":\"testUsername\", \"password\":\"testPassword\"}"))
+                                .andExpect(MockMvcResultMatchers.status().isOk())
+                                .andExpect(MockMvcResultMatchers.jsonPath("$.user.username").value("testUsername"))
+                                .andExpect(MockMvcResultMatchers.jsonPath("$.user.roles[0]").value("COORDINATOR"))
+                                .andExpect(MockMvcResultMatchers.jsonPath("$.jwt").isNotEmpty())
+                                .andDo(print())
+                                .andReturn();
+                AuthResponseDto authDto = objectMapper.readValue(result.getResponse().getContentAsString(),
+                                AuthResponseDto.class);
+                mockMvc.perform(MockMvcRequestBuilders.get("/auth/current-user")
+                                .header("Authorization", "Bearer " + authDto.getJwt()))
+                                .andExpect(MockMvcResultMatchers.status().isOk())
+                                .andExpect(MockMvcResultMatchers.jsonPath("$.username").value("testUsername"))
+                                .andExpect(MockMvcResultMatchers.jsonPath("$.roles[0]").value("COORDINATOR"))
+                                .andDo(print())
+                                .andReturn();
         }
 
 }

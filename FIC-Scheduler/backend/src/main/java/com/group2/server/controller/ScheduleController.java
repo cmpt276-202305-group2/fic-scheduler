@@ -7,15 +7,8 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.group2.server.model.ClassSchedule;
-import com.group2.server.model.ClassScheduleAssignment;
-import com.group2.server.model.Classroom;
-import com.group2.server.model.Instructor;
-import com.group2.server.model.InstructorAvailability;
-import com.group2.server.model.PartOfDay;
-import com.group2.server.model.SemesterPlan;
-import com.group2.server.repository.ClassScheduleRepository;
-import com.group2.server.repository.SemesterPlanRepository;
+import com.group2.server.model.*;
+import com.group2.server.repository.*;
 
 @RestController
 @RequestMapping("/api")
@@ -29,7 +22,7 @@ public class ScheduleController {
     private SemesterPlanRepository semesterPlanRepository;
 
     @GetMapping("/schedules/latest")
-    public ClassSchedule getLatestSchedule() {
+    public ClassSchedule readLatestSchedule() {
         ClassSchedule latestSchedule = null;
         int latestId = -1;
 
@@ -62,7 +55,7 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedules/{id}")
-    public ClassSchedule getScheduleById(@PathVariable Integer id) {
+    public ClassSchedule readScheduleById(@PathVariable Integer id) {
         if (id == null) {
             return null;
         }
@@ -70,7 +63,7 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedules")
-    public ClassSchedule[] getSchedulesByQuery(@RequestParam(required = false) String semester) {
+    public ClassSchedule[] readSchedulesByQuery(@RequestParam(required = false) String semester) {
         Collection<ClassSchedule> schedules;
 
         if (semester != null) {
@@ -82,7 +75,7 @@ public class ScheduleController {
         return schedules.toArray(new ClassSchedule[0]);
     }
 
-    @PostMapping("/generate")
+    @PostMapping("/generate-schedule")
     public ClassSchedule generateSchedule(@RequestBody GenerateScheduleDto body) {
         ClassSchedule sched = new ClassSchedule();
         Integer planId = body.getSemesterPlanId();

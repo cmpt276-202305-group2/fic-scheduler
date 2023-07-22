@@ -57,6 +57,7 @@ function LoginPage() {
             Username
             <input
               type="text"
+              name="username"
               value={username}
               onChange={(event) => setUsername(event.target.value)}
               placeholder="Enter your username"
@@ -68,6 +69,7 @@ function LoginPage() {
             Password
             <input
               type="password"
+              name="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Enter your password"

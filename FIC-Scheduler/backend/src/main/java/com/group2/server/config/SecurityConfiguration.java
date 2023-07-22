@@ -20,6 +20,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -27,6 +29,8 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+
+import com.group2.server.model.*;
 
 @Configuration
 public class SecurityConfiguration {
@@ -51,17 +55,27 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector)
+            throws Exception {
         http.cors(Customizer.withDefaults());
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
                     // auth.anyRequest().permitAll();
 
-                    auth.requestMatchers("/auth/**").permitAll();
-                    auth.requestMatchers("/api/coordinator/**").hasRole("COORDINATOR");
-                    auth.requestMatchers("/api/instructor/**").hasRole("INSTRUCTOR");
-                    auth.anyRequest().authenticated();
+                    MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/auth/**")).permitAll();
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/api/users"))
+                            .hasAnyRole(Role.ADMIN.toString());
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/api/users/**"))
+                            .hasAnyRole(Role.ADMIN.toString());
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/api/generate-schedule"))
+                            .hasAnyRole(Role.ADMIN.toString(), Role.COORDINATOR.toString());
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/api/schedules/**"))
+                            .hasAnyRole(Role.ADMIN.toString(), Role.COORDINATOR.toString());
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/api/instructor/**"))
+                            .hasAnyRole(Role.ADMIN.toString(), Role.COORDINATOR.toString());
+                    auth.anyRequest().denyAll();
                 })
                 .oauth2ResourceServer(
                         oauth -> oauth

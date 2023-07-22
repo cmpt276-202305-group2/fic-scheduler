@@ -1,7 +1,8 @@
 package com.group2.server.controller;
 
-import com.group2.server.model.Facilities;
+import com.group2.server.model.*;
 import com.group2.server.repository.FacilityRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +17,12 @@ import java.util.Optional;
 import org.slf4j.Logger; // tempppp!!
 import org.slf4j.LoggerFactory; // tempppp!!
 
-
 @RestController
 @RequestMapping("/api")
+@CrossOrigin("*")
 public class FacilityController {
 
-    private static final Logger logger = LoggerFactory.getLogger(FacilityController.class); //tempppp!!
-
+    private static final Logger logger = LoggerFactory.getLogger(FacilityController.class); // tempppp!!
 
     @Autowired
     private FacilityRepository facilityRepository;
@@ -46,7 +46,8 @@ public class FacilityController {
                 }
             }
             if (!conflictFacilities.isEmpty()) {
-                // If there were conflict facilities, return them along with the created facilities
+                // If there were conflict facilities, return them along with the created
+                // facilities
                 Map<String, List<Facilities>> response = new HashMap<>();
                 response.put("created", createdFacilities);
                 response.put("conflicts", conflictFacilities);
@@ -61,9 +62,6 @@ public class FacilityController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-
-
 
     @GetMapping("/facilities")
     public ResponseEntity<List<Facilities>> getAllFacilities() {
@@ -81,14 +79,12 @@ public class FacilityController {
         }
     }
 
-
-
     @GetMapping("/facilities/{id}")
     public ResponseEntity<Facilities> getFacilityById(@PathVariable("id") Integer id) {
         Optional<Facilities> facilityData = facilityRepository.findById(id);
 
         return facilityData.map(facility -> new ResponseEntity<>(facility, HttpStatus.OK))
-                           .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/facilities/{id}")

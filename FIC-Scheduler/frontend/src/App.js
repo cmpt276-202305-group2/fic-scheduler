@@ -1,9 +1,10 @@
 import axios from 'axios';
 import React, { createContext, useEffect, useState } from 'react';
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import "./App.css";
 
+import DebugMenuPage from "./pages/DebugMenuPage";
 import GenerateSchedulePage from "./pages/GenerateSchedulePage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
@@ -20,7 +21,7 @@ export const validRoles = new Set('ADMIN', 'COORDINATOR', 'INSTRUCTOR')
 function App() {
   // console.log("App render");
 
-  axios.defaults.baseURL = "https://ficbackend.onrender.com";
+  axios.defaults.baseURL = "http://localhost:8080"; //"https://ficbackend.onrender.com";
   axios.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
 
   const lsUserInfoItem = (() => {
@@ -48,7 +49,7 @@ function App() {
   useEffect(
     () => {
       if (!isJwtTokenExpired(localStorage.getItem("jwtToken"))) {
-        axios.get('auth/userinfo', tokenConfig()).then(
+        axios.get('auth/current-user', tokenConfig()).then(
           (response) => {
             if ((response.status === 200) && response.data && response.data.roles) {
               persistUserInfo(response.data);
@@ -68,6 +69,7 @@ function App() {
       <UserInfoContext.Provider value={{ userInfo, setUserInfo: persistUserInfo }}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/debugMenu" element={<DebugMenuPage />} />
           <Route path="/generateSchedule" element={<GenerateSchedulePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/logout" element={<LogoutPage />} />

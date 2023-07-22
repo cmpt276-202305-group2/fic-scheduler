@@ -1,23 +1,21 @@
 package com.group2.server.controller;
 
-import com.group2.server.model.Accreditation;
-import com.group2.server.repository.AccreditationRepository;
+import com.group2.server.model.*;
+import com.group2.server.repository.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin("*")
 public class AccreditationController {
 
     private static final Logger logger = LoggerFactory.getLogger(AccreditationController.class);
@@ -31,20 +29,21 @@ public class AccreditationController {
             List<Accreditation> createdAccreditations = new ArrayList<>();
             List<Accreditation> conflictAccreditations = new ArrayList<>();
             for (Accreditation accreditation : accreditations) {
-                
+
                 Accreditation existingAccreditation = accreditationRepository.findByName(accreditation.getName());
                 if (existingAccreditation != null) {
                     logger.info("Conflict: An accreditation with name {} already exists", accreditation.getName());
                     conflictAccreditations.add(existingAccreditation);
                 } else {
-                    
-                    Accreditation _accreditation = accreditationRepository.save(new Accreditation(accreditation.getName()));
+
+                    Accreditation _accreditation = accreditationRepository
+                            .save(new Accreditation(accreditation.getName()));
                     logger.info("Created new accreditation with name {}", _accreditation.getName());
                     createdAccreditations.add(_accreditation);
                 }
             }
             if (!conflictAccreditations.isEmpty()) {
-                
+
                 Map<String, List<Accreditation>> response = new HashMap<>();
                 response.put("created", createdAccreditations);
                 response.put("conflicts", conflictAccreditations);
@@ -78,11 +77,12 @@ public class AccreditationController {
     public ResponseEntity<Accreditation> getAccreditationById(@PathVariable("id") Integer id) {
         Optional<Accreditation> accreditationData = accreditationRepository.findById(id);
         return accreditationData.map(accreditation -> new ResponseEntity<>(accreditation, HttpStatus.OK))
-                                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/accreditations/{id}")
-    public ResponseEntity<Accreditation> updateAccreditation(@PathVariable("id") Integer id, @RequestBody Accreditation accreditation) {
+    public ResponseEntity<Accreditation> updateAccreditation(@PathVariable("id") Integer id,
+            @RequestBody Accreditation accreditation) {
         Optional<Accreditation> accreditationData = accreditationRepository.findById(id);
         if (accreditationData.isPresent()) {
             Accreditation _accreditation = accreditationData.get();

@@ -17,7 +17,7 @@ function ConfigurationPage() {
         <div className={styles.Sidebar}>
           <Sidebar />
         </div>
-        <div className={styles.PageContent} data-testid="schedule">
+        <div className={styles.PageContent} data-testid="configuration">
           <ConfigurationExcelView
             configurationSpreadsheetDataOne={configurationSpreadsheetDataOne}
             setConfigurationSpreadsheetDataOne={setConfigurationSpreadsheetDataOne}

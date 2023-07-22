@@ -1,9 +1,10 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import BugReportIcon from '@mui/icons-material/BugReport';
+import Button from "@mui/material/Button";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import Button from "@mui/material/Button";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CheckAuth from "./CheckAuth";
 import { UserInfoContext } from '../App';
@@ -43,6 +44,12 @@ function Sidebar({ onItemClick }) {
           <li onClick={() => navigate("/Configuration")}>
             <SettingsIcon />
             Configuration
+          </li>
+        </CheckAuth>
+        <CheckAuth permittedRoles={["DEBUG"]}>
+          <li onClick={() => navigate("/debugMenu")}>
+            <BugReportIcon />
+            Debug Menu
           </li>
         </CheckAuth>
         {(userInfo ?? null) !== null ? (
