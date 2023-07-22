@@ -16,7 +16,7 @@ function LogoutPage() {
     setUserInfo(null);
 
     axios.post('auth/logout', {}, tokenConfig())
-      .then((response) => {
+      .then((_response) => {
         // console.log("Logout successful");
       })
       .catch((error) => {
@@ -35,7 +35,7 @@ function LogoutPage() {
       clearTimeout(redirect);
       clearInterval(countdown);
     };
-  }, [setUserInfo]);
+  }, [navigate, setUserInfo]);
 
   return (
     <div className={styles.container}>

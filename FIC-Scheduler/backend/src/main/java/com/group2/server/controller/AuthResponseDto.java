@@ -1,5 +1,7 @@
 package com.group2.server.controller;
 
+import com.group2.server.dto.UserDto;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegistrationDto {
-    private String username;
-    private String password;
-
+public class AuthResponseDto {
+    private String message;
+    private UserDto user;
+    private String jwt;
 }

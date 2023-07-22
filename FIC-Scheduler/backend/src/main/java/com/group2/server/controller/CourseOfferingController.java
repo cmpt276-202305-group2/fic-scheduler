@@ -2,6 +2,7 @@ package com.group2.server.controller;
 
 import com.group2.server.model.*;
 import com.group2.server.repository.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@CrossOrigin("*")
 public class CourseOfferingController {
 
     private static final Logger logger = LoggerFactory.getLogger(CourseOfferingController.class);

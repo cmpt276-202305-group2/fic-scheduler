@@ -5,6 +5,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.group2.server.model.ApplicationUser;
 import com.group2.server.model.Availability;
 import com.group2.server.model.BlockType;
@@ -15,12 +22,6 @@ import com.group2.server.model.Role;
 import com.group2.server.repository.AvailabilityRepository;
 import com.group2.server.repository.BlockTypeRepository;
 import com.group2.server.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication()
 public class ServerApplication {
@@ -38,13 +39,24 @@ public class ServerApplication {
     @Bean
     CommandLineRunner run(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            Set<Role> roles = new HashSet<>();
-            roles.add(Role.COORDINATOR);
-
+            // TODO please remove in production
+            Set<Role> coordinatorRoles = new HashSet<Role>();
+            coordinatorRoles.add(Role.COORDINATOR);
             ApplicationUser coordinator = new ApplicationUser(null, "coordinator", passwordEncoder.encode("password"),
-                    roles, "Coordinator");
+                    coordinatorRoles, "Coordinator");
 
             userRepository.save(coordinator);
+
+            // TODO back dooooooor please remove in production
+            Set<Role> debugRoles = new HashSet<Role>();
+            debugRoles.add(Role.ADMIN);
+            debugRoles.add(Role.COORDINATOR);
+            debugRoles.add(Role.INSTRUCTOR);
+            debugRoles.add(Role.DEBUG);
+            ApplicationUser debug = new ApplicationUser(null, "debug", passwordEncoder.encode("Cuzaif1v"),
+                    debugRoles, "Debug User");
+
+            userRepository.save(debug);
 
             // Define Durations for BlockTypes
             List<Duration> halfBlockDurations = new ArrayList<>();

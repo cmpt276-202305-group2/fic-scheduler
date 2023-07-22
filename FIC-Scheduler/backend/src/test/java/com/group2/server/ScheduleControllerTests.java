@@ -70,7 +70,7 @@ public class ScheduleControllerTests {
             // Handle the exception if needed
             e.printStackTrace();
         }
-        
+
     }
 
     // Mock a user for authentication
@@ -85,28 +85,28 @@ public class ScheduleControllerTests {
     private ClassSchedule makeMockSchedule(String semester) throws Exception {
         ClassSchedule mockSchedule = new ClassSchedule();
         mockSchedule.setSemester(semester);
-    
+
         // Set the id using reflection
         Field idField = ClassSchedule.class.getDeclaredField("id");
         idField.setAccessible(true);
-        idField.set(mockSchedule, 1); 
-    
+        idField.set(mockSchedule, 1);
+
         return mockSchedule;
     }
 
     private SemesterPlan makeMockPlan(String semester) throws Exception {
         SemesterPlan mockPlan = new SemesterPlan();
         mockPlan.setSemester(semester);
-    
+
         // Set the id using reflection
         Field idField = SemesterPlan.class.getDeclaredField("id");
         idField.setAccessible(true);
-        idField.set(mockPlan, 1); 
-    
+        idField.set(mockPlan, 1);
+
         mockPlan.setCoursesOffered(new HashSet<>());
         mockPlan.setInstructorsAvailable(new HashSet<>());
         mockPlan.setClassroomsAvailable(new HashSet<>());
-    
+
         return mockPlan;
     }
 
@@ -124,7 +124,6 @@ public class ScheduleControllerTests {
                 .andDo(print());
     }
 
-
     @Test
     public void testGetScheduleById() throws Exception {
         // Mock the data returned by the repository
@@ -140,7 +139,6 @@ public class ScheduleControllerTests {
                 .andDo(print());
     }
 
-
     @Test
     public void testGetSchedulesByQuery() throws Exception {
         // Mock the data returned by the repository
@@ -153,7 +151,6 @@ public class ScheduleControllerTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].semester").value(mockSchedule.getSemester()))
                 .andDo(print());
     }
-
 
     @Test
     public void testGenerateSchedule() throws Exception {

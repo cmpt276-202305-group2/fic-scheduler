@@ -1,9 +1,8 @@
 package com.group2.server.controller;
 
-import com.group2.server.model.Classroom;
-import com.group2.server.model.Facilities;
-import com.group2.server.repository.ClassroomRepository;
-import com.group2.server.repository.FacilityRepository;
+import com.group2.server.model.*;
+import com.group2.server.repository.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@CrossOrigin("*")
 public class ClassroomController {
 
     @Autowired

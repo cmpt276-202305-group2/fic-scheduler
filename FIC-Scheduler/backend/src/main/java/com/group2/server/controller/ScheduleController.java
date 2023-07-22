@@ -7,15 +7,8 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.group2.server.model.ClassSchedule;
-import com.group2.server.model.ClassScheduleAssignment;
-import com.group2.server.model.Classroom;
-import com.group2.server.model.Instructor;
-import com.group2.server.model.InstructorAvailability;
-import com.group2.server.model.PartOfDay;
-import com.group2.server.model.SemesterPlan;
-import com.group2.server.repository.ClassScheduleRepository;
-import com.group2.server.repository.SemesterPlanRepository;
+import com.group2.server.model.*;
+import com.group2.server.repository.*;
 
 @RestController
 @RequestMapping("/api")
