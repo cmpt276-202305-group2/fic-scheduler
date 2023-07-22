@@ -9,21 +9,21 @@ export function DebugInstructor() {
   const [fetchResult, setFetchResult] = useState(null);
 
   useEffect(() => {
-    axios.get("api/schedules/latest", tokenConfig()).then(
-      (response) => { setFetchResult(response.data); },
-      (_) => { setFetchResult(null); });
+    // axios.get("api/schedules/latest", tokenConfig()).then(
+    //   (response) => { setFetchResult(response.data); },
+    //   (_) => { setFetchResult(null); });
   }, [setFetchResult]);
 
   if ((fetchResult === null) || !(fetchResult.classScheduleAssignments instanceof Array)) {
     return (
-      <div className={styles.PageContent} data-testid="schedule">
-        <div>No schedules generated!</div>
+      <div className={styles.PageContent} data-testid="debug-instructor">
+        <div>No instructors</div>
       </div>);
   }
 
   return (
-    <div className={styles.PageContent} data-testid="schedule">
-      <table>
+    <div className={styles.PageContent} data-testid="debug-instructor">
+      {/* <table>
         <thead>
           <tr>
             <th key="0">id</th>
@@ -44,7 +44,7 @@ export function DebugInstructor() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table> */}
     </div>);
 };
 
