@@ -88,6 +88,7 @@ const ConfigurationExcelView = ({
         const response = await axios.post(
           " http://localhost:8080/api/courseOffering ",
           jsonData,
+          tokenConfig(),
           {
             headers: {
               "Content-Type": "application/json", // Set the appropriate content type for JSON data
@@ -148,7 +149,8 @@ const ConfigurationExcelView = ({
       try {
         const response = await axios.post(
           "http://localhost:8080/api/classrooms",
-          jsonData
+          jsonData,
+          tokenConfig()
         );
 
         if (response.status === 200) {
@@ -200,7 +202,8 @@ const ConfigurationExcelView = ({
       try {
         const response = await axios.post(
           "http://localhost:8080/api/instructors",
-          jsonData
+          jsonData,
+          tokenConfig()
         );
 
         if (response.status === 200) {
@@ -243,7 +246,8 @@ const ConfigurationExcelView = ({
       try {
         const response = await axios.post(
           "http://localhost:8080/api/facilites",
-          jsonData
+          jsonData,
+          tokenConfig()
         );
 
         if (response.status === 200) {
@@ -288,6 +292,7 @@ const ConfigurationExcelView = ({
         const response = await axios.post(
           "http://localhost:8080/api/accreditations",
           jsonData,
+          tokenConfig(),
           {
             headers: {
               "Content-Type": "application/json",

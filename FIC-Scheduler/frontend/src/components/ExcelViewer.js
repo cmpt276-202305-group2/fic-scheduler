@@ -42,13 +42,30 @@ const ExcelViewer = ({ spreadsheetData, setSpreadsheetData }) => {
 
   const handleSendToBackend = async () => {
     if (spreadsheetData.length > 0) {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
+      const jsonData = [];
+      const instructorDataMap = {};
+
+      for (const row of spreadsheetData) {
+        const instructorName = row.instructorName;
+        const dayOfWeek = row.dayOfWeek;
+        const partOfDay = row.partOfDay;
+
+        const key = `${instructorName}_${dayOfWeek}_${partOfDay}`;
+
+        if (!instructorDataMap[key]) {
+          instructorDataMap[key] = {
+            instructorName,
+            dayOfWeek,
+            partOfDay,
+          };
+          jsonData.push(instructorDataMap[key]);
+        }
+      }
 
       try {
         const response = await axios.post(
-          "post_to_db",
-          formData,
+          "http://localhost:8080/api/instructorAvailabilities",
+          jsonData,
           tokenConfig()
         );
 
