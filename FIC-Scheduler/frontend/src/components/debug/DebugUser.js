@@ -14,7 +14,7 @@ export function DebugUser() {
       (_) => { setFetchResult(null); });
   }, [setFetchResult]);
 
-  var data = (<div>No schedules generated!</div>);
+  var data = (<div>No users</div>);
   if (((fetchResult ?? null) !== null) && (fetchResult instanceof Array)) {
     data = (
       <table>

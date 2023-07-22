@@ -1,29 +1,29 @@
-import axios from 'axios';
+// import axios from 'axios';
 import React, { useEffect, useState } from "react";
 
 import styles from "../../pages/Common.module.css";
 
-import { tokenConfig } from "../../utils"
+// import { tokenConfig } from "../../utils"
 
 export function DebugCourseOffering() {
   const [fetchResult, setFetchResult] = useState(null);
 
   useEffect(() => {
-    axios.get("api/schedules/latest", tokenConfig()).then(
-      (response) => { setFetchResult(response.data); },
-      (_) => { setFetchResult(null); });
+    // axios.get("api/schedules/latest", tokenConfig()).then(
+    //   (response) => { setFetchResult(response.data); },
+    //   (_) => { setFetchResult(null); });
   }, [setFetchResult]);
 
   if ((fetchResult === null) || !(fetchResult.classScheduleAssignments instanceof Array)) {
     return (
-      <div className={styles.PageContent} data-testid="schedule">
-        <div>No schedules generated!</div>
+      <div className={styles.PageContent} data-testid="debug-course-offering">
+        <div>No course offerings</div>
       </div>);
   }
 
   return (
-    <div className={styles.PageContent} data-testid="schedule">
-      <table>
+    <div className={styles.PageContent} data-testid="debug-course-offering">
+      {/* <table>
         <thead>
           <tr>
             <th key="0">id</th>
@@ -44,7 +44,7 @@ export function DebugCourseOffering() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table> */}
     </div>);
 };
 

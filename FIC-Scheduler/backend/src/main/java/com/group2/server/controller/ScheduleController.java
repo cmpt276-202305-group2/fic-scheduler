@@ -22,7 +22,7 @@ public class ScheduleController {
     private SemesterPlanRepository semesterPlanRepository;
 
     @GetMapping("/schedules/latest")
-    public ClassSchedule getLatestSchedule() {
+    public ClassSchedule readLatestSchedule() {
         ClassSchedule latestSchedule = null;
         int latestId = -1;
 
@@ -55,7 +55,7 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedules/{id}")
-    public ClassSchedule getScheduleById(@PathVariable Integer id) {
+    public ClassSchedule readScheduleById(@PathVariable Integer id) {
         if (id == null) {
             return null;
         }
@@ -63,7 +63,7 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedules")
-    public ClassSchedule[] getSchedulesByQuery(@RequestParam(required = false) String semester) {
+    public ClassSchedule[] readSchedulesByQuery(@RequestParam(required = false) String semester) {
         Collection<ClassSchedule> schedules;
 
         if (semester != null) {
