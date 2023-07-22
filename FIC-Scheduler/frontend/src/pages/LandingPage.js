@@ -1,41 +1,30 @@
-import { useContext } from 'react';
+import { useContext } from "react";
 import { Navigate } from "react-router-dom";
-import { UserInfoContext } from '../App';
+import { UserInfoContext } from "../App";
 
 function LandingPage() {
   const { userInfo } = useContext(UserInfoContext);
+  let result = <Navigate to="/logout" replace />;
 
-  // console.log("Landing page:");
-  if ((userInfo ?? null) !== null) {
-    // console.log("  has userinfo");
+  if (userInfo && userInfo.roles) {
     const userRoles = Array.from(userInfo.roles ?? []);
-
-    console.log('roles:', (userRoles.includes("DEBUG") ? 'DEBUG ' : '') +
-      (userRoles.includes("ADMIN") ? 'ADMIN ' : '') +
-      (userRoles.includes("COORDINATOR") ? 'COORDINATOR ' : '') +
-      (userRoles.includes("INSTRUCTOR") ? 'INSTRUCTOR ' : ''));
-
-    var result = '';
+    console.log(
+      "roles:",
+      (userRoles.includes("DEBUG") ? "DEBUG " : "") +
+        (userRoles.includes("ADMIN") ? "ADMIN " : "") +
+        (userRoles.includes("COORDINATOR") ? "COORDINATOR " : "") +
+        (userRoles.includes("INSTRUCTOR") ? "INSTRUCTOR " : "")
+    );
     if (userRoles.includes("DEBUG")) {
-      // console.log("  is debug");
-      result = (<Navigate to="/debugMenu" replace />);
-    }
-    else if (userRoles.includes("ADMIN")) {
-      // console.log("  is admin");
-      result = (<Navigate to="/manageInstructors" replace />);
-    }
-    else if (userRoles.includes("COORDINATOR")) {
-      // console.log("  is coordinator");
-      result = (<Navigate to="/viewFullSchedule" replace />);
-    }
-    else if (userRoles.includes("INSTRUCTOR")) {
-      // console.log("  is instructor");
-      result = (<Navigate to="/viewInstructorSchedule" replace />);
+      result = <Navigate to="/debugMenu" replace />;
+    } else if (userRoles.includes("ADMIN")) {
+      result = <Navigate to="/manageInstructors" replace />;
+    } else if (userRoles.includes("COORDINATOR")) {
+      result = <Navigate to="/viewFullSchedule" replace />;
+    } else if (userRoles.includes("INSTRUCTOR")) {
+      result = <Navigate to="/viewInstructorSchedule" replace />;
     }
   }
-  // if (result === '') {
-  //   result = (<Navigate to="/logout" replace />);
-  // }
   return result;
 }
 
