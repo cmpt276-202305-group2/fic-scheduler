@@ -42,6 +42,7 @@ export function DebugAuth() {
   }
   return (
     <div className={styles.PageContent} data-testid="debug-auth">
+      {data}
       {/* {() => {
         axios.get("api/schedules/latest", tokenConfig()).then(
           (response) => { setFetchResult(response.data); },
