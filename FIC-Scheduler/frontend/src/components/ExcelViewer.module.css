@@ -42,8 +42,13 @@ td {
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 5px;
-  overflow: hidden; 
+  overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   font-size: 15px;
+}
+
+.cell {
+  font-weight: bold;
+  background-color: #f0f0f0;
 }
