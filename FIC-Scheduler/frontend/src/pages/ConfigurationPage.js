@@ -15,7 +15,7 @@ function ConfigurationPage() {
     <CheckAuth permittedRoles={["ADMIN", "COORDINATOR"]} fallback={<Navigate to="/" replace />}>
       <div className={styles.Container}>
         <div className={styles.Sidebar}>
-          <Sidebar />
+          <Sidebar item="configuration" />
         </div>
         <div className={styles.PageContent} data-testid="configuration">
           <ConfigurationExcelView

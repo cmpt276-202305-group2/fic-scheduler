@@ -6,16 +6,22 @@ import styles from "../../pages/Common.module.css";
 import { tokenConfig } from "../../utils"
 
 export function DebugUser() {
-  const [fetchResult, setFetchResult] = useState(null);
+  const [allUsers, setAllUsers] = useState(null);
+  const [updateResponse, setUpdateResponse] = useState(null);
+  const [formId, setFormId] = useState('')
+  const [formUsername, setFormUsername] = useState('')
+  const [formPassword, setFormPassword] = useState('')
+  const [formRoles, setFormRoles] = useState('')
+  const [formFullName, setFormFullName] = useState('')
 
   useEffect(() => {
     axios.get("api/users", tokenConfig()).then(
-      (response) => { setFetchResult(response.data); },
-      (_) => { setFetchResult(null); });
-  }, [setFetchResult]);
+      (response) => { setAllUsers(response.data); },
+      (_) => { setAllUsers(null); });
+  }, [updateResponse, setAllUsers]);
 
   var data = (<div>No users</div>);
-  if (((fetchResult ?? null) !== null) && (fetchResult instanceof Array)) {
+  if (((allUsers ?? null) !== null) && (allUsers instanceof Array)) {
     data = (
       <table>
         <thead>
@@ -28,7 +34,7 @@ export function DebugUser() {
           </tr>
         </thead>
         <tbody>
-          {fetchResult.map((row, rowIndex) => (
+          {allUsers.map((row, rowIndex) => (
             <tr key={rowIndex}>
               <td key="0">{row.id}</td>
               <td key="1">{row.username}</td>
@@ -42,12 +48,57 @@ export function DebugUser() {
   }
   return (
     <div className={styles.DebugComponent} data-testid="debug-user">
+      <h1>Users</h1>
       {data}
-      {/* {() => {
-        axios.get("api/users", tokenConfig()).then(
-          (response) => { setFetchResult(response.data); },
-          (_) => { setFetchResult(null); });
-      }} */}
+      <form onSubmit={() => {
+        const userIdStr = formId !== '' ? formId : null;
+        const userObj = {
+          username: formUsername || undefined,
+          password: formPassword || undefined,
+          roles: formRoles.split(' ').filter((o) => !!o).map((o) => ('' + o).trim().toUpperCase()) || undefined,
+          fullName: formFullName || undefined
+        };
+        axios.put("api/users" + userIdStr, userObj, tokenConfig()).then(
+          (response) => { setUpdateResponse(response); },
+          (_) => { });
+      }}>
+        <h2>Create/Update</h2>
+        <table>
+          <tbody>
+            <tr>
+              <td><label htmlFor="debugUser-id">ID</label></td>
+              <td><input id="debugUser-id" type="text" name="formId" value={formId}
+                onChange={(event) => setFormId(event.target.value)}
+                placeholder="Create new" autoFocus /></td>
+            </tr>
+            <tr>
+              <td><label htmlFor="debugUser-username">Username</label></td>
+              <td><input id="debugUser-username" type="text" name="formUsername" value={formUsername}
+                onChange={(event) => setFormUsername(event.target.value)}
+                placeholder="Don't update" autoFocus /></td>
+            </tr>
+            <tr>
+              <td><label htmlFor="debugUser-password">Password</label></td>
+              <td><input id="debugUser-password" type="text" name="formPassword" value={formPassword}
+                onChange={(event) => setFormPassword(event.target.value)}
+                placeholder="Don't update" /></td>
+            </tr>
+            <tr>
+              <td><label htmlFor="debugUser-roles">Roles</label></td>
+              <td><input id="debugUser-roles" type="text" name="formRoles" value={formRoles}
+                onChange={(event) => setFormRoles(event.target.value)}
+                placeholder="Don't update" /></td>
+            </tr>
+            <tr>
+              <td><label htmlFor="debugUser-fullName">Full Name</label></td>
+              <td><input id="debugUser-fullName" type="text" name="formFullName" value={formFullName}
+                onChange={(event) => setFormFullName(event.target.value)}
+                placeholder="Don't update" /></td>
+            </tr>
+          </tbody>
+        </table>
+        <button type="submit">Create/Update</button>
+      </form>
     </div>);
 
 };

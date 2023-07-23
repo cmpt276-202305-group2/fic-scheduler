@@ -11,7 +11,7 @@ function UploadInstructorAvailabilityPage() {
     <CheckAuth permittedRoles={["ADMIN", "COORDINATOR"]} fallback={<Navigate to="/" replace />}>
       <div className={styles.Container}>
         <div className={styles.Sidebar}>
-          <Sidebar />
+          <Sidebar item="uploadInstructorAvailability" />
         </div>
         <div className={styles.PageContent} data-testid="schedule">
           <ExcelViewer spreadsheetData={spreadsheetData} setSpreadsheetData={setSpreadsheetData} />

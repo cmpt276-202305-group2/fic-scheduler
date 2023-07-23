@@ -10,10 +10,10 @@ function LandingPage() {
     // console.log("  has userinfo");
     const userRoles = Array.from(userInfo.roles ?? []);
 
-    console.log('roles:', (userRoles.includes("DEBUG") ? 'DEBUG ' : '') +
-      (userRoles.includes("ADMIN") ? 'ADMIN ' : '') +
-      (userRoles.includes("COORDINATOR") ? 'COORDINATOR ' : '') +
-      (userRoles.includes("INSTRUCTOR") ? 'INSTRUCTOR ' : ''));
+    // console.log('roles:', (userRoles.includes("DEBUG") ? 'DEBUG ' : '') +
+    //   (userRoles.includes("ADMIN") ? 'ADMIN ' : '') +
+    //   (userRoles.includes("COORDINATOR") ? 'COORDINATOR ' : '') +
+    //   (userRoles.includes("INSTRUCTOR") ? 'INSTRUCTOR ' : ''));
 
     var result = '';
     if (userRoles.includes("DEBUG")) {
