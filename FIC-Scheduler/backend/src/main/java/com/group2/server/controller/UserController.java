@@ -3,6 +3,8 @@ package com.group2.server.controller;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.group2.server.dto.*;
@@ -23,52 +25,72 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/users")
-    public UserDto[] readUsersByQuery(@RequestParam(required = false) String username) {
-        List<ApplicationUser> users;
+    public ResponseEntity<UserDto[]> readUsersByQuery(@RequestParam(required = false) String username) {
+        try {
+            List<ApplicationUser> users;
 
-        if (username != null) {
-            users = new ArrayList<ApplicationUser>(1);
-            var result = userRepository.findByUsername(username);
-            if (result.isPresent()) {
-                users.add(result.get());
+            if (username != null) {
+                users = new ArrayList<ApplicationUser>(1);
+                var result = userRepository.findByUsername(username);
+                if (result.isPresent()) {
+                    users.add(result.get());
+                }
+            } else {
+                users = userRepository.findAll();
             }
-        } else {
-            users = userRepository.findAll();
-        }
 
-        var userDtos = new UserDto[users.size()];
-        for (int i = 0; i < users.size(); ++i) {
-            userDtos[i] = applicationUserAsDto(users.get(i));
+            var userDtos = new UserDto[users.size()];
+            for (int i = 0; i < users.size(); ++i) {
+                userDtos[i] = applicationUserAsDto(users.get(i));
+            }
+            return new ResponseEntity<>(userDtos, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return userDtos;
     }
 
     @GetMapping("/users/{id}")
-    public UserDto readUserById(@PathVariable Integer id) {
-        if (id == null) {
-            return null;
+    public ResponseEntity<UserDto> readUserById(@PathVariable Integer id) {
+        try {
+            return new ResponseEntity<UserDto>(applicationUserAsDto(userRepository.findById(id).orElseThrow()),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<UserDto>(HttpStatus.BAD_REQUEST);
         }
-        return applicationUserAsDto(userRepository.findById(id).orElseThrow());
     }
 
     @PostMapping("/users")
-    public List<UserDto> updateUsers(@RequestBody List<UserDto> userDtoList) {
-        var updatedUsers = new ArrayList<UserDto>(userDtoList.size());
-        for (var userDto : userDtoList) {
-            updatedUsers.add(updateOrCreateUser(userDto));
+    public ResponseEntity<List<UserDto>> updateUsers(@RequestBody List<UserDto> userDtoList) {
+        try {
+            var updatedUsers = new ArrayList<UserDto>(userDtoList.size());
+            for (var userDto : userDtoList) {
+                updatedUsers.add(updateOrCreateUser(userDto));
+            }
+            return new ResponseEntity<>(updatedUsers, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return updatedUsers;
     }
 
     @PutMapping("/users/{id}")
-    public UserDto updateUserById(@PathVariable Integer id, @RequestBody UserDto userDto) {
-        userDto.setId(id);
-        return updateOrCreateUser(userDto);
+    public ResponseEntity<UserDto> updateUserById(@PathVariable Integer id, @RequestBody UserDto userDto) {
+        try {
+            userDto.setId(id);
+            UserDto createdUserDto = updateOrCreateUser(userDto);
+            return new ResponseEntity<>(createdUserDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @DeleteMapping("/users/{id}")
-    public void deleteUserById(@PathVariable Integer id) {
-        userRepository.delete(userRepository.findById(id).get());
+    public ResponseEntity<Void> deleteUserById(@PathVariable Integer id) {
+        try {
+            userRepository.delete(userRepository.findById(id).get());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     private UserDto updateOrCreateUser(UserDto userDto) {

@@ -27,7 +27,7 @@ public class ClassroomController {
     @Autowired
     private FacilityRepository facilityRepository;
 
-    @PostMapping("/classroom")
+    @PostMapping("/classrooms")
     public ResponseEntity<?> createClassrooms(@RequestBody List<ClassroomDto> classroomDtos) {
         List<Classroom> savedClassrooms = new ArrayList<>();
         List<String> conflictClassrooms = new ArrayList<>();
@@ -68,7 +68,7 @@ public class ClassroomController {
         }
     }
 
-    @GetMapping("/classroom")
+    @GetMapping("/classrooms")
     public ResponseEntity<List<Classroom>> getAllClassrooms() {
         try {
             List<Classroom> classrooms = classroomRepository.findAll();
