@@ -9,7 +9,7 @@ async function readExcelFile(file) {
         const buffer = event.target.result;
         const workbook = XLSX.read(buffer, { type: "array" });
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
 
         resolve(rows);
       } catch (error) {
