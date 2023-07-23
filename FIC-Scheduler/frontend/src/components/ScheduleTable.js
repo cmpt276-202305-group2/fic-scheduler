@@ -6,7 +6,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
-import styles from "./ExcelViewer.module.css";
+import styles from "./FileImport.module.css";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { CSVLink } from "react-csv";

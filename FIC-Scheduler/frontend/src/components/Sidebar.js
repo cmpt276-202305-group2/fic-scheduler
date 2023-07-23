@@ -5,7 +5,9 @@ import BugReportIcon from '@mui/icons-material/BugReport';
 import Button from "@mui/material/Button";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import SettingsIcon from "@mui/icons-material/Settings";
+import ClassIcon from '@mui/icons-material/Class';
+import SchoolIcon from '@mui/icons-material/School';
+import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 import CheckAuth from "./CheckAuth";
 import { UserInfoContext } from '../App';
 
@@ -33,11 +35,17 @@ function Sidebar({ item, subitem }) {
           <li onClick={() => navigate("/viewFullSchedule")}>
             <CalendarMonthIcon /> Full Schedule
           </li>
-          <li onClick={() => navigate("/uploadInstructorAvailability")}>
-            <CloudUploadIcon /> Upload All Preferences
+          <li onClick={() => navigate("/manageInstructor")}>
+            <SchoolIcon />
+            Manage Instructors
           </li>
-          <li onClick={() => navigate("/Configuration")}>
-            <SettingsIcon /> Configuration
+          <li onClick={() => navigate("/manageClassroom")}>
+            <DashboardCustomizeIcon />
+            Manage Classrooms
+          </li>
+          <li onClick={() => navigate("/manageCourse")}>
+            <ClassIcon />
+            Manage Courses
           </li>
         </CheckAuth>
         <CheckAuth permittedRoles={["DEBUG"]}>
