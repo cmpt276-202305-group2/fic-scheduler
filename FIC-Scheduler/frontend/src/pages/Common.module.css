@@ -58,7 +58,26 @@
 }
 
 .DebugComponent {
-  margin: 0;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.DebugComponent * {
+  flex-grow: 1;
+  font-size: 1rem;
+}
+
+.DebugComponent h1,
+.DebugComponent h2,
+.DebugComponent h3,
+.DebugComponent h4 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.DebugComponent p {
+  text-align: start;
 }
 
 /* this is gonna make sure it works for the smaller devices */

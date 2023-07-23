@@ -70,7 +70,15 @@ function App() {
       <UserInfoContext.Provider value={{ userInfo, setUserInfo: persistUserInfo }}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/debugMenu" element={<DebugMenuPage />} />
+          <Route path="/debugMenu" element={<Navigate to="/debugMenu/semesterPlan" />} />
+          <Route path="/debugMenu/auth" element={<DebugMenuPage subpage="auth" />} />
+          <Route path="/debugMenu/classroom" element={<DebugMenuPage subpage="classroom" />} />
+          <Route path="/debugMenu/courseOffering" element={<DebugMenuPage subpage="courseOffering" />} />
+          <Route path="/debugMenu/facility" element={<DebugMenuPage subpage="facility" />} />
+          <Route path="/debugMenu/instructor" element={<DebugMenuPage subpage="instructor" />} />
+          <Route path="/debugMenu/instructorAvailability" element={<DebugMenuPage subpage="instructorAvailability" />} />
+          <Route path="/debugMenu/semesterPlan" element={<DebugMenuPage subpage="semesterPlan" />} />
+          <Route path="/debugMenu/user" element={<DebugMenuPage subpage="user" />} />
           <Route path="/generateSchedule" element={<GenerateSchedulePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/logout" element={<LogoutPage />} />

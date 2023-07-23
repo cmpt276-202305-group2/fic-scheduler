@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@CrossOrigin("*")
 public class UserController {
 
     @Autowired
@@ -23,12 +23,12 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/users")
-    public UserDto[] readUsersByQuery(@RequestParam Optional<String> username) {
+    public UserDto[] readUsersByQuery(@RequestParam(required = false) String username) {
         List<ApplicationUser> users;
 
-        if (username.isPresent()) {
+        if (username != null) {
             users = new ArrayList<ApplicationUser>(1);
-            var result = userRepository.findByUsername(username.get());
+            var result = userRepository.findByUsername(username);
             if (result.isPresent()) {
                 users.add(result.get());
             }
@@ -62,7 +62,7 @@ public class UserController {
 
     @PutMapping("/users/{id}")
     public UserDto updateUserById(@PathVariable Integer id, @RequestBody UserDto userDto) {
-        userDto.setId(Optional.of(id));
+        userDto.setId(id);
         return updateOrCreateUser(userDto);
     }
 
@@ -72,14 +72,14 @@ public class UserController {
     }
 
     private UserDto updateOrCreateUser(UserDto userDto) {
-        Optional<String> encodedPassword = Optional.empty();
-        if (userDto.getPassword().isPresent()) {
-            encodedPassword = Optional.of(passwordEncoder.encode(userDto.getPassword().get()));
+        String encodedPassword = null;
+        if (userDto.getPassword() != null) {
+            encodedPassword = passwordEncoder.encode(userDto.getPassword());
         }
 
         var authorities = new HashSet<Role>();
-        if (userDto.getRoles().isPresent()) {
-            for (String roleStr : userDto.getRoles().get()) {
+        if (userDto.getRoles() != null) {
+            for (String roleStr : userDto.getRoles()) {
                 authorities.add(Role.valueOf(roleStr));
             }
         } else {
@@ -87,32 +87,33 @@ public class UserController {
         }
 
         ApplicationUser createdUser;
-        if (userDto.getId().isPresent()) {
-            createdUser = userRepository.findById(userDto.getId().get()).get();
-            if (userDto.getUsername().isPresent()) {
-                createdUser.setUsername(userDto.getUsername().get());
+        if (userDto.getId() != null) {
+            createdUser = userRepository.findById(userDto.getId()).get();
+            if (userDto.getUsername() != null) {
+                createdUser.setUsername(userDto.getUsername());
             }
-            if (encodedPassword.isPresent()) {
-                createdUser.setPassword(encodedPassword.get());
+            if (encodedPassword != null) {
+                createdUser.setPassword(encodedPassword);
             }
-            if (userDto.getRoles().isPresent()) {
+            if (userDto.getRoles() != null) {
                 createdUser.setAuthorities(authorities);
             }
-            if (userDto.getFullName().isPresent()) {
-                createdUser.setFullName(userDto.getFullName().get());
+            if (userDto.getFullName() != null) {
+                createdUser.setFullName(userDto.getFullName());
             }
+            createdUser = userRepository.save(createdUser);
         } else {
             createdUser = userRepository
-                    .save(new ApplicationUser(null, userDto.getUsername().get(), encodedPassword.get(), authorities,
-                            userDto.getFullName().get()));
+                    .save(new ApplicationUser(null, userDto.getUsername(), encodedPassword, authorities,
+                            userDto.getFullName()));
         }
         return applicationUserAsDto(createdUser);
     }
 
     private UserDto applicationUserAsDto(ApplicationUser user) {
-        return new UserDto(Optional.of(user.getId()), Optional.of(user.getUsername()), Optional.empty(),
-                Optional.of(UserDto.applicationUserRolesToDtoRoles(user.getAuthorities())),
-                Optional.of(user.getFullName()));
+        return new UserDto(user.getId(), user.getUsername(), null,
+                UserDto.applicationUserRolesToDtoRoles(user.getAuthorities()),
+                user.getFullName());
     }
 
 }
