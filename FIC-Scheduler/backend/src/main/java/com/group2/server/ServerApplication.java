@@ -11,6 +11,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.group2.server.model.ApplicationUser;
 import com.group2.server.model.Availability;
@@ -23,6 +24,7 @@ import com.group2.server.repository.AvailabilityRepository;
 import com.group2.server.repository.BlockTypeRepository;
 import com.group2.server.repository.UserRepository;
 
+
 @SpringBootApplication()
 public class ServerApplication {
 
@@ -31,6 +33,18 @@ public class ServerApplication {
 
     @Autowired
     private AvailabilityRepository availabilityRepository;
+
+    @Value("${app.user.coordinator.username}")
+    private String coordinatorUsername;
+    
+    @Value("${app.user.coordinator.password}")
+    private String coordinatorPassword;
+    
+    @Value("${app.user.debug.username}")
+    private String debugUsername;
+    
+    @Value("${app.user.debug.password}")
+    private String debugPassword;
 
     public static void main(String[] args) {
         SpringApplication.run(ServerApplication.class, args);
@@ -42,7 +56,7 @@ public class ServerApplication {
             // TODO please remove in production
             Set<Role> coordinatorRoles = new HashSet<Role>();
             coordinatorRoles.add(Role.COORDINATOR);
-            ApplicationUser coordinator = new ApplicationUser(null, "coordinator", passwordEncoder.encode("password"),
+            ApplicationUser coordinator = new ApplicationUser(null, coordinatorUsername, passwordEncoder.encode(coordinatorPassword),
                     coordinatorRoles, "Coordinator");
 
             userRepository.save(coordinator);
@@ -53,7 +67,7 @@ public class ServerApplication {
             debugRoles.add(Role.COORDINATOR);
             debugRoles.add(Role.INSTRUCTOR);
             debugRoles.add(Role.DEBUG);
-            ApplicationUser debug = new ApplicationUser(null, "debug", passwordEncoder.encode("Cuzaif1v"),
+            ApplicationUser debug = new ApplicationUser(null, debugUsername, passwordEncoder.encode(debugPassword),
                     debugRoles, "Debug User");
 
             userRepository.save(debug);
