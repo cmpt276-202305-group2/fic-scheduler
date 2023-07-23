@@ -8,11 +8,20 @@ import { tokenConfig } from "../../utils"
 export function DebugUser() {
   const [allUsers, setAllUsers] = useState(null);
   const [updateResponse, setUpdateResponse] = useState(null);
-  const [formId, setFormId] = useState('')
-  const [formUsername, setFormUsername] = useState('')
-  const [formPassword, setFormPassword] = useState('')
-  const [formRoles, setFormRoles] = useState('')
-  const [formFullName, setFormFullName] = useState('')
+  const [formId, setFormId] = useState('');
+  const [formUsername, setFormUsername] = useState('');
+  const [formPassword, setFormPassword] = useState('');
+  const [formRoles, setFormRoles] = useState('');
+  const [formFullName, setFormFullName] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const clearForm = () => {
+    setFormId('');
+    setFormUsername('');
+    setFormPassword('');
+    setFormRoles('');
+    setFormFullName('');
+  }
 
   useEffect(() => {
     axios.get("api/users", tokenConfig()).then(
@@ -50,19 +59,29 @@ export function DebugUser() {
     <div className={styles.DebugComponent} data-testid="debug-user">
       <h1>Users</h1>
       {data}
-      <form onSubmit={() => {
-        const userIdStr = formId !== '' ? formId : null;
-        const userObj = {
-          username: formUsername || undefined,
-          password: formPassword || undefined,
-          roles: formRoles.split(' ').filter((o) => !!o).map((o) => ('' + o).trim().toUpperCase()) || undefined,
-          fullName: formFullName || undefined
-        };
-        axios.put("api/users" + userIdStr, userObj, tokenConfig()).then(
-          (response) => { setUpdateResponse(response); },
-          (_) => { });
+      <form onSubmit={(event) => {
+        event.preventDefault();
+        //const userIdStr = (formId !== '') ? ('/' + formId) : '';
+        const userObj = {}
+        if (formId) userObj.id = formId;
+        if (formUsername) userObj.username = formUsername;
+        if (formPassword) userObj.password = formPassword;
+        if (formRoles) {
+          userObj.roles =
+            formRoles.split(' ').filter((o) => !!o)
+              .map((o) => ('' + o).trim().toUpperCase());
+        }
+        if (formFullName) userObj.fullName = formFullName;
+
+        axios.post("api/users", [userObj], tokenConfig()).then(
+          (response) => { setUpdateResponse(response); clearForm(); },
+          (error) => {
+            setErrorMessage(error.response ?
+              error.response.status + ' ' + error.response.data : error.message);
+          });
       }}>
         <h2>Create/Update</h2>
+        <p style={{ color: 'red' }}>{errorMessage}</p>
         <table>
           <tbody>
             <tr>
@@ -98,9 +117,19 @@ export function DebugUser() {
           </tbody>
         </table>
         <button type="submit">Create/Update</button>
+        <button onClick={(event) => {
+          event.preventDefault();
+          if ((formId ?? '') !== '') {
+            axios.delete("api/users/" + formId, tokenConfig()).then(
+              (response) => { setUpdateResponse(response); clearForm(); },
+              (error) => {
+                setErrorMessage(error.response ?
+                  error.response.status + ' ' + error.response.data : error.message);
+              });
+          }
+        }}>Delete</button>
       </form>
     </div>);
-
 };
 
 export default DebugUser;
