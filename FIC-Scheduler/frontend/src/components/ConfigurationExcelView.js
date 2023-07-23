@@ -100,15 +100,15 @@ const ConfigurationExcelView = ({
           accredationRequiredName: row.accredationRequiredName,
           blockTypeName: row.blockTypeName,
           facilitesRequiredNames: [
-            row.facilitesRequiredNames1,
-            row.facilitesRequiredNames2,
-            row.facilitesRequiredNames3,
-          ].filter(Boolean),
+            row.facilitesRequiredNames1 || null,
+            row.facilitesRequiredNames2 || null,
+            row.facilitesRequiredNames3 || null,
+          ],
           conflictedCourseNumbers: [
-            row.conflictedCourseNumbers1,
-            row.conflictedCourseNumbers2,
-            row.conflictedCourseNumbers3,
-          ].filter(Boolean),
+            row.conflictedCourseNumbers1 || null,
+            row.conflictedCourseNumbers2 || null,
+            row.conflictedCourseNumbers3 || null,
+          ],
         };
       });
 
@@ -143,16 +143,16 @@ const ConfigurationExcelView = ({
         return {
           roomNumber: row.roomNumber,
           facilitesAvaliableNames: [
-            row.facilitesAvaliableNames1,
-            row.facilitesAvaliableNames2,
-            row.facilitesAvaliableNames3,
-            row.facilitesAvaliableNames4,
-            row.facilitesAvaliableNames5,
-            row.facilitesAvaliableNames6,
-            row.facilitesAvaliableNames7,
-            row.facilitesAvaliableNames8,
-            row.facilitesAvaliableNames9,
-          ].filter(Boolean),
+            row.facilitesAvaliableNames1 || null,
+            row.facilitesAvaliableNames2 || null,
+            row.facilitesAvaliableNames3 || null,
+            row.facilitesAvaliableNames4 || null,
+            row.facilitesAvaliableNames5 || null,
+            row.facilitesAvaliableNames6 || null,
+            row.facilitesAvaliableNames7 || null,
+            row.facilitesAvaliableNames8 || null,
+            row.facilitesAvaliableNames9 || null,
+          ],
         };
       });
 
@@ -181,12 +181,12 @@ const ConfigurationExcelView = ({
         return {
           name: row.name,
           accreditationNames: [
-            row.accreditationNames1,
-            row.accreditationNames2,
-            row.accreditationNames3,
-            row.accreditationNames4,
-            row.accreditationNames5,
-          ].filter(Boolean),
+            row.accreditationNames1 || null,
+            row.accreditationNames2 || null,
+            row.accreditationNames3 || null,
+            row.accreditationNames4 || null,
+            row.accreditationNames5 || null,
+          ],
         };
       });
 
