@@ -1,31 +1,31 @@
-import axios from 'axios';
+// import axios from 'axios';
 import React, { useEffect, useState } from "react";
 
 import styles from "../../pages/Common.module.css";
 
-import { tokenConfig } from "../../utils"
+// import { tokenConfig } from "../../utils"
 
-export function DebugInstructorAvailability() {
+export function DebugSemesterPlan() {
   const [fetchResult, setFetchResult] = useState(null);
 
   useEffect(() => {
-    axios.get("api/schedules/latest", tokenConfig()).then(
-      (response) => { setFetchResult(response.data); },
-      (_) => { setFetchResult(null); });
+    // axios.get("api/schedules/latest", tokenConfig()).then(
+    //   (response) => { setFetchResult(response.data); },
+    //   (_) => { setFetchResult(null); });
   }, [setFetchResult]);
 
   if ((fetchResult === null) || !(fetchResult.classScheduleAssignments instanceof Array)) {
     return (
-      <div className={styles.DebugComponent} data-testid="debug-instructor-availability">
-        <h1>Instructor availability</h1>
-        <div>No schedules generated!</div>
+      <div className={styles.DebugComponent} data-testid="debug-classroom">
+        <h1>Semester Plans</h1>
+        <div>No semester plans</div>
       </div>);
   }
 
   return (
-    <div className={styles.DebugComponent} data-testid="debug-instructor-availability">
-      <h1>Instructor availability</h1>
-      <table>
+    <div className={styles.DebugComponent} data-testid="debug-classroom">
+      <h1>Semester Plans</h1>
+      {/* <table>
         <thead>
           <tr>
             <th key="0">id</th>
@@ -46,8 +46,8 @@ export function DebugInstructorAvailability() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table> */}
     </div>);
 };
 
-export default DebugInstructorAvailability;
+export default DebugSemesterPlan;

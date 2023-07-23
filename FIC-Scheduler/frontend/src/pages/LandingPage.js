@@ -8,13 +8,13 @@ function LandingPage() {
 
   if (userInfo && userInfo.roles) {
     const userRoles = Array.from(userInfo.roles ?? []);
-    console.log(
-      "roles:",
-      (userRoles.includes("DEBUG") ? "DEBUG " : "") +
-        (userRoles.includes("ADMIN") ? "ADMIN " : "") +
-        (userRoles.includes("COORDINATOR") ? "COORDINATOR " : "") +
-        (userRoles.includes("INSTRUCTOR") ? "INSTRUCTOR " : "")
-    );
+    // console.log(
+    //   "roles:",
+    //   (userRoles.includes("DEBUG") ? "DEBUG " : "") +
+    //     (userRoles.includes("ADMIN") ? "ADMIN " : "") +
+    //     (userRoles.includes("COORDINATOR") ? "COORDINATOR " : "") +
+    //     (userRoles.includes("INSTRUCTOR") ? "INSTRUCTOR " : "")
+    // );
     if (userRoles.includes("DEBUG")) {
       result = <Navigate to="/debugMenu" replace />;
     } else if (userRoles.includes("ADMIN")) {

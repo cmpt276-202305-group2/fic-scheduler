@@ -37,8 +37,8 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponseDto loginUser(@RequestBody UserDto body, HttpServletResponse response) {
         try {
-            String username = body.getUsername().get();
-            String password = body.getPassword().get();
+            String username = body.getUsername();
+            String password = body.getPassword();
 
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password));
@@ -49,10 +49,8 @@ public class AuthController {
 
             if (user.isPresent()) {
                 return new AuthResponseDto("Login successful",
-                        new UserDto(Optional.of(user.get().getId()), Optional.of(user.get().getUsername()),
-                                Optional.empty(),
-                                Optional.of(applicationUserRolesToDtoRoles(user.get())),
-                                Optional.of(user.get().getFullName())),
+                        new UserDto(user.get().getId(), user.get().getUsername(), null,
+                                applicationUserRolesToDtoRoles(user.get()), user.get().getFullName()),
                         token);
             }
             // Fall through to error
@@ -70,9 +68,8 @@ public class AuthController {
         if (!user.isPresent()) {
             throw new JwtException("Bad username in JWT");
         }
-        return new UserDto(Optional.empty(), Optional.of(user.get().getUsername()), Optional.empty(),
-                Optional.of(applicationUserRolesToDtoRoles(user.get())),
-                Optional.of(user.get().getFullName()));
+        return new UserDto(null, user.get().getUsername(), null, applicationUserRolesToDtoRoles(user.get()),
+                user.get().getFullName());
 
     }
 
