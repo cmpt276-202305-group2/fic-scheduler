@@ -1,60 +1,83 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .Sidebar {
-    background-color: #417A1A;
-    color: white;
-    height: 100vh;
-    width: 280px;
-    position: fixed;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    z-index: 2;
+  background-color: #417A1A;
+  color: white;
+  height: 100vh;
+  width: 280px;
+  position: fixed;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 2;
 }
 
 .Sidebar li:last-child {
-    margin-top: auto;
-    width: 100%;
+  margin-top: auto;
+  width: 100%;
 }
 
 .Sidebar li:last-child button {
-    width: 100%;
+  width: 100%;
 }
 
 .Sidebar li {
-    list-style: none;
-    padding: 1rem 2rem;
-    border-bottom: solid rgba(255, 255, 255, 0.1) 1px;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    font-weight: 300;
+  list-style: none;
+  padding: 1rem 2rem;
+  border-bottom: solid rgba(255, 255, 255, 0.1) 1px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-weight: 300;
 }
 
 .Sidebar li:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
 }
 
 .Container {
-    display: flex;
-    height: 100vh;
+  display: flex;
+  height: 100vh;
 }
 
 .PageContent {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    font-size: 9px;
-    color: grey;
-    margin: 20px;
-    margin-left: 300px;
-    z-index: 1;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  font-size: 9px;
+  color: grey;
+  margin: 20px;
+  margin-left: 300px;
+  z-index: 1;
+}
+
+.DebugComponent {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.DebugComponent * {
+  flex-grow: 1;
+  font-size: 1rem;
+}
+
+.DebugComponent h1,
+.DebugComponent h2,
+.DebugComponent h3,
+.DebugComponent h4 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.DebugComponent p {
+  text-align: start;
 }
 
 /* this is gonna make sure it works for the smaller devices */
@@ -68,7 +91,7 @@
     height: auto;
   }
 
-  .Schedule {
+  .PageContent {
     flex-grow: 1;
     margin-left: 20px;
     padding: 10px;

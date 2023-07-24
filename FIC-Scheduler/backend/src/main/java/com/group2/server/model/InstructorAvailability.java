@@ -1,22 +1,28 @@
 package com.group2.server.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "instructor_availability")
+@JsonIdentityInfo(
+  generator = ObjectIdGenerators.PropertyGenerator.class, 
+  property = "id")
 public class InstructorAvailability {
     @Setter(AccessLevel.PROTECTED)
     @Id
@@ -29,10 +35,6 @@ public class InstructorAvailability {
     @ManyToOne
     private Instructor instructor;
 
-    @Enumerated(EnumType.STRING)
-    private DayOfWeek dayOfWeek;
-
-    @Enumerated(EnumType.STRING)
-    private PartOfDay partOfDay;
-
+    @OneToMany(mappedBy = "instructorAvailability")
+    private List<Availability> availabilities;
 }

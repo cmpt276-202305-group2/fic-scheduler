@@ -12,10 +12,12 @@ import jakarta.persistence.ManyToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "instructor")
 public class Instructor {
     @Setter(AccessLevel.PROTECTED)
@@ -27,6 +29,6 @@ public class Instructor {
 
     @ManyToMany
     @JoinTable(name = "instructor_accreditation", joinColumns = @JoinColumn(name = "instructor_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "accreditation_id", referencedColumnName = "id"))
-    private Set<Accreditation> accreditation;
+    private Set<Accreditation> accreditations;
 
 }

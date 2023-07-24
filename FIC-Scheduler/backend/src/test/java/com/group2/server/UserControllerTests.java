@@ -3,7 +3,6 @@ package com.group2.server;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -57,9 +56,9 @@ public class UserControllerTests {
                 mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\"username\":\"missingUser\", \"password\":\"testPassword\"}"))
-                                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+                                .andExpect(MockMvcResultMatchers.status().isForbidden())
                                 .andExpect(MockMvcResultMatchers.jsonPath("$.user").isEmpty())
-                                .andExpect(MockMvcResultMatchers.cookie().doesNotExist("jwtToken"))
+                                .andExpect(MockMvcResultMatchers.jsonPath("$.jwt").isEmpty())
                                 .andDo(print());
         }
 
@@ -73,9 +72,9 @@ public class UserControllerTests {
                 mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\"username\":\"testUsername\", \"password\":\"badPassword\"}"))
-                                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+                                .andExpect(MockMvcResultMatchers.status().isForbidden())
                                 .andExpect(MockMvcResultMatchers.jsonPath("$.user").isEmpty())
-                                .andExpect(MockMvcResultMatchers.cookie().doesNotExist("jwtToken"))
+                                .andExpect(MockMvcResultMatchers.jsonPath("$.jwt").isEmpty())
                                 .andDo(print());
         }
 
@@ -93,7 +92,7 @@ public class UserControllerTests {
                                 .andExpect(MockMvcResultMatchers.status().isOk())
                                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.username").value("testUsername"))
                                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.roles[0]").value("ADMIN"))
-                                .andExpect(MockMvcResultMatchers.cookie().value("jwtToken", CoreMatchers.not("")))
+                                .andExpect(MockMvcResultMatchers.jsonPath("$.jwt").isNotEmpty())
                                 .andDo(print());
         }
 

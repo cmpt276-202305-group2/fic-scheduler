@@ -5,28 +5,14 @@ import java.util.HashSet;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.group2.server.model.ClassSchedule;
-import com.group2.server.model.ClassScheduleAssignment;
-import com.group2.server.model.Classroom;
-import com.group2.server.model.Instructor;
-import com.group2.server.model.InstructorAvailability;
-import com.group2.server.model.PartOfDay;
-import com.group2.server.model.SemesterPlan;
-import com.group2.server.repository.ClassScheduleRepository;
-import com.group2.server.repository.SemesterPlanRepository;
+import com.group2.server.model.*;
+import com.group2.server.repository.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "*")
 public class ScheduleController {
 
     @Autowired
@@ -36,7 +22,7 @@ public class ScheduleController {
     private SemesterPlanRepository semesterPlanRepository;
 
     @GetMapping("/schedules/latest")
-    public ClassSchedule getLatestSchedule() {
+    public ClassSchedule readLatestSchedule() {
         ClassSchedule latestSchedule = null;
         int latestId = -1;
 
@@ -56,9 +42,12 @@ public class ScheduleController {
             var chenoa = new Instructor(null, "Chenoa", null);
             var room2400 = new Classroom(null, "DIS1 2400", null);
             var room2550 = new Classroom(null, "DIS1 2550", null);
-            assignments.add(new ClassScheduleAssignment(null, latestSchedule, "CMPT 120", PartOfDay.MORNING, room2400, chenoa));
-            assignments.add(new ClassScheduleAssignment(null, latestSchedule, "PHYS 125", PartOfDay.AFTERNOON, room2550, alfred));
-            assignments.add(new ClassScheduleAssignment(null, latestSchedule, "ENGL 105W", PartOfDay.EVENING, room2400, shaniqua));
+            assignments.add(
+                    new ClassScheduleAssignment(null, latestSchedule, "CMPT 120", PartOfDay.MORNING, room2400, chenoa));
+            assignments.add(new ClassScheduleAssignment(null, latestSchedule, "PHYS 125", PartOfDay.AFTERNOON, room2550,
+                    alfred));
+            assignments.add(new ClassScheduleAssignment(null, latestSchedule, "ENGL 105W", PartOfDay.EVENING, room2400,
+                    shaniqua));
             latestSchedule.setClassScheduleAssignments(assignments);
         }
 
@@ -66,7 +55,7 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedules/{id}")
-    public ClassSchedule getScheduleById(@PathVariable Integer id) {
+    public ClassSchedule readScheduleById(@PathVariable Integer id) {
         if (id == null) {
             return null;
         }
@@ -74,7 +63,7 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedules")
-    public ClassSchedule[] getSchedulesByQuery(@RequestParam(required = false) String semester) {
+    public ClassSchedule[] readSchedulesByQuery(@RequestParam(required = false) String semester) {
         Collection<ClassSchedule> schedules;
 
         if (semester != null) {
@@ -86,7 +75,7 @@ public class ScheduleController {
         return schedules.toArray(new ClassSchedule[0]);
     }
 
-    @PostMapping("/generate")
+    @PostMapping("/generate-schedule")
     public ClassSchedule generateSchedule(@RequestBody GenerateScheduleDto body) {
         ClassSchedule sched = new ClassSchedule();
         Integer planId = body.getSemesterPlanId();
