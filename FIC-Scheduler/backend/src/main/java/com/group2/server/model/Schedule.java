@@ -8,17 +8,19 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "class_schedule")
+@Entity(name = "schedule")
 public class Schedule {
     @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
+    @NonNull
     private String semester;
 
-    @OneToMany(mappedBy = "classSchedule")
-    private Set<ClassScheduleAssignment> classScheduleAssignments;
+    @OneToMany(mappedBy = "schedule")
+    private Set<ScheduleAssignment> assignments;
 
     // TODO remember any interesting settings here for tracking purposes
     // The SemesterPlan used to generate this ClassSchedule might be edited after

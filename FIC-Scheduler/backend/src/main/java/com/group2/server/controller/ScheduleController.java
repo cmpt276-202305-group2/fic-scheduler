@@ -35,19 +35,31 @@ public class ScheduleController {
         if (latestSchedule == null) {
             latestSchedule = new Schedule();
             latestSchedule.setSemester("Fall 2023");
-            HashSet<ClassScheduleAssignment> assignments = new HashSet<>();
+            HashSet<ScheduleAssignment> assignments = new HashSet<>();
             var alfred = new Instructor(null, "Alfred");
             var shaniqua = new Instructor(null, "Shaniqua");
             var chenoa = new Instructor(null, "Chenoa");
+            var twoHalfBlocks = new BlockRequirementDivision(null, "Two 1/2 Blocks",
+                    Set.of(new BlockRequirement(null, Set.of(), Duration.HALF),
+                            new BlockRequirement(null, Set.of(), Duration.HALF)));
+            var oneFullBlock = new BlockRequirementDivision(null, "One Full Block",
+                    Set.of(new BlockRequirement(null, Set.of(), Duration.FULL)));
+            var oneFullPhysBlock = new BlockRequirementDivision(null, "One Full Block",
+                    Set.of(new BlockRequirement(null, Set.of(), Duration.FULL)));
+            var cmpt120 = new CourseOffering(null, "CMPT 120", Set.of(alfred, chenoa),
+                    Set.of(twoHalfBlocks, oneFullBlock));
+            var phys125 = new CourseOffering(null, "PHYS 125", Set.of(alfred, chenoa), Set.of(oneFullPhysBlock));
+            var engl105w = new CourseOffering(null, "ENGL 105W", Set.of(alfred, chenoa),
+                    Set.of(twoHalfBlocks, oneFullBlock));
             var room2400 = new Classroom(null, "DIS1 2400", null);
             var room2550 = new Classroom(null, "DIS1 2550", null);
             assignments.add(
-                    new ClassScheduleAssignment(null, latestSchedule, "CMPT 120", PartOfDay.MORNING, room2400, chenoa));
-            assignments.add(new ClassScheduleAssignment(null, latestSchedule, "PHYS 125", PartOfDay.AFTERNOON, room2550,
+                    new ScheduleAssignment(null, latestSchedule, cmpt120, PartOfDay.MORNING, room2400, chenoa));
+            assignments.add(new ScheduleAssignment(null, latestSchedule, phys125, PartOfDay.AFTERNOON, room2550,
                     alfred));
-            assignments.add(new ClassScheduleAssignment(null, latestSchedule, "ENGL 105W", PartOfDay.EVENING, room2400,
+            assignments.add(new ScheduleAssignment(null, latestSchedule, engl105w, PartOfDay.EVENING, room2400,
                     shaniqua));
-            latestSchedule.setClassScheduleAssignments(assignments);
+            latestSchedule.setAssignments(assignments);
         }
 
         return new ResponseEntity<>(toDto(latestSchedule), HttpStatus.OK);
@@ -117,7 +129,20 @@ public class ScheduleController {
     }
 
     public ScheduleDto toDto(Schedule schedule) {
-        return new ScheduleDto(schedule.getId(), schedule.getSemester());
+        var courses = new HashMap<CourseOffering, CourseAssignmentDto>();
+        for (var assignment : schedule.getAssignments()) {
+            courses.computeIfAbsent(assignment.getCourse(),
+                    (course) -> {
+                        var dto = new CourseAssignmentDto();
+                        dto.setCourse(new CourseOfferingDto(course.getId(), course.getCourseNumber(),
+                                course.getApprovedInstructors().stream()
+                                        .map(i -> (EntityDto) new EntityReferenceDto(i.getId())).toList(),
+                                course.getBlockDivisions().stream()
+                                        .map(bd -> (EntityDto) new EntityReferenceDto(bd.getId())).toList()));
+                        return dto;
+                    });
+        }
+        return new ScheduleDto(schedule.getId(), schedule.getSemester(), null);
     }
 
     public Schedule createOrUpdateFromDto(ScheduleDto scheduleDto) {

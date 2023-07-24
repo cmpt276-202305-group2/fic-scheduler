@@ -19,8 +19,8 @@ public class CourseOfferingController {
     @Autowired
     private CourseOfferingRepository courseOfferingRepository;
 
-    // @Autowired
-    // private BlockRequirementRepository blockTypeRepository;
+    @Autowired
+    private BlockRequirementDivisionRepository blockRequirementDivisionRepository;
 
     @Autowired
     private InstructorRepository instructorRepository;
@@ -85,7 +85,9 @@ public class CourseOfferingController {
     public CourseOfferingDto toDto(CourseOffering courseOffering) {
         return new CourseOfferingDto(courseOffering.getId(), courseOffering.getCourseNumber(),
                 courseOffering.getApprovedInstructors().stream().map(i -> (EntityDto) new EntityReferenceDto(i.getId()))
-                        .toList());
+                        .toList(),
+                courseOffering.getBlockDivisions().stream()
+                        .map(bd -> (EntityDto) new EntityReferenceDto(bd.getId())).toList());
     }
 
     public CourseOffering createOrUpdateFromDto(CourseOfferingDto courseOfferingDto) {
@@ -93,9 +95,12 @@ public class CourseOfferingController {
         if (courseOfferingDto.getId() != null) {
             courseOffering = courseOfferingRepository.findById(courseOfferingDto.getId()).get();
         } else {
-            Set<Instructor> approvedInstructors = new HashSet<Instructor>(courseOfferingDto.getApprovedInstructors()
+            var approvedInstructors = Set.copyOf(courseOfferingDto.getApprovedInstructors()
                     .stream().map(i -> instructorRepository.findById(i.getId()).get()).toList());
-            courseOffering = new CourseOffering(null, courseOfferingDto.getCourseNumber(), approvedInstructors, null);
+            var blockDivisions = Set.copyOf(courseOfferingDto.getBlockDivisions().stream()
+                    .map(bd -> blockRequirementDivisionRepository.findById(bd.getId()).get()).toList());
+            courseOffering = new CourseOffering(null, courseOfferingDto.getCourseNumber(), approvedInstructors,
+                    blockDivisions);
         }
         return courseOffering;
     }

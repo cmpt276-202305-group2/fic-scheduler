@@ -10,12 +10,17 @@ import lombok.*;
 @NoArgsConstructor
 @Entity(name = "block_requirement")
 public class BlockRequirement {
+    @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String name;
+    @NonNull
+    private Set<String> allowedRoomTypes;
 
-    @OneToMany
-    private List<Block> blocks;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @NonNull
+    private Duration duration;
+
 }

@@ -1,9 +1,6 @@
 package com.group2.server;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -23,7 +20,7 @@ public class ServerApplication {
     private BlockRepository blockRepository;
 
     @Autowired
-    private BlockRequirementRepository blockRequirementRepository;
+    private BlockRequirementDivisionRepository blockRequirementRepository;
 
     @Value("${app.user.coordinator.username}")
     private String coordinatorUsername;
@@ -64,32 +61,20 @@ public class ServerApplication {
 
             userRepository.save(debug);
 
-            // Define Durations for BlockTypes
-            List<Block> halfBlockDurations = new ArrayList<>();
-            halfBlockDurations.add(blockRepository.save(new Block(null, new HashSet<>(), Duration.HALF)));
-
-            List<Block> fullBlockDurations = new ArrayList<>();
-            fullBlockDurations.add(blockRepository.save(new Block(null, new HashSet<>(), Duration.FULL)));
-
-            List<Block> twoHalfBlocksDurations = new ArrayList<>();
-            twoHalfBlocksDurations.add(blockRepository.save(new Block(null, new HashSet<>(), Duration.HALF)));
-            twoHalfBlocksDurations.add(blockRepository.save(new Block(null, new HashSet<>(), Duration.HALF)));
-
-            List<Block> twoFullBlocksDurations = new ArrayList<>();
-            twoFullBlocksDurations.add(blockRepository.save(new Block(null, new HashSet<>(), Duration.FULL)));
-            twoFullBlocksDurations.add(blockRepository.save(new Block(null, new HashSet<>(), Duration.FULL)));
-
-            List<Block> halfAndFullBlockDurations = new ArrayList<>();
-            halfAndFullBlockDurations.add(blockRepository.save(new Block(null, new HashSet<>(), Duration.HALF)));
-            halfAndFullBlockDurations.add(blockRepository.save(new Block(null, new HashSet<>(), Duration.FULL)));
-
             // Define BlockTypes
-            BlockRequirement halfBlock = new BlockRequirement(null, "1 Half", halfBlockDurations);
-            BlockRequirement fullBlock = new BlockRequirement(null, "1 Full", fullBlockDurations);
-            BlockRequirement twoHalfBlocks = new BlockRequirement(null, "2 Full", twoHalfBlocksDurations);
-            BlockRequirement twoFullBlocks = new BlockRequirement(null, "2 Half", twoFullBlocksDurations);
-            BlockRequirement halfAndFullBlock = new BlockRequirement(null, "1 Half and 1 Full",
-                    halfAndFullBlockDurations);
+            BlockRequirementDivision halfBlock = new BlockRequirementDivision(null, "1 Half", Set.of(
+                    blockRepository.save(new BlockRequirement(null, new HashSet<>(), Duration.HALF))));
+            BlockRequirementDivision fullBlock = new BlockRequirementDivision(null, "1 Full", Set.of(
+                    blockRepository.save(new BlockRequirement(null, new HashSet<>(), Duration.FULL))));
+            BlockRequirementDivision twoHalfBlocks = new BlockRequirementDivision(null, "2 Full", Set.of(
+                    blockRepository.save(new BlockRequirement(null, new HashSet<>(), Duration.HALF)),
+                    blockRepository.save(new BlockRequirement(null, new HashSet<>(), Duration.HALF))));
+            BlockRequirementDivision twoFullBlocks = new BlockRequirementDivision(null, "2 Half", Set.of(
+                    blockRepository.save(new BlockRequirement(null, new HashSet<>(), Duration.FULL)),
+                    blockRepository.save(new BlockRequirement(null, new HashSet<>(), Duration.FULL))));
+            BlockRequirementDivision halfAndFullBlock = new BlockRequirementDivision(null, "1 Half and 1 Full", Set.of(
+                    blockRepository.save(new BlockRequirement(null, new HashSet<>(), Duration.HALF)),
+                    blockRepository.save(new BlockRequirement(null, new HashSet<>(), Duration.FULL))));
 
             // Save BlockTypes
             blockRequirementRepository.save(halfBlock);

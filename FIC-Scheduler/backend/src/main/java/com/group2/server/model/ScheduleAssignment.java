@@ -8,8 +8,8 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "class_schedule_assignment")
-public class ClassScheduleAssignment {
+@Entity(name = "schedule_assignment")
+public class ScheduleAssignment {
     @JsonIgnore
     @Setter(AccessLevel.PROTECTED)
     @Id
@@ -19,19 +19,29 @@ public class ClassScheduleAssignment {
     @JsonIgnore
     @ToString.Exclude
     @ManyToOne
-    @JoinColumn(name = "class_schedule_id", nullable = false)
-    private Schedule classSchedule;
+    @JoinColumn(nullable = false)
+    @NonNull
+    private Schedule schedule;
 
-    private String courseNumber;
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    @NonNull
+    private CourseOffering course;
 
     // TODO Per the spec we need to subdivide "partOfDay" in some cases
     // i.e. some classes are run as 2 split halves
+    @Column(nullable = false)
+    @NonNull
     private PartOfDay partOfDay;
 
     @ManyToOne
+    @JoinColumn(nullable = false)
+    @NonNull
     private Classroom classroom;
 
     @ManyToOne
+    @JoinColumn(nullable = false)
+    @NonNull
     private Instructor instructor;
 
 }

@@ -1,6 +1,5 @@
 package com.group2.server.model;
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,10 +13,12 @@ public class Classroom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Nonnull
+    @Column(nullable = false)
+    @NonNull
     private String roomNumber;
 
-    @Nonnull
+    @Column(nullable = false)
+    @NonNull
     private String roomType;
 
 }

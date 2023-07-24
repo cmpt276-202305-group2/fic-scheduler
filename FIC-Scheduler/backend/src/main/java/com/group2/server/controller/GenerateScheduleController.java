@@ -41,7 +41,7 @@ public class GenerateScheduleController {
         sched.setSemester(plan.getSemester());
 
         // TODO test code just generates a random schedule -- make it real
-        HashSet<ClassScheduleAssignment> assignments = new HashSet<>();
+        HashSet<ScheduleAssignment> assignments = new HashSet<>();
         var r = new Random();
         var partsOfDay = new PartOfDay[] { PartOfDay.MORNING, PartOfDay.AFTERNOON, PartOfDay.EVENING };
         var classrooms = plan.getClassroomsAvailable().toArray(new Classroom[0]);
@@ -51,10 +51,9 @@ public class GenerateScheduleController {
             var partOfDay = partsOfDay[r.nextInt(partsOfDay.length)];
             var classroom = classrooms[r.nextInt(classrooms.length)];
             var instructor = instructor_availabilities[r.nextInt(instructor_availabilities.length)].getInstructor();
-            assignments.add(new ClassScheduleAssignment(null, sched, offering.getCourseNumber(), partOfDay, classroom,
-                    instructor));
+            assignments.add(new ScheduleAssignment(null, sched, offering, partOfDay, classroom, instructor));
         }
-        sched.setClassScheduleAssignments(assignments);
+        sched.setAssignments(assignments);
         classScheduleRepository.save(sched);
         return sched;
     }

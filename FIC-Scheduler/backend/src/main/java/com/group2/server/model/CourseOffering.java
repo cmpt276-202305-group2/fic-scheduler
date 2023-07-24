@@ -15,6 +15,8 @@ public class CourseOffering {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
+    @NonNull
     private String courseNumber;
 
     @ManyToMany
@@ -23,5 +25,5 @@ public class CourseOffering {
 
     @ManyToMany
     @JoinTable(name = "course_offerings_block_requirements", joinColumns = @JoinColumn(name = "course_offering_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "block_requirement_id", referencedColumnName = "id"))
-    private Set<BlockRequirement> blockRequirements;
+    private Set<BlockRequirementDivision> blockDivisions;
 }

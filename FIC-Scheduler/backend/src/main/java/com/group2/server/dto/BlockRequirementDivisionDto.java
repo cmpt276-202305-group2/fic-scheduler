@@ -10,8 +10,8 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonDeserialize
-public class ScheduleDto implements EntityDto {
+public class BlockRequirementDivisionDto implements EntityDto {
     private Integer id;
-    private String semester;
-    private List<CourseAssignmentDto> courses;
+    private String name;
+    private List<BlockRequirementDto> blocks;
 }

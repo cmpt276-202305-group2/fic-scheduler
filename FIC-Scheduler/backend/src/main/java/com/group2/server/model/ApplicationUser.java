@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,17 +19,21 @@ public class ApplicationUser implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
+    @NonNull
     private String username;
 
+    @Column(nullable = false)
+    @NonNull
     private String password;
 
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role.class)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "role")
+    @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private Set<Role> authorities;
 
+    @Column(nullable = false)
     private String fullName;
 
     @Override
