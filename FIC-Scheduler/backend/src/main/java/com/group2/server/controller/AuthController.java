@@ -1,9 +1,8 @@
 package com.group2.server.controller;
 
-import java.util.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.group2.server.dto.*;
@@ -14,10 +13,8 @@ import com.group2.server.services.TokenService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
@@ -35,10 +32,10 @@ public class AuthController {
     private TokenService tokenService;
 
     @PostMapping("/login")
-    public AuthResponseDto loginUser(@RequestBody UserDto body, HttpServletResponse response) {
+    public ResponseEntity<AuthResponseDto> loginUser(@RequestBody UserDto userDto) {
         try {
-            String username = body.getUsername();
-            String password = body.getPassword();
+            String username = userDto.getUsername();
+            String password = userDto.getPassword();
 
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password));
@@ -47,48 +44,41 @@ public class AuthController {
 
             ApplicationUser user = userRepository.findByUsername(username).get();
 
-            return new AuthResponseDto("Login successful",
+            return new ResponseEntity<>(new AuthResponseDto("Login successful",
                     new UserDto(user.getId(), user.getUsername(), null,
                             UserDto.applicationUserRolesToDtoRoles(user.getAuthorities()), user.getFullName()),
-                    token);
-        } catch (AuthenticationException e) {
-            // Fall through to error
+                    token), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new AuthResponseDto("Authentication failed", null, null),
+                    HttpStatus.UNAUTHORIZED);
         }
-        response.setStatus(403);
-        return new AuthResponseDto("Authentication failed", null, null);
     }
 
     @GetMapping("/current-user")
-    public UserDto getUserInfo(Authentication authentication) {
-        String username = authentication.getName();
-        Optional<ApplicationUser> user = userRepository.findByUsername(username);
-        if (!user.isPresent()) {
-            throw new JwtException("Bad username in JWT");
+    public ResponseEntity<UserDto> getUserInfo(Authentication authentication) {
+        try {
+            String username = authentication.getName();
+            ApplicationUser user = userRepository.findByUsername(username).get();
+            return new ResponseEntity<>(
+                    new UserDto(null, user.getUsername(), null,
+                            UserDto.applicationUserRolesToDtoRoles(user.getAuthorities()), user.getFullName()),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new UserDto(null, user.get().getUsername(), null,
-                UserDto.applicationUserRolesToDtoRoles(user.get().getAuthorities()),
-                user.get().getFullName());
 
     }
 
     @PostMapping("/logout")
-    public AuthResponseDto logoutUser(HttpServletRequest request, HttpServletResponse response) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("jwtToken")) {
+    public ResponseEntity<AuthResponseDto> logoutUser(HttpServletResponse response) {
+        Cookie jwtCookie = new Cookie("jwtToken", "");
+        jwtCookie.setMaxAge(0);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setPath("/");
+        jwtCookie.setSecure(true);
+        response.addCookie(jwtCookie);
 
-                    Cookie jwtCookie = new Cookie("jwtToken", "");
-                    jwtCookie.setMaxAge(0);
-                    jwtCookie.setHttpOnly(true);
-                    jwtCookie.setPath("/");
-                    jwtCookie.setSecure(true);
-
-                    response.addCookie(jwtCookie);
-                }
-            }
-        }
-        return new AuthResponseDto("Logout successful", null, null);
+        return new ResponseEntity<>(new AuthResponseDto("Logout successful", null, null), HttpStatus.OK);
     }
 
 }

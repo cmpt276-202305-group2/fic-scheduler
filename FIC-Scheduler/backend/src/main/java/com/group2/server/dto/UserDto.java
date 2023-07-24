@@ -3,11 +3,13 @@ package com.group2.server.dto;
 import lombok.*;
 import java.util.*;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.group2.server.model.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonDeserialize
 public class UserDto implements EntityDto {
     private Integer id;
     private String username;
