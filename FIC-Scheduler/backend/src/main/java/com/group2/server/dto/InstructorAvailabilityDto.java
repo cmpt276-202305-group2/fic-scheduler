@@ -8,8 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonDeserialize
-public class InstructorAvailabilityDto implements EntityDto {
-    private Integer id;
+public class InstructorAvailabilityDto {
     private DayOfWeek dayOfWeek;
     private PartOfDay partOfDay;
     private EntityDto instructor;

@@ -19,7 +19,7 @@ public class Schedule {
     @NonNull
     private String semester;
 
-    @OneToMany(mappedBy = "schedule")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ScheduleAssignment> assignments;
 
     // TODO remember any interesting settings here for tracking purposes

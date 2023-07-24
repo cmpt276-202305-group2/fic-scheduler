@@ -3,7 +3,6 @@ package com.group2.server.model;
 import java.util.Set;
 
 import org.springframework.security.core.userdetails.UserDetails;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +12,6 @@ import lombok.*;
 @NoArgsConstructor
 @Entity(name = "application_user")
 public class ApplicationUser implements UserDetails {
-    @JsonIgnore
     @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
