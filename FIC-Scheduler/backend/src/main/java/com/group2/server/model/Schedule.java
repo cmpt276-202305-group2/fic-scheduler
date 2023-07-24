@@ -1,32 +1,26 @@
 package com.group2.server.model;
 
-import java.util.Set;
+import java.util.*;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "class_schedule")
-public class ClassSchedule {
+@Entity(name = "schedule")
+public class Schedule {
     @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
+    @NonNull
     private String semester;
 
-    @OneToMany(mappedBy = "classSchedule")
-    private Set<ClassScheduleAssignment> classScheduleAssignments;
+    @OneToMany(mappedBy = "schedule")
+    private Set<ScheduleAssignment> assignments;
 
     // TODO remember any interesting settings here for tracking purposes
     // The SemesterPlan used to generate this ClassSchedule might be edited after

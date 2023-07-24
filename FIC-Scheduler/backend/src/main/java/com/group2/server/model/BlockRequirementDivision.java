@@ -1,24 +1,23 @@
 package com.group2.server.model;
 
+import java.util.*;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "classroom")
-public class Classroom {
-    @Setter(AccessLevel.PROTECTED)
+@Entity(name = "block_requirement_division")
+public class BlockRequirementDivision {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(nullable = false)
     @NonNull
-    private String roomNumber;
+    private String name;
 
-    @Column(nullable = false)
-    @NonNull
-    private String roomType;
-
+    @OneToMany
+    private Set<BlockRequirement> blocks;
 }

@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.group2.server.controller.AuthResponseDto;
+import com.group2.server.dto.AuthResponseDto;
 import com.group2.server.model.ApplicationUser;
 import com.group2.server.model.Role;
 import com.group2.server.repository.UserRepository;
@@ -63,7 +63,7 @@ public class AuthControllerTests {
                 mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\"username\":\"missingUser\", \"password\":\"testPassword\"}"))
-                                .andExpect(MockMvcResultMatchers.status().isForbidden())
+                                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                                 .andExpect(MockMvcResultMatchers.jsonPath("$.user").isEmpty())
                                 .andExpect(MockMvcResultMatchers.jsonPath("$.jwt").isEmpty())
                                 .andDo(print());
@@ -79,7 +79,7 @@ public class AuthControllerTests {
                 mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\"username\":\"testUsername\", \"password\":\"badPassword\"}"))
-                                .andExpect(MockMvcResultMatchers.status().isForbidden())
+                                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                                 .andExpect(MockMvcResultMatchers.jsonPath("$.user").isEmpty())
                                 .andExpect(MockMvcResultMatchers.jsonPath("$.jwt").isEmpty())
                                 .andDo(print());

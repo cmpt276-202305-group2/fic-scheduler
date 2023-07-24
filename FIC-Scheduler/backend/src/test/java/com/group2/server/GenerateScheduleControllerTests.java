@@ -21,11 +21,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.List;
-import java.lang.reflect.Field;
 
-import com.group2.server.model.ClassSchedule;
+import com.group2.server.model.Schedule;
 import com.group2.server.model.SemesterPlan;
-import com.group2.server.repository.ClassScheduleRepository;
+import com.group2.server.repository.ScheduleRepository;
 import com.group2.server.repository.SemesterPlanRepository;
 import com.group2.server.services.TokenService;
 import com.group2.server.model.ApplicationUser;
@@ -33,18 +32,18 @@ import com.group2.server.model.Role;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ScheduleControllerTests {
+public class GenerateScheduleControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private ClassScheduleRepository classScheduleRepository;
+    private ScheduleRepository classScheduleRepository;
 
     @MockBean
     private SemesterPlanRepository semesterPlanRepository;
 
-    private ClassSchedule mockSchedule;
+    private Schedule mockSchedule;
     private SemesterPlan mockPlan;
     private ApplicationUser mockUser;
 
@@ -91,32 +90,12 @@ public class ScheduleControllerTests {
         return new ApplicationUser((Integer) 1, username, passwordEncoder.encode(password), roles, "");
     }
 
-    private ClassSchedule makeMockSchedule(String semester) throws Exception {
-        ClassSchedule mockSchedule = new ClassSchedule();
-        mockSchedule.setSemester(semester);
-
-        // Set the id using reflection
-        Field idField = ClassSchedule.class.getDeclaredField("id");
-        idField.setAccessible(true);
-        idField.set(mockSchedule, 1);
-
-        return mockSchedule;
+    private Schedule makeMockSchedule(String semester) throws Exception {
+        return new Schedule(1, semester, new HashSet<>());
     }
 
     private SemesterPlan makeMockPlan(String semester) throws Exception {
-        SemesterPlan mockPlan = new SemesterPlan();
-        mockPlan.setSemester(semester);
-
-        // Set the id using reflection
-        Field idField = SemesterPlan.class.getDeclaredField("id");
-        idField.setAccessible(true);
-        idField.set(mockPlan, 1);
-
-        mockPlan.setCoursesOffered(new HashSet<>());
-        mockPlan.setInstructorsAvailable(new HashSet<>());
-        mockPlan.setClassroomsAvailable(new HashSet<>());
-
-        return mockPlan;
+        return new SemesterPlan(1, semester, new HashSet<>(), new HashSet<>(), new HashSet<>());
     }
 
     @Test
@@ -173,7 +152,7 @@ public class ScheduleControllerTests {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/generate-schedule")
                 .header("Authorization", "Bearer " + mockJwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"semesterPlanId\": 1}")
+                .content("{\"semesterPlan\": { \"id\": 1 } }")
                 .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.semester").value(mockPlan.getSemester()))
