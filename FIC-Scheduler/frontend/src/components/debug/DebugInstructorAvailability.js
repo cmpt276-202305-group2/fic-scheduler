@@ -16,13 +16,15 @@ export function DebugInstructorAvailability() {
 
   if ((fetchResult === null) || !(fetchResult.classScheduleAssignments instanceof Array)) {
     return (
-      <div className={styles.PageContent} data-testid="debug-instructor-availability">
+      <div className={styles.DebugComponent} data-testid="debug-instructor-availability">
+        <h1>Instructor availability</h1>
         <div>No schedules generated!</div>
       </div>);
   }
 
   return (
-    <div className={styles.PageContent} data-testid="debug-instructor-availability">
+    <div className={styles.DebugComponent} data-testid="debug-instructor-availability">
+      <h1>Instructor availability</h1>
       <table>
         <thead>
           <tr>

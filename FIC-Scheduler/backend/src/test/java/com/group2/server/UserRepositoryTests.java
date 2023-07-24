@@ -23,9 +23,8 @@ public class UserRepositoryTests {
 
     @Test // Save the user to the repository and verify that it was saved correctly
     public void testFindByUsername() {
-        ApplicationUser user = new ApplicationUser();
-        user.setUsername("testUsername");
-        user.setPassword("testPassword");
+        ApplicationUser user = new ApplicationUser(null, "testUsername", "testPassword", new HashSet<Role>(),
+                "Test User");
         var roles = new HashSet<Role>();
         roles.add(Role.ADMIN);
         user.setAuthorities(roles);

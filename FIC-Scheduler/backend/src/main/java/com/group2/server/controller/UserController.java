@@ -3,6 +3,8 @@ package com.group2.server.controller;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.group2.server.dto.*;
@@ -13,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@CrossOrigin("*")
 public class UserController {
 
     @Autowired
@@ -23,63 +25,83 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/users")
-    public UserDto[] readUsersByQuery(@RequestParam Optional<String> username) {
-        List<ApplicationUser> users;
+    public ResponseEntity<UserDto[]> readUsersByQuery(@RequestParam(required = false) String username) {
+        try {
+            List<ApplicationUser> users;
 
-        if (username.isPresent()) {
-            users = new ArrayList<ApplicationUser>(1);
-            var result = userRepository.findByUsername(username.get());
-            if (result.isPresent()) {
-                users.add(result.get());
+            if (username != null) {
+                users = new ArrayList<ApplicationUser>(1);
+                var result = userRepository.findByUsername(username);
+                if (result.isPresent()) {
+                    users.add(result.get());
+                }
+            } else {
+                users = userRepository.findAll();
             }
-        } else {
-            users = userRepository.findAll();
-        }
 
-        var userDtos = new UserDto[users.size()];
-        for (int i = 0; i < users.size(); ++i) {
-            userDtos[i] = applicationUserAsDto(users.get(i));
+            var userDtos = new UserDto[users.size()];
+            for (int i = 0; i < users.size(); ++i) {
+                userDtos[i] = toDto(users.get(i));
+            }
+            return new ResponseEntity<>(userDtos, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return userDtos;
     }
 
     @GetMapping("/users/{id}")
-    public UserDto readUserById(@PathVariable Integer id) {
-        if (id == null) {
-            return null;
+    public ResponseEntity<UserDto> readUserById(@PathVariable Integer id) {
+        try {
+            return new ResponseEntity<UserDto>(toDto(userRepository.findById(id).orElseThrow()),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<UserDto>(HttpStatus.BAD_REQUEST);
         }
-        return applicationUserAsDto(userRepository.findById(id).orElseThrow());
     }
 
     @PostMapping("/users")
-    public List<UserDto> updateUsers(@RequestBody List<UserDto> userDtoList) {
-        var updatedUsers = new ArrayList<UserDto>(userDtoList.size());
-        for (var userDto : userDtoList) {
-            updatedUsers.add(updateOrCreateUser(userDto));
+    public ResponseEntity<List<UserDto>> createOrUpdateUsers(@RequestBody List<UserDto> userDtoList) {
+        try {
+            var updatedUsers = new ArrayList<UserDto>(userDtoList.size());
+            for (var userDto : userDtoList) {
+                updatedUsers.add(toDto(createOrUpdateFromDto(userDto)));
+            }
+            return new ResponseEntity<>(updatedUsers, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return updatedUsers;
     }
 
     @PutMapping("/users/{id}")
-    public UserDto updateUserById(@PathVariable Integer id, @RequestBody UserDto userDto) {
-        userDto.setId(Optional.of(id));
-        return updateOrCreateUser(userDto);
+    public ResponseEntity<UserDto> updateUserById(@PathVariable Integer id, @RequestBody UserDto userDto) {
+        try {
+            userDto.setId(id);
+            UserDto createdUserDto = toDto(createOrUpdateFromDto(userDto));
+            return new ResponseEntity<>(createdUserDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @DeleteMapping("/users/{id}")
-    public void deleteUserById(@PathVariable Integer id) {
-        userRepository.delete(userRepository.findById(id).get());
+    public ResponseEntity<Void> deleteUserById(@PathVariable Integer id) {
+        try {
+            userRepository.delete(userRepository.findById(id).get());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    private UserDto updateOrCreateUser(UserDto userDto) {
-        Optional<String> encodedPassword = Optional.empty();
-        if (userDto.getPassword().isPresent()) {
-            encodedPassword = Optional.of(passwordEncoder.encode(userDto.getPassword().get()));
+    private ApplicationUser createOrUpdateFromDto(UserDto userDto) {
+        String encodedPassword = null;
+        if (userDto.getPassword() != null) {
+            encodedPassword = passwordEncoder.encode(userDto.getPassword());
         }
 
         var authorities = new HashSet<Role>();
-        if (userDto.getRoles().isPresent()) {
-            for (String roleStr : userDto.getRoles().get()) {
+        if (userDto.getRoles() != null) {
+            for (String roleStr : userDto.getRoles()) {
                 authorities.add(Role.valueOf(roleStr));
             }
         } else {
@@ -87,32 +109,33 @@ public class UserController {
         }
 
         ApplicationUser createdUser;
-        if (userDto.getId().isPresent()) {
-            createdUser = userRepository.findById(userDto.getId().get()).get();
-            if (userDto.getUsername().isPresent()) {
-                createdUser.setUsername(userDto.getUsername().get());
+        if (userDto.getId() != null) {
+            createdUser = userRepository.findById(userDto.getId()).get();
+            if (userDto.getUsername() != null) {
+                createdUser.setUsername(userDto.getUsername());
             }
-            if (encodedPassword.isPresent()) {
-                createdUser.setPassword(encodedPassword.get());
+            if (encodedPassword != null) {
+                createdUser.setPassword(encodedPassword);
             }
-            if (userDto.getRoles().isPresent()) {
+            if (userDto.getRoles() != null) {
                 createdUser.setAuthorities(authorities);
             }
-            if (userDto.getFullName().isPresent()) {
-                createdUser.setFullName(userDto.getFullName().get());
+            if (userDto.getFullName() != null) {
+                createdUser.setFullName(userDto.getFullName());
             }
+            createdUser = userRepository.save(createdUser);
         } else {
             createdUser = userRepository
-                    .save(new ApplicationUser(null, userDto.getUsername().get(), encodedPassword.get(), authorities,
-                            userDto.getFullName().get()));
+                    .save(new ApplicationUser(null, userDto.getUsername(), encodedPassword, authorities,
+                            userDto.getFullName()));
         }
-        return applicationUserAsDto(createdUser);
+        return createdUser;
     }
 
-    private UserDto applicationUserAsDto(ApplicationUser user) {
-        return new UserDto(Optional.of(user.getId()), Optional.of(user.getUsername()), Optional.empty(),
-                Optional.of(UserDto.applicationUserRolesToDtoRoles(user.getAuthorities())),
-                Optional.of(user.getFullName()));
+    private UserDto toDto(ApplicationUser user) {
+        return new UserDto(user.getId(), user.getUsername(), null,
+                UserDto.applicationUserRolesToDtoRoles(user.getAuthorities()),
+                user.getFullName());
     }
 
 }

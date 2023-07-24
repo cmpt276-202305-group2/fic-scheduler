@@ -6,27 +6,34 @@ import DebugAuth from "../components/debug/DebugAuth";
 // import DebugFacility from "../components/debug/DebugFacility";
 // import DebugInstructorAvailability from "../components/debug/DebugInstructorAvailability";
 // import DebugInstructor from "../components/debug/DebugInstructor";
-// import DebugSchedule from "../components/debug/DebugSchedule";
+import DebugSchedule from "../components/debug/DebugSchedule";
+import DebugSemesterPlan from "../components/debug/DebugSemesterPlan";
 import DebugUser from "../components/debug/DebugUser";
 import CheckAuth from "../components/CheckAuth";
 import Sidebar from "../components/Sidebar";
 
-function GenerateSchedulePage() {
+function GenerateSchedulePage({ subpage }) {
   return (
-    <CheckAuth permittedRoles={["DEBUG"]} fallback={<Navigate to="/" replace />}>
+    <CheckAuth
+      permittedRoles={["DEBUG"]}
+      fallback={<Navigate to="/" replace />}
+    >
       <div className={styles.Container}>
         <div className={styles.Sidebar}>
-          <Sidebar />
+          <Sidebar item="debugMenu" subitem={subpage} />
         </div>
         <div className={styles.PageContent} data-testid="debug-menu">
-          <DebugAuth />
-          {/* <DebugClassroom />
-          <DebugCourseOffering />
-          <DebugFacility />
-          <DebugInstructorAvailability />
-          <DebugInstructor />
-          <DebugSchedule /> */}
-          <DebugUser />
+          {subpage === 'auth' ? <DebugAuth /> : ''}
+          {/*
+          { subpage === 'auth' ? <DebugClassroom /> : '' }
+          { subpage === 'auth' ? <DebugCourseOffering /> : '' }
+          { subpage === 'auth' ? <DebugFacility /> : '' }
+          { subpage === 'auth' ? <DebugInstructor /> : '' }
+          { subpage === 'auth' ? <DebugInstructorAvailability /> : '' }
+           */}
+          {subpage === 'semesterPlan' ? <DebugSemesterPlan /> : ''}
+          {subpage === 'schedule' ? <DebugSchedule /> : ''}
+          {subpage === 'user' ? <DebugUser /> : ''}
         </div>
       </div>
     </CheckAuth>

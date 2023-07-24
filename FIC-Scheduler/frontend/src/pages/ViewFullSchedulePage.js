@@ -9,7 +9,7 @@ function ViewFullSchedulePage() {
     <CheckAuth permittedRoles={["ADMIN", "COORDINATOR", "INSTRUCTOR"]} fallback={<Navigate to="/" replace />}>
       <div className={styles.Container}>
         <div className={styles.Sidebar}>
-          <Sidebar />
+          <Sidebar item="viewFullSchedule" />
         </div>
         <div className={styles.PageContent} data-testid="schedule">
           <ScheduleTable />

@@ -62,13 +62,14 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
                     // auth.anyRequest().permitAll();
-
                     MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
                     auth.requestMatchers(mvcMatcherBuilder.pattern("/auth/**")).permitAll();
                     auth.requestMatchers(mvcMatcherBuilder.pattern("/api/users"))
-                            .hasAnyRole(Role.ADMIN.toString());
+                            .hasAnyRole(Role.ADMIN.toString(), Role.COORDINATOR.toString(), Role.INSTRUCTOR.toString(),
+                                    Role.DEBUG.toString());
                     auth.requestMatchers(mvcMatcherBuilder.pattern("/api/users/**"))
-                            .hasAnyRole(Role.ADMIN.toString());
+                            .hasAnyRole(Role.ADMIN.toString(), Role.COORDINATOR.toString(), Role.INSTRUCTOR.toString(),
+                                    Role.DEBUG.toString());
                     auth.requestMatchers(mvcMatcherBuilder.pattern("/api/generate-schedule"))
                             .hasAnyRole(Role.ADMIN.toString(), Role.COORDINATOR.toString());
                     auth.requestMatchers(mvcMatcherBuilder.pattern("/api/schedules/**"))

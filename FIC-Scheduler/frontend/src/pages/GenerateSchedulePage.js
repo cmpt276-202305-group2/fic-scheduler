@@ -8,7 +8,7 @@ function GenerateSchedulePage() {
     <CheckAuth permittedRoles={["ADMIN", "COORDINATOR"]} fallback={<Navigate to="/" replace />}>
       <div className={styles.Container}>
         <div className={styles.Sidebar}>
-          <Sidebar />
+          <Sidebar item="generateSchedule" />
         </div>
         <div className={styles.PageContent} data-testid="generate-schedule">
         </div>

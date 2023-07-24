@@ -14,7 +14,7 @@ export function DebugAuth() {
     //   (_) => { setFetchResult(null); });
   }, [setFetchResult]);
 
-  var data = (<div>No schedules generated!</div>);
+  var data = (<div>No auth</div>);
   if (((fetchResult ?? null) !== null) && (fetchResult instanceof Array)) {
     // data = (
     //   <table>
@@ -41,7 +41,8 @@ export function DebugAuth() {
     //   </table>);
   }
   return (
-    <div className={styles.PageContent} data-testid="debug-auth">
+    <div className={styles.DebugComponent} data-testid="debug-auth">
+      <h1>Auth</h1>
       {data}
       {/* {() => {
         axios.get("api/schedules/latest", tokenConfig()).then(

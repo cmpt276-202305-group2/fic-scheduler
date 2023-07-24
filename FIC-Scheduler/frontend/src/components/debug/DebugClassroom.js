@@ -16,13 +16,15 @@ export function DebugClassroom() {
 
   if ((fetchResult === null) || !(fetchResult.classScheduleAssignments instanceof Array)) {
     return (
-      <div className={styles.PageContent} data-testid="debug-classroom">
+      <div className={styles.DebugComponent} data-testid="debug-classroom">
+        <h1>Classrooms</h1>
         <div>No classrooms</div>
       </div>);
   }
 
   return (
-    <div className={styles.PageContent} data-testid="debug-classroom">
+    <div className={styles.DebugComponent} data-testid="debug-classroom">
+      <h1>Classrooms</h1>
       {/* <table>
         <thead>
           <tr>
