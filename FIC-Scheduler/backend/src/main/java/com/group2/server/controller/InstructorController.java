@@ -76,7 +76,7 @@ public class InstructorController {
     }
 
     public InstructorDto toDto(Instructor instructor) {
-        return new InstructorDto(instructor.getId(), instructor.getName());
+        return new InstructorDto(instructor.getId(), instructor.getName(), instructor.getNotes());
     }
 
     public Instructor createOrUpdateFromDto(InstructorDto instructorDto) {
@@ -84,7 +84,7 @@ public class InstructorController {
         if (instructorDto.getId() != null) {
             instructor = instructorRepository.findById(instructorDto.getId()).get();
         } else {
-            instructor = new Instructor(null, instructorDto.getName());
+            instructor = new Instructor(null, instructorDto.getName(), instructorDto.getNotes());
         }
         return instructor;
     }

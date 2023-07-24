@@ -83,7 +83,8 @@ public class CourseOfferingController {
     }
 
     public CourseOfferingDto toDto(CourseOffering courseOffering) {
-        return new CourseOfferingDto(courseOffering.getId(), courseOffering.getCourseNumber(),
+        return new CourseOfferingDto(courseOffering.getId(), courseOffering.getName(), courseOffering.getCourseNumber(),
+                courseOffering.getNotes(),
                 courseOffering.getApprovedInstructors().stream().map(i -> (EntityDto) new EntityReferenceDto(i.getId()))
                         .toList(),
                 courseOffering.getBlockDivisions().stream()
@@ -99,8 +100,8 @@ public class CourseOfferingController {
                     .stream().map(i -> instructorRepository.findById(i.getId()).get()).toList());
             var blockDivisions = Set.copyOf(courseOfferingDto.getBlockDivisions().stream()
                     .map(bd -> blockRequirementDivisionRepository.findById(bd.getId()).get()).toList());
-            courseOffering = new CourseOffering(null, courseOfferingDto.getCourseNumber(), approvedInstructors,
-                    blockDivisions);
+            courseOffering = new CourseOffering(null, courseOfferingDto.getName(), courseOfferingDto.getCourseNumber(),
+                    courseOfferingDto.getNotes(), approvedInstructors, blockDivisions);
         }
         return courseOffering;
     }
