@@ -23,14 +23,14 @@ import com.group2.server.repository.*;
 public class GenerateScheduleController {
 
     @Autowired
-    private ClassScheduleRepository classScheduleRepository;
+    private ScheduleRepository classScheduleRepository;
 
     @Autowired
     private SemesterPlanRepository semesterPlanRepository;
 
     @PostMapping("/generate-schedule")
-    public ClassSchedule generateSchedule(@RequestBody GenerateScheduleDto generateScheduleDto) {
-        ClassSchedule sched = new ClassSchedule();
+    public Schedule generateSchedule(@RequestBody GenerateScheduleDto generateScheduleDto) {
+        Schedule sched = new Schedule();
         Integer planId = generateScheduleDto.getSemesterPlan().getId();
         SemesterPlan plan = planId != null ? semesterPlanRepository.findById(planId).orElse(null) : null;
 

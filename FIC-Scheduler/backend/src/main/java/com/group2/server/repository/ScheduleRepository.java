@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.group2.server.model.*;
 
-public interface ClassScheduleRepository extends JpaRepository<ClassSchedule, Integer> {
-    Set<ClassSchedule> findBySemester(String semester);
+public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
+    Set<Schedule> findBySemester(String semester);
 }

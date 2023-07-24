@@ -20,7 +20,7 @@ public class ClassScheduleAssignment {
     @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "class_schedule_id", nullable = false)
-    private ClassSchedule classSchedule;
+    private Schedule classSchedule;
 
     private String courseNumber;
 

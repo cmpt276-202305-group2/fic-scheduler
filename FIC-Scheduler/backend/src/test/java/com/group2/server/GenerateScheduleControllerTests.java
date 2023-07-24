@@ -22,9 +22,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.List;
 
-import com.group2.server.model.ClassSchedule;
+import com.group2.server.model.Schedule;
 import com.group2.server.model.SemesterPlan;
-import com.group2.server.repository.ClassScheduleRepository;
+import com.group2.server.repository.ScheduleRepository;
 import com.group2.server.repository.SemesterPlanRepository;
 import com.group2.server.services.TokenService;
 import com.group2.server.model.ApplicationUser;
@@ -38,12 +38,12 @@ public class GenerateScheduleControllerTests {
     private MockMvc mockMvc;
 
     @MockBean
-    private ClassScheduleRepository classScheduleRepository;
+    private ScheduleRepository classScheduleRepository;
 
     @MockBean
     private SemesterPlanRepository semesterPlanRepository;
 
-    private ClassSchedule mockSchedule;
+    private Schedule mockSchedule;
     private SemesterPlan mockPlan;
     private ApplicationUser mockUser;
 
@@ -90,8 +90,8 @@ public class GenerateScheduleControllerTests {
         return new ApplicationUser((Integer) 1, username, passwordEncoder.encode(password), roles, "");
     }
 
-    private ClassSchedule makeMockSchedule(String semester) throws Exception {
-        return new ClassSchedule(1, semester, new HashSet<>());
+    private Schedule makeMockSchedule(String semester) throws Exception {
+        return new Schedule(1, semester, new HashSet<>());
     }
 
     private SemesterPlan makeMockPlan(String semester) throws Exception {
