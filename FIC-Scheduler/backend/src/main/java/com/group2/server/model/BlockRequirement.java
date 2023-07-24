@@ -1,24 +1,26 @@
 package com.group2.server.model;
 
+import java.util.*;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "classroom")
-public class Classroom {
+@Entity(name = "block_requirement")
+public class BlockRequirement {
     @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)
     @NonNull
-    private String roomNumber;
+    private Set<String> allowedRoomTypes;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @NonNull
-    private String roomType;
+    private Duration duration;
 
 }

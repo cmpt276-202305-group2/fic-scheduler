@@ -4,6 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.group2.server.model.*;
 
-public interface ClassroomRepository extends JpaRepository<Classroom, Integer> {
-    Classroom findByRoomNumber(String roomNumber);
+public interface BlockRequirementDivisionRepository extends JpaRepository<BlockRequirementDivision, Integer> {
 }

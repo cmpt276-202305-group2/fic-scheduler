@@ -2,8 +2,7 @@ package com.group2.server.model;
 
 import java.util.Calendar;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @RequiredArgsConstructor
 public enum DayOfWeek {

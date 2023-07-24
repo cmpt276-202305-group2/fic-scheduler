@@ -37,10 +37,10 @@ function App() {
     lsUserInfoItem === null
       ? null
       : {
-          username: lsUserInfoItem.username ?? "nouser",
-          roles: Array.from(lsUserInfoItem.roles ?? []),
-          fullName: lsUserInfoItem.fullName ?? "No User",
-        };
+        username: lsUserInfoItem.username ?? "nouser",
+        roles: Array.from(lsUserInfoItem.roles ?? []),
+        fullName: lsUserInfoItem.fullName ?? "No User",
+      };
 
   const [userInfo, setUserInfo] = useState(lsUserInfo);
   const persistUserInfo = (userInfo) => {

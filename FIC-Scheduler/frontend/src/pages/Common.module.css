@@ -8,13 +8,17 @@
   background-color: #417A1A;
   color: white;
   height: 100vh;
-  width: 280px;
+  min-width: 280px;
   position: fixed;
   top: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   z-index: 2;
+}
+
+.Sidebar nav {
+  overflow-y: auto;
 }
 
 .Sidebar li:last-child {
