@@ -41,7 +41,7 @@ public class UserController {
 
             var userDtos = new UserDto[users.size()];
             for (int i = 0; i < users.size(); ++i) {
-                userDtos[i] = applicationUserAsDto(users.get(i));
+                userDtos[i] = toDto(users.get(i));
             }
             return new ResponseEntity<>(userDtos, HttpStatus.OK);
         } catch (Exception e) {
@@ -52,7 +52,7 @@ public class UserController {
     @GetMapping("/users/{id}")
     public ResponseEntity<UserDto> readUserById(@PathVariable Integer id) {
         try {
-            return new ResponseEntity<UserDto>(applicationUserAsDto(userRepository.findById(id).orElseThrow()),
+            return new ResponseEntity<UserDto>(toDto(userRepository.findById(id).orElseThrow()),
                     HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<UserDto>(HttpStatus.BAD_REQUEST);
@@ -60,11 +60,11 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<List<UserDto>> updateUsers(@RequestBody List<UserDto> userDtoList) {
+    public ResponseEntity<List<UserDto>> createOrUpdateUsers(@RequestBody List<UserDto> userDtoList) {
         try {
             var updatedUsers = new ArrayList<UserDto>(userDtoList.size());
             for (var userDto : userDtoList) {
-                updatedUsers.add(updateOrCreateUser(userDto));
+                updatedUsers.add(toDto(createOrUpdateFromDto(userDto)));
             }
             return new ResponseEntity<>(updatedUsers, HttpStatus.OK);
         } catch (Exception e) {
@@ -76,7 +76,7 @@ public class UserController {
     public ResponseEntity<UserDto> updateUserById(@PathVariable Integer id, @RequestBody UserDto userDto) {
         try {
             userDto.setId(id);
-            UserDto createdUserDto = updateOrCreateUser(userDto);
+            UserDto createdUserDto = toDto(createOrUpdateFromDto(userDto));
             return new ResponseEntity<>(createdUserDto, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -93,7 +93,7 @@ public class UserController {
         }
     }
 
-    private UserDto updateOrCreateUser(UserDto userDto) {
+    private ApplicationUser createOrUpdateFromDto(UserDto userDto) {
         String encodedPassword = null;
         if (userDto.getPassword() != null) {
             encodedPassword = passwordEncoder.encode(userDto.getPassword());
@@ -129,10 +129,10 @@ public class UserController {
                     .save(new ApplicationUser(null, userDto.getUsername(), encodedPassword, authorities,
                             userDto.getFullName()));
         }
-        return applicationUserAsDto(createdUser);
+        return createdUser;
     }
 
-    private UserDto applicationUserAsDto(ApplicationUser user) {
+    private UserDto toDto(ApplicationUser user) {
         return new UserDto(user.getId(), user.getUsername(), null,
                 UserDto.applicationUserRolesToDtoRoles(user.getAuthorities()),
                 user.getFullName());

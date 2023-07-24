@@ -1,5 +1,6 @@
 package com.group2.server.controller;
 
+import com.group2.server.dto.InstructorDto;
 import com.group2.server.model.*;
 import com.group2.server.repository.*;
 
@@ -7,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -19,62 +19,122 @@ public class InstructorsController {
     @Autowired
     private InstructorRepository instructorRepository;
 
-    @Autowired
-    private AccreditationRepository accreditationRepository;
+    @GetMapping("/instructors")
+    public ResponseEntity<List<InstructorDto>> readInstructors() {
+        try {
+            return new ResponseEntity<>(instructorRepository.findAll().stream().map(this::toDto).toList(),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 
     @PostMapping("/instructors")
-    public ResponseEntity<?> createInstructors(@RequestBody List<InstructorDto> instructorDtos) {
-        List<Instructor> savedInstructors = new ArrayList<>();
-        List<String> conflictInstructors = new ArrayList<>();
-
+    public ResponseEntity<List<InstructorDto>> createOrUpdateInstructors(
+            @RequestBody List<InstructorDto> instructorDtos) {
         try {
-            for (InstructorDto instructorDto : instructorDtos) {
-                Instructor existingInstructor = instructorRepository.findByName(instructorDto.getName());
-
-                // Check if the Instructor already exists
-                if (existingInstructor != null) {
-                    conflictInstructors.add(instructorDto.getName());
-                    continue;
-                }
-
-                Instructor instructor = new Instructor();
-                instructor.setName(instructorDto.getName());
-
-                Set<Accreditation> accreditations = new HashSet<>();
-                for (String name : instructorDto.getAccreditationNames()) {
-                    Accreditation accreditation = accreditationRepository.findByName(name);
-                    if (accreditation == null) {
-                        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                "Accreditation not found with name " + name);
-                    }
-                    accreditations.add(accreditation);
-                }
-                instructor.setAccreditations(accreditations);
-                savedInstructors.add(instructorRepository.save(instructor));
-            }
-
-            if (!conflictInstructors.isEmpty()) {
-                // If there were conflict instructors, return them along with the created
-                // instructors
-                Map<String, Object> response = new HashMap<>();
-                response.put("created", savedInstructors);
-                response.put("conflicts", conflictInstructors);
-                return new ResponseEntity<>(response, HttpStatus.CONFLICT);
-            } else {
-                return new ResponseEntity<>(savedInstructors, HttpStatus.CREATED);
-            }
+            return new ResponseEntity<>(
+                    instructorDtos.stream().map(this::createOrUpdateFromDto).map(this::toDto).toList(),
+                    HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping("/instructors")
-    public ResponseEntity<List<Instructor>> getAllInstructors() {
+    @GetMapping("/instructors/{id}")
+    public ResponseEntity<Instructor> readInstructor(@PathVariable Integer id) {
         try {
-            List<Instructor> instructors = instructorRepository.findAll();
-            return new ResponseEntity<>(instructors, HttpStatus.OK);
+            return new ResponseEntity<>(instructorRepository.findById(id).get(), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    public InstructorDto toDto(Instructor instructor) {
+        return new InstructorDto(instructor.getId(), instructor.getName());
+    }
+
+    public Instructor createOrUpdateFromDto(InstructorDto instructorDto) {
+        Instructor instructor;
+        if (instructorDto.getId() != null) {
+            instructor = instructorRepository.findById(instructorDto.getId()).get();
+        } else {
+            instructor = new Instructor(null, instructorDto.getName());
+        }
+        return instructor;
+    }
+
+    // thingies thingy thingyDto thingyDtoList thingyRepository Thingy ThingyDto
+    // @GetMapping("/thingies")
+    // public ResponseEntity<List<ThingyDto>> readListByQuery() {
+    // try {
+    // return new
+    // ResponseEntity<>(thingyRepository.findAll().stream().map(this::toDto).toList(),
+    // HttpStatus.OK);
+    // } catch (Exception e) {
+    // return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    // }
+    // }
+
+    // @GetMapping("/thingies/{id}")
+    // public ResponseEntity<ThingyDto> readOneById(@PathVariable Integer id) {
+    // try {
+    // return new ResponseEntity<>(toDto(thingyRepository.findById(id).get()),
+    // HttpStatus.OK);
+    // } catch (Exception e) {
+    // return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    // }
+    // }
+
+    // @PostMapping("/thingies")
+    // public ResponseEntity<List<ThingyDto>> createOrUpdateList(@RequestBody
+    // List<ThingyDto> thingyDtoList) {
+    // try {
+    // return new ResponseEntity<>(
+    // thingyDtoList.stream().map(this::createOrUpdateFromDto).map(this::toDto).toList(),
+    // HttpStatus.OK);
+    // } catch (Exception e) {
+    // return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    // }
+    // }
+
+    // @PutMapping("/thingies/{id}")
+    // public ResponseEntity<ThingyDto> updateOneById(@PathVariable Integer id,
+    // @RequestBody ThingyDto userDto) {
+    // try {
+    // if ((thingyDto.getId() != null) && !id.equals(thingyDto.getId())) {
+    // throw new IllegalArgumentException();
+    // }
+    // thingyDto.setId(id);
+    // return new ResponseEntity<>(toDto(createOrUpdateFromDto(thingyDto)),
+    // HttpStatus.OK);
+    // } catch (Exception e) {
+    // return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    // }
+    // }
+
+    // @DeleteMapping("/thingies/{id}")
+    // public ResponseEntity<Void> deleteOneById(@PathVariable Integer id) {
+    // try {
+    // thingyRepository.deleteById(id);
+    // return new ResponseEntity<>(HttpStatus.OK);
+    // } catch (Exception e) {
+    // return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    // }
+    // }
+
+    // public ThingyDto toDto(Thingy thingy) {
+    // return new ThingyDto(thingy.getId());
+    // }
+
+    // public Thingy createOrUpdateFromDto(ThingyDto thingyDto) {
+    // Thingy thingy;
+    // if (thingyDto.getId() != null) {
+    // thingy = classroomRepository.findById(thingyDto.getId()).get();
+    // } else {
+    // thingy = new Thingy(null, ...);
+    // }
+    // return thingy;
+    // }
+
 }

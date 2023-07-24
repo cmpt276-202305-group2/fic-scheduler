@@ -45,15 +45,12 @@ public class AuthController {
 
             String token = tokenService.generateJwt(auth);
 
-            Optional<ApplicationUser> user = userRepository.findByUsername(username);
+            ApplicationUser user = userRepository.findByUsername(username).get();
 
-            if (user.isPresent()) {
-                return new AuthResponseDto("Login successful",
-                        new UserDto(user.get().getId(), user.get().getUsername(), null,
-                                applicationUserRolesToDtoRoles(user.get()), user.get().getFullName()),
-                        token);
-            }
-            // Fall through to error
+            return new AuthResponseDto("Login successful",
+                    new UserDto(user.getId(), user.getUsername(), null,
+                            UserDto.applicationUserRolesToDtoRoles(user.getAuthorities()), user.getFullName()),
+                    token);
         } catch (AuthenticationException e) {
             // Fall through to error
         }
@@ -68,7 +65,8 @@ public class AuthController {
         if (!user.isPresent()) {
             throw new JwtException("Bad username in JWT");
         }
-        return new UserDto(null, user.get().getUsername(), null, applicationUserRolesToDtoRoles(user.get()),
+        return new UserDto(null, user.get().getUsername(), null,
+                UserDto.applicationUserRolesToDtoRoles(user.get().getAuthorities()),
                 user.get().getFullName());
 
     }
@@ -91,14 +89,6 @@ public class AuthController {
             }
         }
         return new AuthResponseDto("Logout successful", null, null);
-    }
-
-    private ArrayList<String> applicationUserRolesToDtoRoles(ApplicationUser user) {
-        var strRoles = new ArrayList<String>();
-        for (var role : user.getAuthorities()) {
-            strRoles.add(role.getAuthority());
-        }
-        return strRoles;
     }
 
 }

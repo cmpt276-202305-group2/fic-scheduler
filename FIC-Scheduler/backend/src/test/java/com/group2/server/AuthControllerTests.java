@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.group2.server.controller.AuthResponseDto;
+import com.group2.server.dto.AuthResponseDto;
 import com.group2.server.model.ApplicationUser;
 import com.group2.server.model.Role;
 import com.group2.server.repository.UserRepository;

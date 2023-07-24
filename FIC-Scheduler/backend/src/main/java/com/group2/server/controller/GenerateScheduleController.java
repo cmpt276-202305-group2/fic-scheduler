@@ -13,7 +13,7 @@ import com.google.ortools.sat.CpSolverStatus;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
 import com.google.ortools.sat.Literal;
-
+import com.group2.server.dto.GenerateScheduleDto;
 import com.group2.server.model.*;
 import com.group2.server.repository.*;
 
@@ -29,9 +29,9 @@ public class GenerateScheduleController {
     private SemesterPlanRepository semesterPlanRepository;
 
     @PostMapping("/generate-schedule")
-    public ClassSchedule generateSchedule(@RequestBody GenerateScheduleDto body) {
+    public ClassSchedule generateSchedule(@RequestBody GenerateScheduleDto generateScheduleDto) {
         ClassSchedule sched = new ClassSchedule();
-        Integer planId = body.getSemesterPlanId();
+        Integer planId = generateScheduleDto.getSemesterPlan().getId();
         SemesterPlan plan = planId != null ? semesterPlanRepository.findById(planId).orElse(null) : null;
 
         if (plan == null) {

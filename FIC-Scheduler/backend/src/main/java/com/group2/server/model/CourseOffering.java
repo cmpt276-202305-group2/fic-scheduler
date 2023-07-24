@@ -2,20 +2,8 @@ package com.group2.server.model;
 
 import java.util.Set;
 
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
@@ -29,19 +17,11 @@ public class CourseOffering {
 
     private String courseNumber;
 
-    @ManyToOne
-    private SemesterPlan semesterPlan;
+    @ManyToMany
+    @JoinTable(name = "course_offerings_approved_instructors", joinColumns = @JoinColumn(name = "course_offering_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "approved_instructor_id", referencedColumnName = "id"))
+    private Set<Instructor> approvedInstructors;
 
     @ManyToMany
-    @JoinTable(name = "facilities_course_offerings", joinColumns = @JoinColumn(name = "course_offering_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "facilities_id", referencedColumnName = "id"))
-    private Set<Facilities> facilitiesRequired;
-
-    @ManyToOne
-    private Accreditation accreditationRequired;
-
-    @ManyToOne
-    private BlockType blockType;
-
-    @ElementCollection
-    private Set<String> conflictCourseNumbers;
+    @JoinTable(name = "course_offerings_block_requirements", joinColumns = @JoinColumn(name = "course_offering_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "block_requirement_id", referencedColumnName = "id"))
+    private Set<BlockRequirement> blockRequirements;
 }
