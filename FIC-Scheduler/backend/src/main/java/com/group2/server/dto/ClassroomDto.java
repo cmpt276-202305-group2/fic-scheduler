@@ -12,4 +12,5 @@ public class ClassroomDto implements EntityDto {
     private Integer id;
     private String roomNumber;
     private String roomType;
+    private String notes;
 }

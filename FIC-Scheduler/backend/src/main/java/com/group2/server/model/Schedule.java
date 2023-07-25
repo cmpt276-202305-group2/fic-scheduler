@@ -17,6 +17,14 @@ public class Schedule {
 
     @Column(nullable = false)
     @NonNull
+    private String name;
+
+    @Column(nullable = false)
+    @NonNull
+    private String notes;
+
+    @Column(nullable = false)
+    @NonNull
     private String semester;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

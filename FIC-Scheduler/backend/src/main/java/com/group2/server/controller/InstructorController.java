@@ -83,10 +83,17 @@ public class InstructorController {
         Instructor instructor;
         if (instructorDto.getId() != null) {
             instructor = instructorRepository.findById(instructorDto.getId()).get();
+            if (instructorDto.getName() != null) {
+                instructor.setName(instructorDto.getName());
+            }
+            if (instructorDto.getNotes() != null) {
+                instructor.setNotes(instructorDto.getNotes());
+            }
         } else {
-            instructor = new Instructor(null, instructorDto.getName(), instructorDto.getNotes());
+            instructor = new Instructor(null, Optional.ofNullable(instructorDto.getName()).orElse(""),
+                    Optional.ofNullable(instructorDto.getNotes()).orElse(""));
         }
-        return instructor;
+        return instructorRepository.save(instructor);
     }
 
 }

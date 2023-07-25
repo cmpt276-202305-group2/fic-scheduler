@@ -13,12 +13,13 @@ public class ScheduleAssignment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(nullable = false)
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     @NonNull
-    private CourseOffering course;
+    private DayOfWeek dayOfWeek;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     @NonNull
     private PartOfDay partOfDay;
 
@@ -26,6 +27,11 @@ public class ScheduleAssignment {
     @JoinColumn(nullable = false)
     @NonNull
     private Classroom classroom;
+
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    @NonNull
+    private CourseOffering course;
 
     @ManyToOne
     @JoinColumn(nullable = false)

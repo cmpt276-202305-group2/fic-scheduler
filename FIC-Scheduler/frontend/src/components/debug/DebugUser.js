@@ -24,6 +24,7 @@ export function DebugUser() {
   }
 
   useEffect(() => {
+    clearForm();
     axios.get("api/users", tokenConfig()).then(
       (response) => { setAllUsers(response.data); },
       (_) => { setAllUsers(null); });
@@ -63,18 +64,24 @@ export function DebugUser() {
         event.preventDefault();
         //const userIdStr = (formId !== '') ? ('/' + formId) : '';
         const userObj = {}
-        if (formId) userObj.id = formId;
-        if (formUsername) userObj.username = formUsername;
-        if (formPassword) userObj.password = formPassword;
-        if (formRoles) {
-          userObj.roles =
-            formRoles.split(' ').filter((o) => !!o)
-              .map((o) => ('' + o).trim().toUpperCase());
+        try {
+          if (formId) userObj.id = formId;
+          if (formUsername) userObj.username = formUsername;
+          if (formPassword) userObj.password = formPassword;
+          if (formRoles) {
+            userObj.roles =
+              formRoles.split(' ').filter((o) => !!o)
+                .map((o) => ('' + o).trim().toUpperCase());
+          }
+          if (formFullName) userObj.fullName = formFullName;
         }
-        if (formFullName) userObj.fullName = formFullName;
+        catch (error) {
+          setErrorMessage("Couldn't make query: " + error.message);
+          return;
+        }
 
         axios.post("api/users", [userObj], tokenConfig()).then(
-          (response) => { setUpdateResponse(response); clearForm(); },
+          (response) => { setUpdateResponse(response); setErrorMessage(''); },
           (error) => {
             setErrorMessage(error.response ?
               error.response.status + ' ' + error.response.data : error.message);
@@ -85,32 +92,32 @@ export function DebugUser() {
         <table>
           <tbody>
             <tr>
-              <td><label htmlFor="debugUser-id">ID</label></td>
-              <td><input id="debugUser-id" type="text" name="formId" value={formId}
+              <td><label htmlFor="form-id">ID</label></td>
+              <td><input id="form-id" type="text" name="formId" value={formId}
                 onChange={(event) => setFormId(event.target.value)}
-                placeholder="Create new" autoFocus /></td>
+                placeholder="Create new" /></td>
             </tr>
             <tr>
-              <td><label htmlFor="debugUser-username">Username</label></td>
-              <td><input id="debugUser-username" type="text" name="formUsername" value={formUsername}
+              <td><label htmlFor="form-username">Username</label></td>
+              <td><input id="form-username" type="text" name="formUsername" value={formUsername}
                 onChange={(event) => setFormUsername(event.target.value)}
                 placeholder="Don't update" autoFocus /></td>
             </tr>
             <tr>
-              <td><label htmlFor="debugUser-password">Password</label></td>
-              <td><input id="debugUser-password" type="text" name="formPassword" value={formPassword}
+              <td><label htmlFor="form-password">Password</label></td>
+              <td><input id="form-password" type="text" name="formPassword" value={formPassword}
                 onChange={(event) => setFormPassword(event.target.value)}
                 placeholder="Don't update" /></td>
             </tr>
             <tr>
-              <td><label htmlFor="debugUser-roles">Roles</label></td>
-              <td><input id="debugUser-roles" type="text" name="formRoles" value={formRoles}
+              <td><label htmlFor="form-roles">Roles</label></td>
+              <td><input id="form-roles" type="text" name="formRoles" value={formRoles}
                 onChange={(event) => setFormRoles(event.target.value)}
                 placeholder="Don't update" /></td>
             </tr>
             <tr>
-              <td><label htmlFor="debugUser-fullName">Full Name</label></td>
-              <td><input id="debugUser-fullName" type="text" name="formFullName" value={formFullName}
+              <td><label htmlFor="form-full-name">Full Name</label></td>
+              <td><input id="form-full-name" type="text" name="formFullName" value={formFullName}
                 onChange={(event) => setFormFullName(event.target.value)}
                 placeholder="Don't update" /></td>
             </tr>
@@ -121,7 +128,7 @@ export function DebugUser() {
           event.preventDefault();
           if ((formId ?? '') !== '') {
             axios.delete("api/users/" + formId, tokenConfig()).then(
-              (response) => { setUpdateResponse(response); clearForm(); },
+              (response) => { setUpdateResponse(response); setErrorMessage(''); },
               (error) => {
                 setErrorMessage(error.response ?
                   error.response.status + ' ' + error.response.data : error.message);

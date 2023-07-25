@@ -74,16 +74,27 @@ public class ClassroomController {
     }
 
     public ClassroomDto toDto(Classroom classroom) {
-        return new ClassroomDto(classroom.getId(), classroom.getRoomNumber(), classroom.getRoomType());
+        return new ClassroomDto(classroom.getId(), classroom.getRoomNumber(), classroom.getRoomType(),
+                classroom.getNotes());
     }
 
     public Classroom createOrUpdateFromDto(ClassroomDto classroomDto) {
         Classroom classroom;
         if (classroomDto.getId() != null) {
             classroom = classroomRepository.findById(classroomDto.getId()).get();
+            if (classroomDto.getRoomNumber() != null) {
+                classroom.setRoomNumber(classroomDto.getRoomNumber());
+            }
+            if (classroomDto.getRoomType() != null) {
+                classroom.setRoomType(classroomDto.getRoomType());
+            }
+            if (classroomDto.getNotes() != null) {
+                classroom.setNotes(classroomDto.getNotes());
+            }
         } else {
-            classroom = new Classroom(null, classroomDto.getRoomNumber(), classroomDto.getRoomType());
+            classroom = new Classroom(null, classroomDto.getRoomNumber(), classroomDto.getRoomType(),
+                    Optional.ofNullable(classroomDto.getNotes()).orElse(""));
         }
-        return classroom;
+        return classroomRepository.save(classroom);
     }
 }

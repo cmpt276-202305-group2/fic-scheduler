@@ -19,7 +19,7 @@ import jakarta.transaction.Transactional;
 public class ServerApplication {
 
         @Autowired
-        private BlockRequirementDivisionRepository blockRequirementRepository;
+        private BlockRequirementSplitRepository blockRequirementRepository;
 
         @Value("${app.user.coordinator.username}")
         private String coordinatorUsername;
@@ -55,21 +55,21 @@ public class ServerApplication {
 
                         // Define standard BlockTypes
                         // halfBlock
-                        blockRequirementRepository.save(new BlockRequirementDivision(null, "1 Half",
+                        blockRequirementRepository.save(new BlockRequirementSplit(null, "1 Half",
                                         List.of(new BlockRequirement(null, Set.of(), Duration.HALF))));
                         // fullBlock
-                        blockRequirementRepository.save(new BlockRequirementDivision(null, "1 Full",
+                        blockRequirementRepository.save(new BlockRequirementSplit(null, "1 Full",
                                         List.of(new BlockRequirement(null, Set.of(), Duration.FULL))));
                         // twoHalfBlocks
-                        blockRequirementRepository.save(new BlockRequirementDivision(null, "2 Full",
+                        blockRequirementRepository.save(new BlockRequirementSplit(null, "2 Full",
                                         List.of(new BlockRequirement(null, Set.of(), Duration.HALF),
                                                         new BlockRequirement(null, Set.of(), Duration.HALF))));
                         // twoFullBlocks
-                        blockRequirementRepository.save(new BlockRequirementDivision(null, "2 Half",
+                        blockRequirementRepository.save(new BlockRequirementSplit(null, "2 Half",
                                         List.of(new BlockRequirement(null, Set.of(), Duration.FULL),
                                                         new BlockRequirement(null, Set.of(), Duration.FULL))));
                         // halfAndFullBlock
-                        blockRequirementRepository.save(new BlockRequirementDivision(null, "1 Half and 1 Full",
+                        blockRequirementRepository.save(new BlockRequirementSplit(null, "1 Half and 1 Full",
                                         List.of(new BlockRequirement(null, Set.of(), Duration.HALF),
                                                         new BlockRequirement(null, Set.of(), Duration.FULL))));
                 };

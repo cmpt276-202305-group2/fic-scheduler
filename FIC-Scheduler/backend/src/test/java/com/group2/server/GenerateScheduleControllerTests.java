@@ -91,11 +91,11 @@ public class GenerateScheduleControllerTests {
     }
 
     private Schedule makeMockSchedule(String semester) throws Exception {
-        return new Schedule(1, semester, new HashSet<>());
+        return new Schedule(1, "", "", semester, new HashSet<>());
     }
 
     private SemesterPlan makeMockPlan(String semester) throws Exception {
-        return new SemesterPlan(1, semester, new HashSet<>(), new HashSet<>(), new HashSet<>());
+        return new SemesterPlan(1, "", "", semester, new HashSet<>(), new HashSet<>(), new HashSet<>());
     }
 
     @Test

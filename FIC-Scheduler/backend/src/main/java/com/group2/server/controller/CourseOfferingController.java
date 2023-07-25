@@ -20,7 +20,7 @@ public class CourseOfferingController {
     private CourseOfferingRepository courseOfferingRepository;
 
     @Autowired
-    private BlockRequirementDivisionRepository blockRequirementDivisionRepository;
+    private BlockRequirementSplitRepository blockRequirementSplitRepository;
 
     @Autowired
     private InstructorRepository instructorRepository;
@@ -87,7 +87,7 @@ public class CourseOfferingController {
                 courseOffering.getNotes(),
                 courseOffering.getApprovedInstructors().stream().map(i -> (EntityDto) new EntityReferenceDto(i.getId()))
                         .toList(),
-                courseOffering.getBlockDivisions().stream()
+                courseOffering.getAllowedBlockSplits().stream()
                         .map(bd -> (EntityDto) new EntityReferenceDto(bd.getId())).toList());
     }
 
@@ -95,15 +95,40 @@ public class CourseOfferingController {
         CourseOffering courseOffering;
         if (courseOfferingDto.getId() != null) {
             courseOffering = courseOfferingRepository.findById(courseOfferingDto.getId()).get();
+            if (courseOfferingDto.getName() != null) {
+                courseOffering.setName(courseOfferingDto.getName());
+            }
+            if (courseOfferingDto.getCourseNumber() != null) {
+                courseOffering.setCourseNumber(courseOfferingDto.getCourseNumber());
+            }
+            if (courseOfferingDto.getNotes() != null) {
+                courseOffering.setNotes(courseOfferingDto.getNotes());
+            }
+            if (courseOfferingDto.getApprovedInstructors() != null) {
+                var approvedInstructors = Set.copyOf(courseOfferingDto.getApprovedInstructors().stream()
+                        .map(i -> instructorRepository.findById(i.getId()).get()).toList());
+                courseOffering.setApprovedInstructors(approvedInstructors);
+            }
+            if (courseOfferingDto.getAllowedBlockSplits() != null) {
+                var allowedBlockSplits = Set.copyOf(courseOfferingDto.getAllowedBlockSplits().stream()
+                        .map(bd -> blockRequirementSplitRepository.findById(bd.getId()).get()).toList());
+                courseOffering.setAllowedBlockSplits(allowedBlockSplits);
+            }
         } else {
-            var approvedInstructors = Set.copyOf(courseOfferingDto.getApprovedInstructors()
-                    .stream().map(i -> instructorRepository.findById(i.getId()).get()).toList());
-            var blockDivisions = Set.copyOf(courseOfferingDto.getBlockDivisions().stream()
-                    .map(bd -> blockRequirementDivisionRepository.findById(bd.getId()).get()).toList());
-            courseOffering = new CourseOffering(null, courseOfferingDto.getName(), courseOfferingDto.getCourseNumber(),
-                    courseOfferingDto.getNotes(), approvedInstructors, blockDivisions);
+            var approvedInstructorsDto = Optional.ofNullable(courseOfferingDto.getApprovedInstructors())
+                    .orElse(List.of());
+            var allowedBlockSplitsDto = Optional.ofNullable(courseOfferingDto.getAllowedBlockSplits())
+                    .orElse(List.of());
+            var approvedInstructors = Set.copyOf(
+                    approvedInstructorsDto.stream().map(i -> instructorRepository.findById(i.getId()).get()).toList());
+            var allowedBlockSplits = Set.copyOf(allowedBlockSplitsDto.stream()
+                    .map(bd -> blockRequirementSplitRepository.findById(bd.getId()).get()).toList());
+            courseOffering = new CourseOffering(null, Optional.ofNullable(courseOfferingDto.getName()).orElse(""),
+                    Optional.ofNullable(courseOfferingDto.getCourseNumber()).orElse(""),
+                    Optional.ofNullable(courseOfferingDto.getNotes()).orElse(""), approvedInstructors,
+                    allowedBlockSplits);
         }
-        return courseOffering;
+        return courseOfferingRepository.save(courseOffering);
     }
 
 }

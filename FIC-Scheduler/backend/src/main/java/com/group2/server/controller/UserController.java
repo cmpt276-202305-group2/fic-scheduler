@@ -93,6 +93,12 @@ public class UserController {
         }
     }
 
+    private UserDto toDto(ApplicationUser user) {
+        return new UserDto(user.getId(), user.getUsername(), null,
+                UserDto.applicationUserRolesToDtoRoles(user.getAuthorities()),
+                user.getFullName());
+    }
+
     private ApplicationUser createOrUpdateFromDto(UserDto userDto) {
         String encodedPassword = null;
         if (userDto.getPassword() != null) {
@@ -123,19 +129,11 @@ public class UserController {
             if (userDto.getFullName() != null) {
                 createdUser.setFullName(userDto.getFullName());
             }
-            createdUser = userRepository.save(createdUser);
         } else {
-            createdUser = userRepository
-                    .save(new ApplicationUser(null, userDto.getUsername(), encodedPassword, authorities,
-                            userDto.getFullName()));
+            createdUser = new ApplicationUser(null, userDto.getUsername(), encodedPassword, authorities,
+                    userDto.getFullName());
         }
-        return createdUser;
-    }
-
-    private UserDto toDto(ApplicationUser user) {
-        return new UserDto(user.getId(), user.getUsername(), null,
-                UserDto.applicationUserRolesToDtoRoles(user.getAuthorities()),
-                user.getFullName());
+        return userRepository.save(createdUser);
     }
 
 }
