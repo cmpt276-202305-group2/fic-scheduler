@@ -1,104 +1,96 @@
-// package com.group2.server;
+package com.group2.server;
 
-// import static org.mockito.Mockito.when;
-// import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-// import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-// import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 
-// import java.util.ArrayList;
-// import java.util.HashSet;
-// import java.util.List;
-// import java.util.Set;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.group2.server.controller.InstructorController;
+import com.group2.server.dto.InstructorDto;
+import com.group2.server.model.ApplicationUser;
+import com.group2.server.model.Instructor;
+import com.group2.server.model.Role;
+import com.group2.server.repository.BlockRepository;
+import com.group2.server.repository.InstructorRepository;
+import com.group2.server.services.TokenService;
 
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-// import org.springframework.boot.test.context.SpringBootTest;
-// import org.springframework.boot.test.mock.mockito.MockBean;
-// import org.springframework.http.MediaType;
-// import org.springframework.security.crypto.password.PasswordEncoder;
-// import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-// import org.springframework.test.web.servlet.MockMvc;
-// import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-// import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
-// import com.fasterxml.jackson.databind.ObjectMapper;
-// import com.group2.server.controller.InstructorDto;
-// import com.group2.server.model.Accreditation;
-// import com.group2.server.model.Instructor;
-// import com.group2.server.repository.AccreditationRepository;
-// import com.group2.server.services.TokenService;
-// import com.group2.server.model.ApplicationUser;
-// import com.group2.server.model.InstructorRepository;
-// import com.group2.server.model.Role;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
-// @SpringBootTest
-// @AutoConfigureMockMvc
-// public class InstructorControllerTests {
+@WebMvcTest(InstructorController.class)
+public class InstructorControllerTests {
 
-//     @Autowired
-//     private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-//     @MockBean
-//     private InstructorRepository instructorRepository;
+    @MockBean
+    private InstructorRepository instructorRepository;
 
-//     @MockBean
-//     private AccreditationRepository accreditationRepository;
+    // @MockBean
+    // private BlockRepository blockRepository;
 
-//     @Autowired
-//     private PasswordEncoder passwordEncoder;
-//     @Autowired
-//     private TokenService tokenService;
+    private Instructor mockInstructor;
+    private InstructorDto mockInstructorDto;
+    private List<Instructor> mockInstructorList;
+    private ApplicationUser mockUser;
 
-//     private String mockJwt;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-//     private ApplicationUser mockUser;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-//     @BeforeEach
-//     public void setup() {
-//         // Create a mock user for authentication
-//         mockUser = makeMockUser("testUser", "testPassword", Role.INSTRUCTOR);
 
-//     }
+    @BeforeEach
+    public void setup() {
+        //create a mock user for authentication
+         mockUser = makeMockUser("testUser", "testPassword", Role.INSTRUCTOR);
 
-//     // Mock a user for authentication
-//     private ApplicationUser makeMockUser(String username, String password, Role role) {
-//         var roles = new HashSet<Role>();
-//         if (role != null) {
-//             roles.add(role);
-//         }
-    
-//         ApplicationUser user = new ApplicationUser((Integer) 1, username, passwordEncoder.encode(password), roles, "");
-        
-//         // Generate JWT token for the mock user
-//         mockJwt = tokenService.generateJwt(username, roles);
-    
-//         return user;
-//     }
+        // Create a mock instructor
+        mockInstructor = new Instructor(1, "John Doe");
+        // Create a mock instructor DTO
+        mockInstructorDto = new InstructorDto(1, "John Doe");
+        // Create a list of mock instructors
+        mockInstructorList = new ArrayList<>();
+        mockInstructorList.add(mockInstructor);
+    }
 
-//     @Test
-//     public void testCreateInstructors() throws Exception {
-//         // Mock the data returned by the repository
-//         when(accreditationRepository.findByName("Accreditation1")).thenReturn(new Accreditation(1, "Accreditation1"));
-//         when(accreditationRepository.findByName("Accreditation2")).thenReturn(new Accreditation(2, "Accreditation2"));
-//         when(instructorRepository.findByName("Instructor1")).thenReturn(null);
-//         when(instructorRepository.findByName("Instructor2")).thenReturn(null);
+    private ApplicationUser makeMockUser(String username, String password, Role role) {
+        var roles = new HashSet<Role>();
+        if (role != null) {
+            roles.add(role);
+        }
 
-//         // Prepare the request body
-//         InstructorDto instructorDto1 = new InstructorDto("Instructor1", Set.of("Accreditation1"));
-//         InstructorDto instructorDto2 = new InstructorDto("Instructor2", Set.of("Accreditation2"));
-//         List<InstructorDto> instructorDtos = List.of(instructorDto1, instructorDto2);
+        return new ApplicationUser((Integer) 1, username, passwordEncoder.encode(password), roles, "");
+    }
 
-//         // Perform the request
-//         mockMvc.perform(post("/api/instructors")
-//                 .header("Authorization", "Bearer " + mockJwt)
-//                 .contentType(MediaType.APPLICATION_JSON)
-//                 .content(new ObjectMapper().writeValueAsString(instructorDtos))
-//                 .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))
-//                 .andExpect(status().isCreated())
-//                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
-//                 .andDo(print());
-//     }
-// }
+
+    @Test
+    public void testGetAllInstructors() throws Exception {
+        // Mock the behavior of the instructorRepository.findAll() method
+        when(instructorRepository.findAll()).thenReturn(mockInstructorList);
+
+        mockMvc.perform(get("/api/instructors"))
+                // .with(SecurityMockMvcRequestPostProcessors.user(mockUser))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(mockInstructorDto.getId()))
+                .andExpect(jsonPath("$[0].name").value(mockInstructorDto.getName()));
+    }
+}
