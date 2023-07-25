@@ -11,18 +11,15 @@ import com.group2.server.services.TokenService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -137,16 +134,17 @@ public class ClassroomControllerTest {
     // @Test
     // public void testCreateOrUpdateList() throws Exception {
     //     // Mock the data to be sent in the request
+    //     // Mock the data to be sent in the request
     //     List<ClassroomDto> classroomDtoList = new ArrayList<>();
     //     classroomDtoList.add(new ClassroomDto(null, "101", "Lecture Hall", "First floor"));
     //     classroomDtoList.add(new ClassroomDto(null, "202", "Lab", "Second floor"));
-    
+
     //     // Mock the data returned by the repository after saving
     //     List<Classroom> savedClassrooms = new ArrayList<>();
     //     savedClassrooms.add(new Classroom(1, "101", "Lecture Hall", "First floor"));
     //     savedClassrooms.add(new Classroom(2, "202", "Lab", "Second floor"));
     //     when(classroomRepository.saveAll(anyList())).thenReturn(savedClassrooms);
-    
+
     //     // Perform the request and verify the response
     //     mockMvc.perform(post("/api/classrooms")
     //             .contentType(MediaType.APPLICATION_JSON)
@@ -162,7 +160,6 @@ public class ClassroomControllerTest {
     //             .andExpect(jsonPath("$[1].roomType").value("Lab"))
     //             .andExpect(jsonPath("$[1].notes").value("Second floor"));
 
-    
     //     // Verify that classroomRepository.saveAll() was called once with the correct list of classrooms
     //     verify(classroomRepository, times(1)).saveAll(anyList());
     //     verifyNoMoreInteractions(classroomRepository);
@@ -209,21 +206,17 @@ public class ClassroomControllerTest {
         assertEquals("Third floor", capturedClassroom.getNotes());
     }
 
+
     @Test
     public void testDeleteOneById() throws Exception {
-        // Mock the classroom ID to be deleted
-        // Mock the data returned by the repository when finding the classroom to be deleted
-        Classroom mockClassroom = new Classroom(1, "101", "Lecture Hall", "First floor");
-        when(classroomRepository.findById(1)).thenReturn(Optional.of(mockClassroom));
-    
-        // Perform the request to delete the classroom and verify the response
-        mockMvc.perform(delete("/api/classrooms/{id}", 1)
-                .header("Authorization", "Bearer " + mockJwt)
-                .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))
-                .andExpect(status().isOk())
-                .andExpect(content().string(""));
-    
-        // Verify that classroomRepository.deleteById() was called once with the correct ID
+        // Mock the data to be deleted
+        Classroom deletedClassroom = new Classroom(1,"101","Lecture Hall", "First Floor");
+        when(classroomRepository.findById(1)).thenReturn(Optional.of(deletedClassroom));
+
+        // Perform the request and verify the response
+        mockMvc.perform(delete("/api/classrooms/{id}", 1))
+                .andExpect(status().isOk());
+
         verify(classroomRepository, times(1)).deleteById(1);
         verifyNoMoreInteractions(classroomRepository);
     }

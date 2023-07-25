@@ -125,7 +125,6 @@ public class GenerateScheduleControllerTests {
                 .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.semester").value(mockSchedule.getSemester()))
-                // ... verify other properties of the response
                 .andDo(print());
     }
 

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -24,7 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -83,7 +82,6 @@ public class SemesterPlanControllerTest {
         mockMvc.perform(get("/api/semester-plans"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                //.andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Plan 1"))
                 .andExpect(jsonPath("$[0].notes").value("Notes for Plan 1"))
@@ -93,8 +91,101 @@ public class SemesterPlanControllerTest {
                 .andExpect(jsonPath("$[1].notes").value("Notes for Plan 2"))
                 .andExpect(jsonPath("$[1].semester").value("2023 Fall"));
 
-        // Verify that semesterPlanRepository.findAll() was called once
         verify(semesterPlanRepository, times(1)).findAll();
         verifyNoMoreInteractions(semesterPlanRepository);
     }
+
+    @Test
+    public void testReadOneById() throws Exception {
+        // Mock the data returned by the repository
+        SemesterPlan mockSemesterPlan = createMockSemesterPlan(1, "Plan 1", "Notes for Plan 1", "2023 Spring");
+        when(semesterPlanRepository.findById(1)).thenReturn(Optional.of(mockSemesterPlan));
+
+        // Perform the request and verify the response
+        mockMvc.perform(get("/api/semester-plans/{id}", 1))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Plan 1"))
+                .andExpect(jsonPath("$.notes").value("Notes for Plan 1"))
+                .andExpect(jsonPath("$.semester").value("2023 Spring"));
+
+        verify(semesterPlanRepository, times(1)).findById(1);
+        verifyNoMoreInteractions(semesterPlanRepository);
+    }
+
+    // @Test
+    // public void testCreateOrUpdateList() throws Exception {
+    //     // Mock the data to be sent in the request
+    //     // List<SemesterPlanDto> semesterPlanDtoList = new ArrayList<>();
+    //     // semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 1", "Notes for Plan 1", "2023 Spring", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+    //     // semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 2", "Notes for Plan 2", "2023 Fall", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+
+    //     // Mock the data returned by the repository after saving
+    //     List<SemesterPlan> savedSemesterPlans = new ArrayList<>();
+    //     savedSemesterPlans.add(createMockSemesterPlan(1, "Plan 1", "Notes for Plan 1", "2023 Spring"));
+    //     savedSemesterPlans.add(createMockSemesterPlan(2, "Plan 2", "Notes for Plan 2", "2023 Fall"));
+    //     when(semesterPlanRepository.saveAll(anyList())).thenReturn(savedSemesterPlans);
+
+    //     // Perform the request and verify the response
+    //     mockMvc.perform(post("/api/semester-plans")
+    //             .contentType(MediaType.APPLICATION_JSON)
+    //             .content(asJsonString(savedSemesterPlans)))
+    //             .andExpect(status().isOk())
+    //             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+    //             .andExpect(jsonPath("$[0].id").value(1))
+    //             .andExpect(jsonPath("$[0].name").value("Plan 1"))
+    //             .andExpect(jsonPath("$[0].notes").value("Notes for Plan 1"))
+    //             .andExpect(jsonPath("$[0].semester").value("2023 Spring"))
+    //             .andExpect(jsonPath("$[1].id").value(2))
+    //             .andExpect(jsonPath("$[1].name").value("Plan 2"))
+    //             .andExpect(jsonPath("$[1].notes").value("Notes for Plan 2"))
+    //             .andExpect(jsonPath("$[1].semester").value("2023 Fall"));
+
+    //     verify(semesterPlanRepository, times(1)).saveAll(anyList());
+    //     verifyNoMoreInteractions(semesterPlanRepository);
+    // }
+
+    @Test
+    public void testUpdateOneById() throws Exception {
+        // Mock the data to be sent in the request
+        int semesterPlanId = 1;
+        SemesterPlanDto semesterPlanDto = new SemesterPlanDto(semesterPlanId, "Updated Plan", "Updated Notes", "2023 Fall", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+
+        // Mock the data returned by the repository after updating
+        SemesterPlan updatedSemesterPlan = createMockSemesterPlan(semesterPlanId, "Updated Plan", "Updated Notes", "2023 Fall");
+        when(semesterPlanRepository.findById(semesterPlanId)).thenReturn(Optional.of(createMockSemesterPlan(semesterPlanId, "Plan 1", "Notes for Plan 1", "2023 Spring")));
+        when(semesterPlanRepository.save(any())).thenReturn(updatedSemesterPlan);
+
+        // Perform the request and verify the response
+        mockMvc.perform(put("/api/semester-plans/{id}", semesterPlanId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(semesterPlanDto)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(semesterPlanId))
+                .andExpect(jsonPath("$.name").value("Updated Plan"))
+                .andExpect(jsonPath("$.notes").value("Updated Notes"))
+                .andExpect(jsonPath("$.semester").value("2023 Fall"));
+
+        verify(semesterPlanRepository, times(1)).findById(semesterPlanId);
+        verify(semesterPlanRepository, times(1)).save(any());
+        verifyNoMoreInteractions(semesterPlanRepository);
+    }
+
+    @Test
+    public void testDeleteOneById() throws Exception {
+        // Mock the data to be deleted
+        int semesterPlanId = 1;
+        SemesterPlan deletedSemesterPlan = createMockSemesterPlan(semesterPlanId, "Plan 1", "Notes for Plan 1", "2023 Spring");
+        when(semesterPlanRepository.findById(semesterPlanId)).thenReturn(Optional.of(deletedSemesterPlan));
+
+        // Perform the request and verify the response
+        mockMvc.perform(delete("/api/semester-plans/{id}", semesterPlanId))
+                .andExpect(status().isOk());
+
+        verify(semesterPlanRepository, times(1)).deleteById(semesterPlanId);
+        verifyNoMoreInteractions(semesterPlanRepository);
+    }
+
 }
