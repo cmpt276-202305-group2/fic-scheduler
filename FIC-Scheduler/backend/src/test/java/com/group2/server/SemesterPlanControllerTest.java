@@ -117,9 +117,9 @@ public class SemesterPlanControllerTest {
     // @Test
     // public void testCreateOrUpdateList() throws Exception {
     //     // Mock the data to be sent in the request
-    //     // List<SemesterPlanDto> semesterPlanDtoList = new ArrayList<>();
-    //     // semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 1", "Notes for Plan 1", "2023 Spring", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
-    //     // semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 2", "Notes for Plan 2", "2023 Fall", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+    //     List<SemesterPlanDto> semesterPlanDtoList = new ArrayList<>();
+    //     semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 1", "Notes for Plan 1", "2023 Spring", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+    //     semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 2", "Notes for Plan 2", "2023 Fall", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
 
     //     // Mock the data returned by the repository after saving
     //     List<SemesterPlan> savedSemesterPlans = new ArrayList<>();

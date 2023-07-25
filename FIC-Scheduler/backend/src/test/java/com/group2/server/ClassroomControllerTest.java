@@ -48,19 +48,8 @@ public class ClassroomControllerTest {
 
     private MockMvc mockMvc;
 
-    @Autowired
-    private TokenService tokenService;
-
-    private String mockJwt;
-
-    private ApplicationUser mockUser;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @BeforeEach
     public void setup() {
-        mockUser = makeMockUser("testUser", "testPassword", Role.COORDINATOR);
 
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(classroomController).build();
@@ -72,17 +61,6 @@ public class ClassroomControllerTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private ApplicationUser makeMockUser(String username, String password, Role role) {
-        var roles = new HashSet<Role>();
-        if (role != null) {
-            roles.add(role);
-        }
-
-        mockJwt = tokenService.generateJwt(username, roles);
-
-        return new ApplicationUser((Integer) 1, username, passwordEncoder.encode(password), roles, "");
     }
 
     @Test
