@@ -1,4 +1,5 @@
 package com.group2.server;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.group2.server.controller.SemesterPlanController;
 import com.group2.server.dto.SemesterPlanDto;
@@ -23,7 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -114,47 +114,53 @@ public class SemesterPlanControllerTest {
         verifyNoMoreInteractions(semesterPlanRepository);
     }
 
-    // @Test
-    // public void testCreateOrUpdateList() throws Exception {
-    //     // Mock the data to be sent in the request
-    //     List<SemesterPlanDto> semesterPlanDtoList = new ArrayList<>();
-    //     semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 1", "Notes for Plan 1", "2023 Spring", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
-    //     semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 2", "Notes for Plan 2", "2023 Fall", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+    @Test
+    public void testCreateOrUpdateList() throws Exception {
+        // Mock the data to be sent in the request
+        List<SemesterPlanDto> semesterPlanDtoList = new ArrayList<>();
+        semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 1", "Notes for Plan 1", "2023 Spring",
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+        semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 2", "Notes for Plan 2", "2023 Fall", new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>()));
 
-    //     // Mock the data returned by the repository after saving
-    //     List<SemesterPlan> savedSemesterPlans = new ArrayList<>();
-    //     savedSemesterPlans.add(createMockSemesterPlan(1, "Plan 1", "Notes for Plan 1", "2023 Spring"));
-    //     savedSemesterPlans.add(createMockSemesterPlan(2, "Plan 2", "Notes for Plan 2", "2023 Fall"));
-    //     when(semesterPlanRepository.saveAll(anyList())).thenReturn(savedSemesterPlans);
+        SemesterPlan savedSemesterPlans_1 = createMockSemesterPlan(1, "Plan 1", "Notes for Plan 1", "2023 Spring");
+        SemesterPlan savedSemesterPlans_2 = createMockSemesterPlan(2, "Plan 2", "Notes for Plan 2", "2023 Fall");
 
-    //     // Perform the request and verify the response
-    //     mockMvc.perform(post("/api/semester-plans")
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .content(asJsonString(savedSemesterPlans)))
-    //             .andExpect(status().isOk())
-    //             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-    //             .andExpect(jsonPath("$[0].id").value(1))
-    //             .andExpect(jsonPath("$[0].name").value("Plan 1"))
-    //             .andExpect(jsonPath("$[0].notes").value("Notes for Plan 1"))
-    //             .andExpect(jsonPath("$[0].semester").value("2023 Spring"))
-    //             .andExpect(jsonPath("$[1].id").value(2))
-    //             .andExpect(jsonPath("$[1].name").value("Plan 2"))
-    //             .andExpect(jsonPath("$[1].notes").value("Notes for Plan 2"))
-    //             .andExpect(jsonPath("$[1].semester").value("2023 Fall"));
+        when(semesterPlanRepository.save(any(SemesterPlan.class)))
+                .thenReturn(savedSemesterPlans_1)
+                .thenReturn(savedSemesterPlans_2);
 
-    //     verify(semesterPlanRepository, times(1)).saveAll(anyList());
-    //     verifyNoMoreInteractions(semesterPlanRepository);
-    // }
+        // Perform the request and verify the response
+        mockMvc.perform(post("/api/semester-plans")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(semesterPlanDtoList)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Plan 1"))
+                .andExpect(jsonPath("$[0].notes").value("Notes for Plan 1"))
+                .andExpect(jsonPath("$[0].semester").value("2023 Spring"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].name").value("Plan 2"))
+                .andExpect(jsonPath("$[1].notes").value("Notes for Plan 2"))
+                .andExpect(jsonPath("$[1].semester").value("2023 Fall"));
+
+        verify(semesterPlanRepository, times(2)).save(any(SemesterPlan.class));
+        verifyNoMoreInteractions(semesterPlanRepository);
+    }
 
     @Test
     public void testUpdateOneById() throws Exception {
         // Mock the data to be sent in the request
         int semesterPlanId = 1;
-        SemesterPlanDto semesterPlanDto = new SemesterPlanDto(semesterPlanId, "Updated Plan", "Updated Notes", "2023 Fall", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        SemesterPlanDto semesterPlanDto = new SemesterPlanDto(semesterPlanId, "Updated Plan", "Updated Notes",
+                "2023 Fall", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         // Mock the data returned by the repository after updating
-        SemesterPlan updatedSemesterPlan = createMockSemesterPlan(semesterPlanId, "Updated Plan", "Updated Notes", "2023 Fall");
-        when(semesterPlanRepository.findById(semesterPlanId)).thenReturn(Optional.of(createMockSemesterPlan(semesterPlanId, "Plan 1", "Notes for Plan 1", "2023 Spring")));
+        SemesterPlan updatedSemesterPlan = createMockSemesterPlan(semesterPlanId, "Updated Plan", "Updated Notes",
+                "2023 Fall");
+        when(semesterPlanRepository.findById(semesterPlanId)).thenReturn(
+                Optional.of(createMockSemesterPlan(semesterPlanId, "Plan 1", "Notes for Plan 1", "2023 Spring")));
         when(semesterPlanRepository.save(any())).thenReturn(updatedSemesterPlan);
 
         // Perform the request and verify the response
@@ -177,7 +183,8 @@ public class SemesterPlanControllerTest {
     public void testDeleteOneById() throws Exception {
         // Mock the data to be deleted
         int semesterPlanId = 1;
-        SemesterPlan deletedSemesterPlan = createMockSemesterPlan(semesterPlanId, "Plan 1", "Notes for Plan 1", "2023 Spring");
+        SemesterPlan deletedSemesterPlan = createMockSemesterPlan(semesterPlanId, "Plan 1", "Notes for Plan 1",
+                "2023 Spring");
         when(semesterPlanRepository.findById(semesterPlanId)).thenReturn(Optional.of(deletedSemesterPlan));
 
         // Perform the request and verify the response

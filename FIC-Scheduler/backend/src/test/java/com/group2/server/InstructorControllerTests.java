@@ -2,6 +2,7 @@
 
 // import static org.mockito.ArgumentMatchers.any;
 // import static org.mockito.ArgumentMatchers.anyInt;
+// import static org.mockito.Mockito.mock;
 // import static org.mockito.Mockito.when;
 // import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 // import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -14,7 +15,7 @@
 // import com.group2.server.model.ApplicationUser;
 // import com.group2.server.model.Instructor;
 // import com.group2.server.model.Role;
-// import com.group2.server.repository.BlockRepository;
+// import com.group2.server.repository.BlockRequirementSplitRepository;
 // import com.group2.server.repository.InstructorRepository;
 // import com.group2.server.services.TokenService;
 
@@ -55,16 +56,21 @@
 //     @Autowired
 //     private PasswordEncoder passwordEncoder;
 
-
 //     @BeforeEach
 //     public void setup() {
-//         //create a mock user for authentication
-//          mockUser = makeMockUser("testUser", "testPassword", Role.INSTRUCTOR);
+//         // create a mock user for authentication
+//         mockUser = makeMockUser("testUser", "testPassword", Role.INSTRUCTOR);
 
 //         // Create a mock instructor
-//         mockInstructor = new Instructor(1, "John Doe");
+//         mockInstructor = mock(Instructor.class);
+//         when(mockInstructor.getId()).thenReturn(1);
+//         when(mockInstructor.getName()).thenReturn("John Doe");
+
 //         // Create a mock instructor DTO
-//         mockInstructorDto = new InstructorDto(1, "John Doe");
+//         mockInstructorDto = new InstructorDto();
+//         mockInstructorDto.setId(1);
+//         mockInstructorDto.setName("John Doe");
+
 //         // Create a list of mock instructors
 //         mockInstructorList = new ArrayList<>();
 //         mockInstructorList.add(mockInstructor);
@@ -79,7 +85,6 @@
 //         return new ApplicationUser((Integer) 1, username, passwordEncoder.encode(password), roles, "");
 //     }
 
-
 //     @Test
 //     public void testGetAllInstructors() throws Exception {
 //         // Mock the behavior of the instructorRepository.findAll() method
@@ -93,6 +98,7 @@
 //                 .andExpect(jsonPath("$[0].id").value(mockInstructorDto.getId()))
 //                 .andExpect(jsonPath("$[0].name").value(mockInstructorDto.getName()));
 //     }
+
 //     @Test
 //     public void testGetInstructorById() throws Exception {
 //         when(instructorRepository.findById(anyInt())).thenReturn(Optional.of(mockInstructor));
