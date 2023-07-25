@@ -1,10 +1,34 @@
 import React, { useContext, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Box,
+  Paper,
+  Alert,
+  createTheme,
+  ThemeProvider,
+} from "@mui/material";
 import { UserInfoContext } from "../App";
-import styles from "./LoginPage.module.css";
 import { tokenConfig } from "../utils";
+import {
+  boxStyles,
+  paperStyles,
+  headerStyles,
+  formStyles,
+} from "./LoginPageStyles";
+
+// Create a custom theme
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#0a5e28",
+    },
+  },
+});
 
 function LoginPage() {
   const [username, setUsername] = useState("");
@@ -13,8 +37,8 @@ function LoginPage() {
   const { userInfo, setUserInfo } = useContext(UserInfoContext);
   const navigate = useNavigate();
 
-  if ((userInfo !== null) && tokenConfig()) {
-    return (<Navigate to="/" replace />);
+  if (userInfo !== null && tokenConfig()) {
+    return <Navigate to="/" replace />;
   }
 
   const handleSubmit = async (event) => {
@@ -32,56 +56,82 @@ function LoginPage() {
 
     axios.post("auth/login", payload, { withCredentials: false }).then(
       (loginResponse) => {
-        if ((loginResponse.status === 200) && ((loginResponse.data.user ?? null) !== null)
-          && ((loginResponse.data.jwt ?? null) !== null)) {
-
-          // console.log('valid login response:', loginResponse.data.jwt);
+        if (
+          loginResponse.status === 200 &&
+          (loginResponse.data.user ?? null) !== null &&
+          (loginResponse.data.jwt ?? null) !== null
+        ) {
           setUserInfo(loginResponse.data.user);
-          localStorage.setItem('jwtToken', loginResponse.data.jwt);
+          localStorage.setItem("jwtToken", loginResponse.data.jwt);
           navigate("/");
         }
       },
       (err) => {
-        // console.log("login request exception", err);
         console.error(err);
         setError("Failed to login. Please try again.");
-      });
+      }
+    );
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.cardContainer}>
-        <h1>Login Page</h1>
-        <form onSubmit={handleSubmit}>
-          <label>
-            Username
-            <input
-              type="text"
-              name="username"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              placeholder="Enter your username"
-              autoFocus
-            />
-          </label>
-          <br />
-          <label>
-            Password
-            <input
-              type="password"
-              name="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Enter your password"
-            />
-          </label>
-          <br />
-          <button type="submit">Login</button>
-
-          {error && <p className={styles.errormessage}>{error}</p>}
-        </form>
-      </div>
-    </div>
+    <ThemeProvider theme={theme}>
+      <Box {...boxStyles}>
+        <Container maxWidth="sm">
+          <Paper {...paperStyles}>
+            <Box {...headerStyles}>
+              <Typography component="h1" variant="h4" color="white">
+                FIC Scheduler App
+              </Typography>
+            </Box>
+            <Typography component="h1" variant="h6">
+              Login
+            </Typography>
+            <Box {...formStyles} onSubmit={handleSubmit}>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="username"
+                label="Username"
+                name="username"
+                autoComplete="username"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                autoFocus
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                sx={{ mt: 3, mb: 2, minHeight: "45px" }}
+              >
+                Sign In
+              </Button>
+              {error && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  {error}
+                </Alert>
+              )}
+            </Box>
+          </Paper>
+        </Container>
+      </Box>
+    </ThemeProvider>
   );
 }
 
