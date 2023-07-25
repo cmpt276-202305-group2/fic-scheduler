@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.group2.server.model.*;
 
-public interface BlockRequirementDivisionRepository extends JpaRepository<BlockRequirementDivision, Integer> {
+public interface BlockRequirementSplitRepository extends JpaRepository<BlockRequirementSplit, Integer> {
 }

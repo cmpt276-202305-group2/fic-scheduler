@@ -19,6 +19,15 @@ public class SemesterPlanController {
     @Autowired
     private SemesterPlanRepository semesterPlanRepository;
 
+    @Autowired
+    private CourseOfferingRepository courseOfferingRepository;
+
+    @Autowired
+    private InstructorRepository instructorRepository;
+
+    @Autowired
+    private ClassroomRepository classroomRepository;
+
     @GetMapping("/semester-plans")
     public ResponseEntity<List<SemesterPlanDto>> readListByQuery() {
         try {
@@ -77,7 +86,8 @@ public class SemesterPlanController {
     }
 
     public SemesterPlanDto toDto(SemesterPlan semesterPlan) {
-        return new SemesterPlanDto(semesterPlan.getId(), semesterPlan.getSemester(),
+        return new SemesterPlanDto(semesterPlan.getId(), semesterPlan.getName(), semesterPlan.getNotes(),
+                semesterPlan.getSemester(),
                 semesterPlan.getCoursesOffered().stream().map(c -> (EntityDto) new EntityReferenceDto(c.getId()))
                         .toList(),
                 semesterPlan.getInstructorsAvailable().stream()
@@ -92,9 +102,45 @@ public class SemesterPlanController {
         SemesterPlan semesterPlan;
         if (semesterPlanDto.getId() != null) {
             semesterPlan = semesterPlanRepository.findById(semesterPlanDto.getId()).get();
+            if (semesterPlanDto.getName() != null) {
+                semesterPlan.setName(semesterPlanDto.getName());
+            }
+            if (semesterPlanDto.getSemester() != null) {
+                semesterPlan.setSemester(semesterPlanDto.getSemester());
+            }
+            if (semesterPlanDto.getNotes() != null) {
+                semesterPlan.setNotes(semesterPlanDto.getNotes());
+            }
+            if (semesterPlanDto.getCoursesOffered() != null) {
+                var coursesOffered = Set.copyOf(semesterPlanDto.getCoursesOffered().stream()
+                        .map(c -> courseOfferingRepository.findById(c.getId()).get()).toList());
+                semesterPlan.setCoursesOffered(coursesOffered);
+            }
+            if (semesterPlanDto.getInstructorsAvailable() != null) {
+                var instructorsAvailable = Set.copyOf(semesterPlanDto.getInstructorsAvailable().stream()
+                        .map(ia -> new InstructorAvailability(null, ia.getDayOfWeek(), ia.getPartOfDay(),
+                                instructorRepository.findById(ia.getInstructor().getId()).get()))
+                        .toList());
+                semesterPlan.setInstructorsAvailable(instructorsAvailable);
+            }
+            if (semesterPlanDto.getClassroomsAvailable() != null) {
+                var classroomsAvailable = Set.copyOf(semesterPlanDto.getClassroomsAvailable().stream()
+                        .map(c -> classroomRepository.findById(c.getId()).get()).toList());
+                semesterPlan.setClassroomsAvailable(classroomsAvailable);
+            }
         } else {
-            semesterPlan = new SemesterPlan();
+            var coursesOffered = Set.copyOf(semesterPlanDto.getCoursesOffered().stream()
+                    .map(c -> courseOfferingRepository.findById(c.getId()).get()).toList());
+            var instructorsAvailable = Set.copyOf(semesterPlanDto.getInstructorsAvailable().stream()
+                    .map(ia -> new InstructorAvailability(null, ia.getDayOfWeek(), ia.getPartOfDay(),
+                            instructorRepository.findById(ia.getInstructor().getId()).get()))
+                    .toList());
+            var classroomsAvailable = Set.copyOf(semesterPlanDto.getClassroomsAvailable().stream()
+                    .map(c -> classroomRepository.findById(c.getId()).get()).toList());
+            semesterPlan = new SemesterPlan(null, Optional.ofNullable(semesterPlanDto.getName()).orElse(""),
+                    Optional.ofNullable(semesterPlanDto.getNotes()).orElse(""), semesterPlanDto.getSemester(),
+                    coursesOffered, instructorsAvailable, classroomsAvailable);
         }
-        return semesterPlan;
+        return semesterPlanRepository.save(semesterPlan);
     }
 }

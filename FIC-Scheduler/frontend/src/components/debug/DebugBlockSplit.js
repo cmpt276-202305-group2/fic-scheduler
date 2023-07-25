@@ -5,68 +5,68 @@ import styles from "../../pages/Common.module.css";
 
 import { tokenConfig } from "../../utils"
 
-export function DebugInstructor() {
-  const [allInstructors, setAllInstructors] = useState(null);
+export function DebugBlockSplit() {
+  const [allBlockSplits, setAllBlockSplits] = useState(null);
   const [updateResponse, setUpdateResponse] = useState(null);
   const [formId, setFormId] = useState('');
   const [formName, setFormName] = useState('');
-  const [formNotes, setFormNotes] = useState('');
+  const [formBlocks, setFormBlocks] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const clearForm = () => {
     setFormId('');
     setFormName('');
-    setFormNotes('');
+    setFormBlocks('');
   }
 
   useEffect(() => {
     clearForm();
-    axios.get("api/instructors", tokenConfig()).then(
-      (response) => { setAllInstructors(response.data); },
-      (_) => { setAllInstructors(null); });
-  }, [updateResponse, setAllInstructors]);
+    axios.get("api/block-splits", tokenConfig()).then(
+      (response) => { setAllBlockSplits(response.data); },
+      (_) => { setAllBlockSplits(null); });
+  }, [updateResponse, setAllBlockSplits]);
 
-  var data = (<div>No instructors</div>);
-  if (((allInstructors ?? null) !== null) && (allInstructors instanceof Array)) {
+  var data = (<div>No block splits</div>);
+  if (((allBlockSplits ?? null) !== null) && (allBlockSplits instanceof Array)) {
     data = (
       <table>
         <thead>
           <tr>
             <th key="0">id</th>
             <th key="1">name</th>
-            <th key="2">notes</th>
+            <th key="2">blocks</th>
           </tr>
         </thead>
         <tbody>
-          {allInstructors.map((row, rowIndex) => (
+          {allBlockSplits.map((row, rowIndex) => (
             <tr key={rowIndex}>
               <td key="0">{row.id}</td>
               <td key="1">{row.name}</td>
-              <td key="2">{row.notes}</td>
+              <td key="2">{JSON.stringify(row.blocks)}</td>
             </tr>
           ))}
         </tbody>
       </table>);
   }
   return (
-    <div className={styles.DebugComponent} data-testid="debug-instructor">
-      <h1>Instructors</h1>
+    <div className={styles.DebugComponent} data-testid="debug-block-split">
+      <h1>Block Splits</h1>
       {data}
       <form onSubmit={(event) => {
         event.preventDefault();
-        //const instructorIdStr = (formId !== '') ? ('/' + formId) : '';
-        const instructorObj = {}
+        //const blockSplitIdStr = (formId !== '') ? ('/' + formId) : '';
+        const blockSplitObj = {}
         try {
-          if (formId) instructorObj.id = formId;
-          if (formName) instructorObj.name = formName;
-          if (formNotes) instructorObj.notes = formNotes;
+          if (formId) blockSplitObj.id = formId;
+          if (formName) blockSplitObj.name = formName;
+          if (formBlocks) blockSplitObj.blocks = JSON.parse(formBlocks);
         }
         catch (error) {
           setErrorMessage("Couldn't make query: " + error.message);
           return;
         }
 
-        axios.post("api/instructors", [instructorObj], tokenConfig()).then(
+        axios.post("api/block-splits", [blockSplitObj], tokenConfig()).then(
           (response) => { setUpdateResponse(response); setErrorMessage(''); },
           (error) => {
             setErrorMessage(error.response ?
@@ -84,15 +84,15 @@ export function DebugInstructor() {
                 placeholder="Create new" /></td>
             </tr>
             <tr>
-              <td><label htmlFor="form-name">Name</label></td>
+              <td><label htmlFor="form-name">Room Number</label></td>
               <td><input id="form-name" type="text" name="formName" value={formName}
                 onChange={(event) => setFormName(event.target.value)}
                 placeholder="Don't update" autoFocus /></td>
             </tr>
             <tr>
-              <td><label htmlFor="form-notes">Notes</label></td>
-              <td><input id="form-notes" type="text" name="formNotes" value={formNotes}
-                onChange={(event) => setFormNotes(event.target.value)}
+              <td><label htmlFor="form-blocks">Room Name</label></td>
+              <td><input id="form-blocks" type="text" name="formBlocks" value={formBlocks}
+                onChange={(event) => setFormBlocks(event.target.value)}
                 placeholder="Don't update" /></td>
             </tr>
           </tbody>
@@ -101,7 +101,7 @@ export function DebugInstructor() {
         <button onClick={(event) => {
           event.preventDefault();
           if ((formId ?? '') !== '') {
-            axios.delete("api/instructors/" + formId, tokenConfig()).then(
+            axios.delete("api/block-splits/" + formId, tokenConfig()).then(
               (response) => { setUpdateResponse(response); setErrorMessage(''); },
               (error) => {
                 setErrorMessage(error.response ?
@@ -113,4 +113,4 @@ export function DebugInstructor() {
     </div>);
 };
 
-export default DebugInstructor;
+export default DebugBlockSplit;

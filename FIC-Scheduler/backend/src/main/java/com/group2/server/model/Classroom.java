@@ -21,4 +21,8 @@ public class Classroom {
     @NonNull
     private String roomType;
 
+    @Column(nullable = false)
+    @NonNull
+    private String notes;
+
 }

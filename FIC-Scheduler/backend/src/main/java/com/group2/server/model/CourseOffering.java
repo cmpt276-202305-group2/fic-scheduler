@@ -32,6 +32,6 @@ public class CourseOffering {
     private Set<Instructor> approvedInstructors;
 
     @ManyToMany
-    @JoinTable(name = "course_offerings_block_requirements", joinColumns = @JoinColumn(name = "course_offering_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "block_requirement_id", referencedColumnName = "id"))
-    private Set<BlockRequirementDivision> blockDivisions;
+    @JoinTable(name = "course_offerings_allowed_block_splits", joinColumns = @JoinColumn(name = "course_offering_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "block_split_id", referencedColumnName = "id"))
+    private Set<BlockRequirementSplit> allowedBlockSplits;
 }

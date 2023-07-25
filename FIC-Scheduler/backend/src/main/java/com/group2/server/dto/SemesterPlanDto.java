@@ -12,6 +12,8 @@ import lombok.*;
 @JsonDeserialize
 public class SemesterPlanDto {
     private Integer id;
+    private String name;
+    private String notes;
     private String semester;
     private List<EntityDto> coursesOffered;
     private List<InstructorAvailabilityDto> instructorsAvailable;

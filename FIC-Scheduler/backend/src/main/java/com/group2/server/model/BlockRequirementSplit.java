@@ -8,8 +8,8 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "block_requirement_division")
-public class BlockRequirementDivision {
+@Entity(name = "block_requirement_split")
+public class BlockRequirementSplit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

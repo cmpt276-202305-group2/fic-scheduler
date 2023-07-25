@@ -15,6 +15,16 @@ public class SemesterPlan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
+    @NonNull
+    private String name;
+
+    @Column(nullable = false)
+    @NonNull
+    private String notes;
+
+    @Column(nullable = false)
+    @NonNull
     private String semester;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -23,8 +33,8 @@ public class SemesterPlan {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<InstructorAvailability> instructorsAvailable;
 
-    @ManyToMany
-    @JoinTable(name = "classroom_semester_plans", joinColumns = @JoinColumn(name = "semester_plan_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "classroom_id", referencedColumnName = "id"))
+    @ManyToMany()
+    @JoinTable(name = "classrooms_available_semester_plans", joinColumns = @JoinColumn(name = "semester_plan_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "classroom_available_id", referencedColumnName = "id"))
     private Set<Classroom> classroomsAvailable;
 
 }

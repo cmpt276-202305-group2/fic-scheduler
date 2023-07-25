@@ -10,7 +10,7 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonDeserialize
-public class BlockRequirementDivisionDto implements EntityDto {
+public class BlockRequirementSplitDto implements EntityDto {
     private Integer id;
     private String name;
     private List<BlockRequirementDto> blocks;

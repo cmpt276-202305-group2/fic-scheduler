@@ -54,8 +54,8 @@ function Sidebar({ item, subitem }) {
               <li>
                 <BugReportIcon /> Debug Menu
               </li>
-              <li onClick={() => navigate("/debugMenu/auth")}>
-                &nbsp;&nbsp;&nbsp;<BugReportIcon /> Auth
+              <li onClick={() => navigate("/debugMenu/blockSplit")}>
+                &nbsp;&nbsp;&nbsp;<BugReportIcon /> Block Splits
               </li>
               <li onClick={() => navigate("/debugMenu/classroom")}>
                 &nbsp;&nbsp;&nbsp;<BugReportIcon /> Classrooms
@@ -63,14 +63,11 @@ function Sidebar({ item, subitem }) {
               <li onClick={() => navigate("/debugMenu/courseOffering")}>
                 &nbsp;&nbsp;&nbsp;<BugReportIcon /> Course Offerings
               </li>
-              <li onClick={() => navigate("/debugMenu/facility")}>
-                &nbsp;&nbsp;&nbsp;<BugReportIcon /> Facilities
-              </li>
               <li onClick={() => navigate("/debugMenu/instructor")}>
                 &nbsp;&nbsp;&nbsp;<BugReportIcon /> Instructors
               </li>
-              <li onClick={() => navigate("/debugMenu/instructorAvailability")}>
-                &nbsp;&nbsp;&nbsp;<BugReportIcon /> Instructor Availabilities
+              <li onClick={() => navigate("/debugMenu/schedule")}>
+                &nbsp;&nbsp;&nbsp;<BugReportIcon /> Schedules
               </li>
               <li onClick={() => navigate("/debugMenu/semesterPlan")}>
                 &nbsp;&nbsp;&nbsp;<BugReportIcon /> Semester Plans

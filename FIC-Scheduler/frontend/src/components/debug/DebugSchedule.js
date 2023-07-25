@@ -6,96 +6,124 @@ import styles from "../../pages/Common.module.css";
 import { tokenConfig } from "../../utils"
 
 export function DebugSchedule() {
-  const [latestSchedule, setLatestSchedule] = useState(null);
-  const [schedules, setSchedules] = useState(null);
+  const [allSchedules, setAllSchedules] = useState(null);
+  const [updateResponse, setUpdateResponse] = useState(null);
+  const [formId, setFormId] = useState('');
+  const [formName, setFormName] = useState('');
+  const [formNotes, setFormNotes] = useState('');
+  const [formAssignments, setFormAssignments] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const clearForm = () => {
+    setFormId('');
+    setFormName('');
+    setFormNotes('');
+    setFormAssignments('[]');
+  }
 
   useEffect(() => {
-    axios.get("api/schedules/latest", tokenConfig()).then(
-      (response) => { setLatestSchedule(response.data); },
-      (_) => { setLatestSchedule(null); });
+    clearForm();
     axios.get("api/schedules", tokenConfig()).then(
-      (response) => { setSchedules(response.data); },
-      (_) => { setSchedules(null); });
-  }, [setLatestSchedule, setSchedules]);
+      (response) => { setAllSchedules(response.data); },
+      (_) => { setAllSchedules(null); });
+  }, [updateResponse, setAllSchedules]);
 
-  let latestScheduleFragment = (
-    <React.Fragment>
-      <h2>Latest Schedule</h2>
-      <div>No schedule</div>
-    </React.Fragment>);
-  if (((latestSchedule ?? null) !== null) && ((latestSchedule.classScheduleAssignments ?? null) !== null)
-    && (latestSchedule.classScheduleAssignments instanceof Array)) {
-    latestScheduleFragment = (
-      <React.Fragment>
-        <h2>Latest Schedule</h2>
-        <div>
-          <table>
-            <thead>
-              <tr>
-                <th key="0">id</th>
-                <th key="1">courseNumber</th>
-                <th key="2">partOfDay</th>
-                <th key="3">classroom</th>
-                <th key="4">instructor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {latestSchedule.classScheduleAssignments.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  <td key="0">{row.id}</td>
-                  <td key="1">{row.courseNumber}</td>
-                  <td key="2">{row.partOfDay}</td>
-                  <td key="3">{row.classroom.roomNumber}</td>
-                  <td key="4">{row.instructor.name}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </React.Fragment>);
+  var data = (<div>No schedules</div>);
+  if (((allSchedules ?? null) !== null) && (allSchedules instanceof Array)) {
+    data = (
+      <table>
+        <thead>
+          <tr>
+            <th key="0">id</th>
+            <th key="1">name</th>
+            <th key="2">notes</th>
+            <th key="3">assignments</th>
+            {/* <th key="2">course</th>
+            <th key="1">partOfDay</th>
+            <th key="2">classroom</th>
+            <th key="2">instructor</th> */}
+          </tr>
+        </thead>
+        <tbody>
+          {allSchedules.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              <td key="0">{row.id}</td>
+              <td key="1">{row.name}</td>
+              <td key="2">{row.notes}</td>
+              <td key="3">{row.assignments}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>);
   }
-
-  let allSchedulesFragment = (
-    <React.Fragment>
-      <h2>Latest Schedule</h2>
-      <div>No schedule</div>
-    </React.Fragment>);
-  if (((schedules ?? null) !== null) && (schedules instanceof Array)) {
-    allSchedulesFragment = (
-      <React.Fragment>
-        <h2>All Schedules</h2>
-        <div>
-          <table>
-            <thead>
-              <tr>
-                <th key="0">id</th>
-                <th key="1">courseNumber</th>
-                <th key="2">partOfDay</th>
-                <th key="3">classroom</th>
-                <th key="4">instructor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {schedules.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  <td key="0">{row.id}</td>
-                  <td key="1">{row.courseNumber}</td>
-                  <td key="2">{row.partOfDay}</td>
-                  <td key="3">{row.classroom.roomNumber}</td>
-                  <td key="4">{row.instructor.name}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </React.Fragment>);
-  }
-
   return (
     <div className={styles.DebugComponent} data-testid="debug-schedule">
       <h1>Schedules</h1>
-      {latestScheduleFragment}
-      {allSchedulesFragment}
+      {data}
+      <form onSubmit={(event) => {
+        event.preventDefault();
+        //const scheduleIdStr = (formId !== '') ? ('/' + formId) : '';
+        const scheduleObj = {}
+        try {
+          if (formId) scheduleObj.id = formId;
+          if (formName) scheduleObj.name = formName;
+          if (formNotes) scheduleObj.notes = formNotes;
+        }
+        catch (error) {
+          setErrorMessage("Couldn't make query: " + error.message);
+          return;
+        }
+
+        axios.post("api/schedules", [scheduleObj], tokenConfig()).then(
+          (response) => { setUpdateResponse(response); setErrorMessage(''); },
+          (error) => {
+            setErrorMessage(error.response ?
+              error.response.status + ' ' + error.response.data : error.message);
+          });
+      }}>
+        <h2>Create/Update</h2>
+        <p style={{ color: 'red' }}>{errorMessage}</p>
+        <table>
+          <tbody>
+            <tr>
+              <td><label htmlFor="form-id">ID</label></td>
+              <td><input id="form-id" type="text" name="formId" value={formId}
+                onChange={(event) => setFormId(event.target.value)}
+                placeholder="Create new" /></td>
+            </tr>
+            <tr>
+              <td><label htmlFor="form-name">Name</label></td>
+              <td><input id="form-name" type="text" name="formName" value={formName}
+                onChange={(event) => setFormName(event.target.value)}
+                placeholder="Don't update" autoFocus /></td>
+            </tr>
+            <tr>
+              <td><label htmlFor="form-notes">Notes</label></td>
+              <td><input id="form-notes" type="text" name="formNotes" value={formNotes}
+                onChange={(event) => setFormNotes(event.target.value)}
+                placeholder="Don't update" /></td>
+            </tr>
+            <tr>
+              <td><label htmlFor="form-assignments">Assignments</label></td>
+              <td><input id="form-assignments" type="text" name="formAssignments" value={formAssignments}
+                onChange={(event) => setFormAssignments(event.target.value)}
+                placeholder="Don't update" /></td>
+            </tr>
+          </tbody>
+        </table>
+        <button type="submit">Create/Update</button>
+        <button onClick={(event) => {
+          event.preventDefault();
+          if ((formId ?? '') !== '') {
+            axios.delete("api/schedules/" + formId, tokenConfig()).then(
+              (response) => { setUpdateResponse(response); setErrorMessage(''); },
+              (error) => {
+                setErrorMessage(error.response ?
+                  error.response.status + ' ' + error.response.data : error.message);
+              });
+          }
+        }}>Delete</button>
+      </form>
     </div>);
 };
 
