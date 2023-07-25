@@ -23,4 +23,12 @@ public enum PartOfDay {
     public boolean isHalfPeriod() {
         return !fullPeriod;
     }
+
+    public boolean conflicts(PartOfDay other) {
+        return conflict(this, other);
+    }
+
+    public static boolean conflict(PartOfDay a, PartOfDay b) {
+        return (a.occupiedTimeBits & b.occupiedTimeBits) != 0;
+    }
 }

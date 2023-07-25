@@ -19,6 +19,9 @@ public class ScheduleController {
     @Autowired
     private ScheduleRepository scheduleRepository;
 
+    @Autowired
+    private BlockRequirementDivisionRepository blockRequirementDivisionRepository;
+
     @GetMapping("/schedules/latest")
     public ResponseEntity<ScheduleDto> readLatestSchedule() {
         Schedule latestSchedule = null;
@@ -36,29 +39,27 @@ public class ScheduleController {
             latestSchedule = new Schedule();
             latestSchedule.setSemester("Fall 2023");
             HashSet<ScheduleAssignment> assignments = new HashSet<>();
-            var alfred = new Instructor(null, "Alfred");
-            var shaniqua = new Instructor(null, "Shaniqua");
-            var chenoa = new Instructor(null, "Chenoa");
-            var twoHalfBlocks = new BlockRequirementDivision(null, "Two 1/2 Blocks",
-                    Set.of(new BlockRequirement(null, Set.of(), Duration.HALF),
-                            new BlockRequirement(null, Set.of(), Duration.HALF)));
-            var oneFullBlock = new BlockRequirementDivision(null, "One Full Block",
-                    Set.of(new BlockRequirement(null, Set.of(), Duration.FULL)));
-            var oneFullPhysBlock = new BlockRequirementDivision(null, "One Full Block",
-                    Set.of(new BlockRequirement(null, Set.of(), Duration.FULL)));
-            var cmpt120 = new CourseOffering(null, "CMPT 120", Set.of(alfred, chenoa),
+            var alfred = new Instructor(null, "Alfred", "");
+            var shaniqua = new Instructor(null, "Shaniqua", "");
+            var chenoa = new Instructor(null, "Chenoa", "");
+            var twoHalfBlocks = blockRequirementDivisionRepository.save(new BlockRequirementDivision(null,
+                    "Two 1/2 Blocks", List.of(new BlockRequirement(null, Set.of(), Duration.HALF),
+                            new BlockRequirement(null, Set.of(), Duration.HALF))));
+            var oneFullBlock = blockRequirementDivisionRepository.save(new BlockRequirementDivision(null,
+                    "One Full Block", List.of(new BlockRequirement(null, Set.of(), Duration.FULL))));
+            var oneFullPhysBlock = blockRequirementDivisionRepository.save(new BlockRequirementDivision(null,
+                    "One Full Block", List.of(new BlockRequirement(null, Set.of(), Duration.FULL))));
+            var cmpt120 = new CourseOffering(null, "CMPT 120", "CMPT 120", "", Set.of(alfred, chenoa),
                     Set.of(twoHalfBlocks, oneFullBlock));
-            var phys125 = new CourseOffering(null, "PHYS 125", Set.of(alfred, chenoa), Set.of(oneFullPhysBlock));
-            var engl105w = new CourseOffering(null, "ENGL 105W", Set.of(alfred, chenoa),
+            var phys125 = new CourseOffering(null, "PHYS 125", "PHYS 125", "", Set.of(alfred, chenoa),
+                    Set.of(oneFullPhysBlock));
+            var engl105w = new CourseOffering(null, "ENGL 105W", "ENGL 105W", "", Set.of(alfred, chenoa),
                     Set.of(twoHalfBlocks, oneFullBlock));
             var room2400 = new Classroom(null, "DIS1 2400", null);
             var room2550 = new Classroom(null, "DIS1 2550", null);
-            assignments.add(
-                    new ScheduleAssignment(null, latestSchedule, cmpt120, PartOfDay.MORNING, room2400, chenoa));
-            assignments.add(new ScheduleAssignment(null, latestSchedule, phys125, PartOfDay.AFTERNOON, room2550,
-                    alfred));
-            assignments.add(new ScheduleAssignment(null, latestSchedule, engl105w, PartOfDay.EVENING, room2400,
-                    shaniqua));
+            assignments.add(new ScheduleAssignment(null, cmpt120, PartOfDay.MORNING, room2400, chenoa));
+            assignments.add(new ScheduleAssignment(null, phys125, PartOfDay.AFTERNOON, room2550, alfred));
+            assignments.add(new ScheduleAssignment(null, engl105w, PartOfDay.EVENING, room2400, shaniqua));
             latestSchedule.setAssignments(assignments);
         }
 
@@ -74,8 +75,7 @@ public class ScheduleController {
             } else {
                 schedules = scheduleRepository.findAll();
             }
-            return new ResponseEntity<>(schedules.stream().map(this::toDto).toList(),
-                    HttpStatus.OK);
+            return new ResponseEntity<>(schedules.stream().map(this::toDto).toList(), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -84,8 +84,7 @@ public class ScheduleController {
     @GetMapping("/schedules/{id}")
     public ResponseEntity<ScheduleDto> readOneById(@PathVariable Integer id) {
         try {
-            return new ResponseEntity<>(toDto(scheduleRepository.findById(id).get()),
-                    HttpStatus.OK);
+            return new ResponseEntity<>(toDto(scheduleRepository.findById(id).get()), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -111,8 +110,7 @@ public class ScheduleController {
                 throw new IllegalArgumentException();
             }
             scheduleDto.setId(id);
-            return new ResponseEntity<>(toDto(createOrUpdateFromDto(scheduleDto)),
-                    HttpStatus.OK);
+            return new ResponseEntity<>(toDto(createOrUpdateFromDto(scheduleDto)), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -134,7 +132,8 @@ public class ScheduleController {
             courses.computeIfAbsent(assignment.getCourse(),
                     (course) -> {
                         var dto = new CourseAssignmentDto();
-                        dto.setCourse(new CourseOfferingDto(course.getId(), course.getCourseNumber(),
+                        dto.setCourse(new CourseOfferingDto(course.getId(), course.getName(), course.getCourseNumber(),
+                                course.getNotes(),
                                 course.getApprovedInstructors().stream()
                                         .map(i -> (EntityDto) new EntityReferenceDto(i.getId())).toList(),
                                 course.getBlockDivisions().stream()

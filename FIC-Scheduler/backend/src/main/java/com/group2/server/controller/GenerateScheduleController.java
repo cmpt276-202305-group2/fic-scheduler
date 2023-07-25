@@ -51,7 +51,7 @@ public class GenerateScheduleController {
             var partOfDay = partsOfDay[r.nextInt(partsOfDay.length)];
             var classroom = classrooms[r.nextInt(classrooms.length)];
             var instructor = instructor_availabilities[r.nextInt(instructor_availabilities.length)].getInstructor();
-            assignments.add(new ScheduleAssignment(null, sched, offering, partOfDay, classroom, instructor));
+            assignments.add(new ScheduleAssignment(null, offering, partOfDay, classroom, instructor));
         }
         sched.setAssignments(assignments);
         classScheduleRepository.save(sched);

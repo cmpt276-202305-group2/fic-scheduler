@@ -16,4 +16,7 @@ public class Instructor {
     @Column(unique = true)
     private String name;
 
+    @Column(unique = true)
+    private String notes;
+
 }

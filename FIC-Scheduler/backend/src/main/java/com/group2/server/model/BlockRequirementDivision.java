@@ -18,6 +18,6 @@ public class BlockRequirementDivision {
     @NonNull
     private String name;
 
-    @OneToMany
-    private Set<BlockRequirement> blocks;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BlockRequirement> blocks;
 }

@@ -17,10 +17,10 @@ public class SemesterPlan {
 
     private String semester;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CourseOffering> coursesOffered;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<InstructorAvailability> instructorsAvailable;
 
     @ManyToMany
