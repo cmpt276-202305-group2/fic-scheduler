@@ -1,5 +1,9 @@
 {
     "java.configuration.updateBuildConfiguration": "interactive",
     "java.compile.nullAnalysis.mode": "automatic",
+    "editor.detectIndentation": false,
+    "editor.tabSize": 4,
+    "editor.indentSize": "tabSize",
+    "editor.insertSpaces": true,
     "editor.formatOnSave": true
 }

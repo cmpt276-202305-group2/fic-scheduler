@@ -1,24 +1,7 @@
 {
   "properties": [
     {
-      "name": "app.user.debug.password",
-      "type": "java.lang.String",
-      "description": "A description for 'app.user.debug.password'"
-    },
-    {
-      "name": "app.user.debug.username",
-      "type": "java.lang.String",
-      "description": "A description for 'app.user.debug.username'"
-    },
-    {
-      "name": "app.user.coordinator.username",
-      "type": "java.lang.String",
-      "description": "A description for 'app.user.coordinator.username'"
-    },
-    {
-      "name": "app.user.coordinator.password",
-      "type": "java.lang.String",
-      "description": "A description for 'app.user.coordinator.password'"
+      "name": "fic-scheduler.default-users",
     }
   ]
 }
