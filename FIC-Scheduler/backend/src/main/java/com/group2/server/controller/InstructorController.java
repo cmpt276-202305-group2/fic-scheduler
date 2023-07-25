@@ -76,17 +76,24 @@ public class InstructorController {
     }
 
     public InstructorDto toDto(Instructor instructor) {
-        return new InstructorDto(instructor.getId(), instructor.getName());
+        return new InstructorDto(instructor.getId(), instructor.getName(), instructor.getNotes());
     }
 
     public Instructor createOrUpdateFromDto(InstructorDto instructorDto) {
         Instructor instructor;
         if (instructorDto.getId() != null) {
             instructor = instructorRepository.findById(instructorDto.getId()).get();
+            if (instructorDto.getName() != null) {
+                instructor.setName(instructorDto.getName());
+            }
+            if (instructorDto.getNotes() != null) {
+                instructor.setNotes(instructorDto.getNotes());
+            }
         } else {
-            instructor = new Instructor(null, instructorDto.getName());
+            instructor = new Instructor(null, Optional.ofNullable(instructorDto.getName()).orElse(""),
+                    Optional.ofNullable(instructorDto.getNotes()).orElse(""));
         }
-        return instructor;
+        return instructorRepository.save(instructor);
     }
 
 }

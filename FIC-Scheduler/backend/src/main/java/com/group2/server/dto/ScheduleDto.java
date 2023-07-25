@@ -12,6 +12,8 @@ import java.util.*;
 @JsonDeserialize
 public class ScheduleDto implements EntityDto {
     private Integer id;
+    private String name;
+    private String notes;
     private String semester;
     private List<CourseAssignmentDto> courses;
 }

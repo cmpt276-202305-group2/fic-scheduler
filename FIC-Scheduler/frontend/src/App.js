@@ -81,8 +81,8 @@ function App() {
             element={<Navigate to="/debugMenu/semesterPlan" />}
           />
           <Route
-            path="/debugMenu/auth"
-            element={<DebugMenuPage subpage="auth" />}
+            path="/debugMenu/blockSplit"
+            element={<DebugMenuPage subpage="blockSplit" />}
           />
           <Route
             path="/debugMenu/classroom"
@@ -93,16 +93,12 @@ function App() {
             element={<DebugMenuPage subpage="courseOffering" />}
           />
           <Route
-            path="/debugMenu/facility"
-            element={<DebugMenuPage subpage="facility" />}
-          />
-          <Route
             path="/debugMenu/instructor"
             element={<DebugMenuPage subpage="instructor" />}
           />
           <Route
-            path="/debugMenu/instructorAvailability"
-            element={<DebugMenuPage subpage="instructorAvailability" />}
+            path="/debugMenu/schedule"
+            element={<DebugMenuPage subpage="schedule" />}
           />
           <Route
             path="/debugMenu/semesterPlan"
