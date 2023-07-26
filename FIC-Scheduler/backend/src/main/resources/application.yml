@@ -1,0 +1,26 @@
+fic-scheduler:
+  default-users:
+    - username: "coordinator"
+      password: "password"
+      roles: ["COORDINATOR"]
+      full-name: "Coordinator"
+    - username: "debug"
+      password: "Cuzaif1v"
+      roles: ["DEBUG", "ADMIN", "COORDINATOR", "INSTRUCTOR"]
+      full-name: "Debug User"
+
+server:
+  tomcat:
+    accesslog:
+      enabled: true
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: password
