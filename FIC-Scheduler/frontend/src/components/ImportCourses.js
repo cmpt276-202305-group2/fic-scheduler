@@ -47,19 +47,13 @@ const ImportCourses = ({
       // Convert data to JSON format
       const jsonData = coursesSpreadsheetData.map((row) => {
         return {
+          id: null,
           courseNumber: row.courseNumber,
           semesterPlanID: row.semesterPlanId,
-          accredationRequiredName: row.accredationRequiredName,
-          blockTypeName: row.blockTypeName,
-          facilitesRequiredNames: [
-            row.facilitesRequiredNames1,
-            row.facilitesRequiredNames2,
-            row.facilitesRequiredNames3,
-          ].filter(Boolean),
-          conflictedCourseNumbers: [
-            row.conflictedCourseNumbers1,
-            row.conflictedCourseNumbers2,
-            row.conflictedCourseNumbers3,
+
+          approvedInstructor: [
+            row.approvedInstructor1,
+            row.approvedInstructor2,
           ].filter(Boolean),
         };
       });
@@ -98,7 +92,7 @@ const ImportCourses = ({
         showErrorMessage={showErrorMessage}
         isPreviewVisible={isPreviewVisible}
         handleSendToBackend={handleSendToBackEnd}
-        id="file-upload-one"
+        id={4}
         styles={styles}
       />
       <SpreadsheetTable
