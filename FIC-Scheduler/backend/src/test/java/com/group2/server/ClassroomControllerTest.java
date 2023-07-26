@@ -134,7 +134,6 @@ public class ClassroomControllerTest {
     @Test
     public void testCreateOrUpdateList() throws Exception {
         // Mock the data to be sent in the request
-        // Mock the data to be sent in the request
 
         List<ClassroomDto> classroomDtoList = new ArrayList<>();
         classroomDtoList.add(new ClassroomDto(null, "101", "Lecture Hall", "First floor"));

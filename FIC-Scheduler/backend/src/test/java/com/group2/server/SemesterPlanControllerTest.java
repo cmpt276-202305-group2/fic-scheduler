@@ -8,6 +8,7 @@ import com.group2.server.repository.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -203,8 +205,17 @@ public class SemesterPlanControllerTest {
                 .andExpect(jsonPath("$.semester").value("2023 Fall"));
 
         verify(semesterPlanRepository, times(1)).findById(semesterPlanId);
-        verify(semesterPlanRepository, times(1)).save(any());
+
+        ArgumentCaptor<SemesterPlan> semesterPlanCaptor = ArgumentCaptor.forClass(SemesterPlan.class);
+        verify(semesterPlanRepository, times(1)).save(semesterPlanCaptor.capture());
         verifyNoMoreInteractions(semesterPlanRepository);
+
+        // Verify the updated SemesterPlan data
+        SemesterPlan capturedSemesterPlan = semesterPlanCaptor.getValue();
+        assertEquals(1, capturedSemesterPlan.getId());
+        assertEquals("Updated Plan", capturedSemesterPlan.getName());
+        assertEquals("Updated Notes", capturedSemesterPlan.getNotes());
+        assertEquals("2023 Fall", capturedSemesterPlan.getSemester());
     }
 
     @Test
