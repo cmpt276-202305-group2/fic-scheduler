@@ -8,6 +8,7 @@ import com.group2.server.repository.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -96,7 +98,7 @@ public class SemesterPlanControllerTest {
     }
 
     @Test
-    public void testReadListByQueryWithBadRequest() throws Exception {
+    public void testReadListByQueryExceptionCase() throws Exception {
         // Mock the repository to throw an exception when calling findAll()
         when(semesterPlanRepository.findAll()).thenThrow(new RuntimeException("Error occurred while fetching data"));
 
@@ -128,7 +130,7 @@ public class SemesterPlanControllerTest {
     }
 
     @Test
-    public void testReadOneByIdWithBadRequest() throws Exception {
+    public void testReadOneByIdExceptionCase() throws Exception {
         int semesterPlanId = 1;
     
         // Mock the repository to return an empty optional, simulating the id not found
@@ -138,7 +140,7 @@ public class SemesterPlanControllerTest {
         mockMvc.perform(get("/api/semester-plans/{id}", semesterPlanId))
                 .andExpect(status().isBadRequest());
     
-        // Verify that semesterPlanRepository.findById() was called once with the correct ID
+        // Verify that semesterPlanRepository.findById() was called once
         verify(semesterPlanRepository, times(1)).findById(semesterPlanId);
     }
 
@@ -203,23 +205,38 @@ public class SemesterPlanControllerTest {
                 .andExpect(jsonPath("$.semester").value("2023 Fall"));
 
         verify(semesterPlanRepository, times(1)).findById(semesterPlanId);
-        verify(semesterPlanRepository, times(1)).save(any());
+
+        ArgumentCaptor<SemesterPlan> semesterPlanCaptor = ArgumentCaptor.forClass(SemesterPlan.class);
+        verify(semesterPlanRepository, times(1)).save(semesterPlanCaptor.capture());
         verifyNoMoreInteractions(semesterPlanRepository);
+
+        // Verify the updated SemesterPlan data
+        SemesterPlan capturedSemesterPlan = semesterPlanCaptor.getValue();
+        assertEquals(1, capturedSemesterPlan.getId());
+        assertEquals("Updated Plan", capturedSemesterPlan.getName());
+        assertEquals("Updated Notes", capturedSemesterPlan.getNotes());
+        assertEquals("2023 Fall", capturedSemesterPlan.getSemester());
     }
 
     @Test
     public void testDeleteOneById() throws Exception {
-        // Mock the data to be deleted
-        int semesterPlanId = 1;
-        SemesterPlan deletedSemesterPlan = createMockSemesterPlan(semesterPlanId, "Plan 1", "Notes for Plan 1",
-                "2023 Spring");
-        when(semesterPlanRepository.findById(semesterPlanId)).thenReturn(Optional.of(deletedSemesterPlan));
-
         // Perform the request and verify the response
-        mockMvc.perform(delete("/api/semester-plans/{id}", semesterPlanId))
+        mockMvc.perform(delete("/api/semester-plans/{id}", 1))
                 .andExpect(status().isOk());
 
-        verify(semesterPlanRepository, times(1)).deleteById(semesterPlanId);
+        verify(semesterPlanRepository, times(1)).deleteById(1);
+        verifyNoMoreInteractions(semesterPlanRepository);
+    }
+
+    @Test
+    public void testDeleteOneByIdExceptionCase() throws Exception {
+
+        doThrow(IllegalArgumentException.class).when(semesterPlanRepository).deleteById(any(Integer.class));
+        // Perform the request and verify the response
+        mockMvc.perform(delete("/api/semester-plans/{id}", 1))
+                .andExpect(status().isBadRequest());
+
+        verify(semesterPlanRepository, times(1)).deleteById(any(Integer.class));
         verifyNoMoreInteractions(semesterPlanRepository);
     }
 
