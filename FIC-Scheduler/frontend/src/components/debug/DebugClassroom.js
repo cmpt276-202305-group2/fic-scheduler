@@ -79,7 +79,7 @@ export function DebugClassroom() {
       }}>
         <h2>Create/Update</h2>
         <p style={{ color: 'red' }}>{errorMessage}</p>
-        <table>
+        <table className={styles.DebugFormTable}>
           <tbody>
             <tr>
               <td><label htmlFor="form-id">ID</label></td>
@@ -103,7 +103,7 @@ export function DebugClassroom() {
               <td><label htmlFor="form-notes">Notes</label></td>
               <td><input id="form-notes" type="text" name="formNotes" value={formNotes}
                 onChange={(event) => setFormNotes(event.target.value)}
-                placeholder="" /></td>
+                placeholder="Don't update" size="50" /></td>
             </tr>
           </tbody>
         </table>

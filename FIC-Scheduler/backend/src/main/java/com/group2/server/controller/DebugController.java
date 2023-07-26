@@ -16,6 +16,8 @@ import lombok.*;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
@@ -160,7 +162,7 @@ public class DebugController {
             return result;
         try {
             var r = new Random(40);
-            var instructors = instructorRepository.findAll().toArray(new Instructor[0]);
+            ArrayList<Instructor> instructors = new ArrayList<>(instructorRepository.findAll().stream().toList());
             var ilsAllowedBlockSplits = blockRequirementSplitRepository.findByName(halfPeriodSmallRoom);
             var cmptLabAllowedBlockSplits = blockRequirementSplitRepository
                     .findByName(fullPeriodSmallRoomAndHalfPeriodComputerLab);
@@ -172,31 +174,26 @@ public class DebugController {
 
             for (var subject : subjects) {
                 // Shuffle instructor priorities for the subject
-                for (int i = 0; (i + 2) < instructors.length; ++i) {
-                    var j = (i + 1) + r.nextInt(instructors.length - (i + 1));
-                    var t = instructors[i];
-                    instructors[i] = instructors[j];
-                    instructors[j] = t;
-                }
+                Collections.shuffle(instructors, r);
 
                 var numCourses = subject.equals("ILS") || subject.equals("ALC") ? 1 : 6;
                 var numSections = 4;
                 var numberPart = subject.equals("ILS") ? 101 : (subject.equals("ALC") ? 99 : 100);
 
                 for (int i = 0; i < numCourses; ++i) {
-                    int minApprovedInstructors = Math.min((numSections + 1) / 2, instructors.length);
-                    int maxApprovedInstructors = Math.min(minApprovedInstructors + numSections, instructors.length);
-                    var approvedInstructors = new ArrayList<Instructor>(maxApprovedInstructors);
-                    for (int j = 0; (j < instructors.length)
+                    int minApprovedInstructors = Math.min((numSections + 1) / 2, instructors.size());
+                    int maxApprovedInstructors = Math.min(minApprovedInstructors + numSections, instructors.size());
+                    ArrayList<Instructor> approvedInstructors = new ArrayList<>(maxApprovedInstructors);
+                    for (int j = 0; (j < instructors.size())
                             && (approvedInstructors.size() < maxApprovedInstructors); ++j) {
                         if (r.nextBoolean()) {
-                            approvedInstructors.add(instructors[j]);
+                            approvedInstructors.add(instructors.get(j));
                         }
                     }
                     if (approvedInstructors.size() < minApprovedInstructors) {
                         approvedInstructors.clear();
                         for (int j = 0; j < minApprovedInstructors; ++j) {
-                            approvedInstructors.add(instructors[j]);
+                            approvedInstructors.add(instructors.get(j));
                         }
                     }
 
@@ -270,7 +267,67 @@ public class DebugController {
         if (result.getStatusCode() != HttpStatus.OK)
             return result;
         try {
-            semesterPlanRepository.save(new SemesterPlan(null, null, null, null, null, null, null, null, null));
+            var r = new Random(104);
+            final String name = "Debug Semester Plan";
+            final String semester = "Fall 2023";
+            final DayOfWeek[] weekDays = { DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY,
+                    DayOfWeek.FRIDAY };
+            final PartOfDay[] partsOfDay = { PartOfDay.MORNING, PartOfDay.AFTERNOON, PartOfDay.EVENING };
+            if (semesterPlanRepository.findBySemester(semester).size() == 0) {
+                var courseOfferings = Set.copyOf(courseOfferingRepository.findAll());
+                var classrooms = Set.copyOf(classroomRepository.findAll());
+                List<Instructor> instructors = instructorRepository.findAll();
+
+                Map<Instructor, Integer> instructorLoad = instructors.stream()
+                        .collect(Collectors.toMap(Function.identity(), i -> 0));
+                // count how many courses a particular instructor is approved to teach
+                for (CourseOffering course : courseOfferings) {
+                    for (Instructor instructor : course.getApprovedInstructors()) {
+                        instructorLoad.compute(instructor, (i, n) -> n + 1);
+                    }
+                }
+
+                var instructorAvailabilities = new ArrayList<InstructorAvailability>();
+                for (Instructor instructor : instructors) {
+                    // load is the number of courses this instructor is approved to teach
+                    int load = instructorLoad.get(instructor);
+
+                    List<DayOfWeek> availableDays = new ArrayList<>(List.of(weekDays));
+                    List<DayOfWeek> unavailableDays = new ArrayList<>();
+
+                    // as load goes up, the range of the nextInt() goes down, from a maximum of 5
+                    // (i.e. at most 4 unavailable days) to a minimum of 2 (at most 1).
+                    int numUnavailableDays = r
+                            .nextInt(weekDays.length - Math.min(load / 3, weekDays.length - 2));
+                    for (int i = 0; i < numUnavailableDays; ++i) {
+                        int d = r.nextInt(availableDays.size());
+                        unavailableDays.add(availableDays.get(d));
+                        availableDays.remove(d);
+                    }
+
+                    List<PartOfDay> availablePartsOfDay = new ArrayList<>(List.of(partsOfDay));
+                    List<PartOfDay> unavailablePartsOfDay = new ArrayList<>();
+
+                    // as load goes up, the probability of making another swathe of PartOfDays
+                    // unavailable goes down (to zero for load >= 10)
+                    int numUnavailablePartsOfDay = 1 + ((r.nextInt(10) >= load) ? 1 : 0);
+                    for (int i = 0; i < numUnavailablePartsOfDay; ++i) {
+                        int d = r.nextInt(availablePartsOfDay.size());
+                        unavailablePartsOfDay.add(availablePartsOfDay.get(d));
+                        availablePartsOfDay.remove(d);
+                    }
+
+                    for (int i = 0; i < availableDays.size(); ++i) {
+                        for (int j = 0; j < availablePartsOfDay.size(); ++j) {
+                            instructorAvailabilities.add(new InstructorAvailability(null, availableDays.get(i),
+                                    availablePartsOfDay.get(j), instructor));
+                        }
+                    }
+                }
+                semesterPlanRepository.save(
+                        new SemesterPlan(null, name, "Created by DebugController.populateTestSemesterPlan", semester,
+                                courseOfferings, Set.copyOf(instructorAvailabilities), classrooms, Set.of(), Set.of()));
+            }
             return new ResponseEntity<Void>(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

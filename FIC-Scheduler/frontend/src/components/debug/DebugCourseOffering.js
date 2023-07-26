@@ -21,8 +21,8 @@ export function DebugCourseOffering() {
     setFormName('');
     setFormCourseNumber('');
     setFormNotes('');
-    setFormApprovedInstructors('[]');
-    setFormAllowedBlockSplits('[]');
+    setFormApprovedInstructors('');
+    setFormAllowedBlockSplits('');
   }
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export function DebugCourseOffering() {
           <tr>
             <th key="0">id</th>
             <th key="1">name</th>
-            <th key="2">class number</th>
+            <th key="2">course number</th>
             <th key="3">notes</th>
             <th key="4">approved instructors</th>
             <th key="5">allowed block splits</th>
@@ -51,7 +51,7 @@ export function DebugCourseOffering() {
             <tr key={rowIndex}>
               <td key="0">{row.id}</td>
               <td key="1">{row.name}</td>
-              <td key="2">{row.classNumber}</td>
+              <td key="2">{row.courseNumber}</td>
               <td key="3">{row.notes}</td>
               <td key="4">{JSON.stringify(row.approvedInstructors)}</td>
               <td key="5">{JSON.stringify(row.allowedBlockSplits)}</td>
@@ -90,7 +90,7 @@ export function DebugCourseOffering() {
       }}>
         <h2>Create/Update</h2>
         <p style={{ color: 'red' }}>{errorMessage}</p>
-        <table>
+        <table className={styles.DebugFormTable}>
           <tbody>
             <tr>
               <td><label htmlFor="form-id">ID</label></td>
@@ -114,19 +114,19 @@ export function DebugCourseOffering() {
               <td><label htmlFor="form-notes">Notes</label></td>
               <td><input id="form-notes" type="text" name="formNotes" value={formNotes}
                 onChange={(event) => setFormNotes(event.target.value)}
-                placeholder="Don't update" /></td>
+                placeholder="Don't update" size="50" /></td>
             </tr>
             <tr>
               <td><label htmlFor="form-approved-instructors">Approved Instructors</label></td>
-              <td><input id="form-approved-instructors" type="text" name="formApprovedInstructors" value={formApprovedInstructors}
+              <td><textarea id="form-approved-instructors" name="formApprovedInstructors" value={formApprovedInstructors}
                 onChange={(event) => setFormApprovedInstructors(event.target.value)}
-                placeholder="Don't update" /></td>
+                placeholder="Don't update" rows="10" cols="50" /></td>
             </tr>
             <tr>
               <td><label htmlFor="form-allowed-block-splits">Allowed Block Splits</label></td>
-              <td><input id="form-allowed-block-splits" type="text" name="formAllowedBlockSplits" value={formAllowedBlockSplits}
+              <td><textarea id="form-allowed-block-splits" name="formAllowedBlockSplits" value={formAllowedBlockSplits}
                 onChange={(event) => setFormAllowedBlockSplits(event.target.value)}
-                placeholder="Don't update" /></td>
+                placeholder="Don't update" rows="10" cols="50" /></td>
             </tr>
           </tbody>
         </table>
