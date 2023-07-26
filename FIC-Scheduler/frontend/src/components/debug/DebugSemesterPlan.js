@@ -22,9 +22,9 @@ export function DebugSemesterPlan() {
     setFormName('');
     setFormNotes('');
     setFormSemester('');
-    setFormCoursesOffered('[]');
-    setFormInstructorsAvailable('[]');
-    setFormClassroomsAvailable('[]');
+    setFormCoursesOffered('');
+    setFormInstructorsAvailable('');
+    setFormClassroomsAvailable('');
   }
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export function DebugSemesterPlan() {
   var data = (<div>No semester plans</div>);
   if (((allSemesterPlans ?? null) !== null) && (allSemesterPlans instanceof Array)) {
     data = (
-      <table>
+      <table className={styles.DebugDataTable}>
         <thead>
           <tr>
             <th key="generate"></th>
@@ -67,9 +67,9 @@ export function DebugSemesterPlan() {
                   <td key="1">{row.name}</td>
                   <td key="2">{row.notes}</td>
                   <td key="3">{row.semester}</td>
-                  <td key="4">{JSON.stringify(row.coursesOffered)}</td>
-                  <td key="5">{JSON.stringify(row.instructorsAvailable)}</td>
-                  <td key="6">{JSON.stringify(row.classroomsAvailable)}</td>
+                  <td key="4"><pre>{JSON.stringify(row.coursesOffered, null, 2)}</pre></td>
+                  <td key="5"><pre>{JSON.stringify(row.instructorsAvailable, null, 2)}</pre></td>
+                  <td key="6"><pre>{JSON.stringify(row.classroomsAvailable, null, 2)}</pre></td>
                 </tr>
               );
             })
@@ -90,9 +90,9 @@ export function DebugSemesterPlan() {
           if (formName) semesterPlanObj.name = formName;
           if (formNotes) semesterPlanObj.notes = formNotes;
           if (formSemester) semesterPlanObj.semester = formSemester;
-          if (formCoursesOffered) semesterPlanObj.coursesOffered = JSON.stringify(formCoursesOffered);
-          if (formInstructorsAvailable) semesterPlanObj.instructorsAvailable = JSON.stringify(formInstructorsAvailable);
-          if (formClassroomsAvailable) semesterPlanObj.classroomsAvailable = JSON.stringify(formClassroomsAvailable);
+          if (formCoursesOffered) semesterPlanObj.coursesOffered = JSON.parse(formCoursesOffered);
+          if (formInstructorsAvailable) semesterPlanObj.instructorsAvailable = JSON.parse(formInstructorsAvailable);
+          if (formClassroomsAvailable) semesterPlanObj.classroomsAvailable = JSON.parse(formClassroomsAvailable);
         }
         catch (error) {
           setErrorMessage("Couldn't make query: " + error.message);
@@ -108,7 +108,7 @@ export function DebugSemesterPlan() {
       }}>
         <h2>Create/Update</h2>
         <p style={{ color: 'red' }}>{errorMessage}</p>
-        <table>
+        <table className={styles.DebugFormTable}>
           <tbody>
             <tr>
               <td><label htmlFor="form-id">ID</label></td>
@@ -126,7 +126,7 @@ export function DebugSemesterPlan() {
               <td><label htmlFor="form-notes">Notes</label></td>
               <td><input id="form-notes" type="text" name="formNotes" value={formNotes}
                 onChange={(event) => setFormNotes(event.target.value)}
-                placeholder="Don't update" /></td>
+                placeholder="Don't update" size="50" /></td>
             </tr>
             <tr>
               <td><label htmlFor="form-semester">Semester</label></td>
@@ -136,21 +136,21 @@ export function DebugSemesterPlan() {
             </tr>
             <tr>
               <td><label htmlFor="form-courses-offered">Courses Offered</label></td>
-              <td><input id="form-courses-offered" type="text" name="formCoursesOffered" value={formCoursesOffered}
+              <td><textarea id="form-courses-offered" name="formCoursesOffered" value={formCoursesOffered}
                 onChange={(event) => setFormCoursesOffered(event.target.value)}
-                placeholder="Don't update" /></td>
+                placeholder="Don't update" rows="10" cols="50" /></td>
             </tr>
             <tr>
               <td><label htmlFor="form-instructors-available">Instructors Available</label></td>
-              <td><input id="form-instructors-available" type="text" name="formInstructorsAvailable" value={formInstructorsAvailable}
+              <td><textarea id="form-instructors-available" name="formInstructorsAvailable" value={formInstructorsAvailable}
                 onChange={(event) => setFormInstructorsAvailable(event.target.value)}
-                placeholder="Don't update" /></td>
+                placeholder="Don't update" rows="10" cols="50" /></td>
             </tr>
             <tr>
               <td><label htmlFor="form-classrooms-available">Classrooms Available</label></td>
-              <td><input id="form-classrooms-available" type="text" name="formClassroomsAvailable" value={formClassroomsAvailable}
+              <td><textarea id="form-classrooms-available" name="formClassroomsAvailable" value={formClassroomsAvailable}
                 onChange={(event) => setFormClassroomsAvailable(event.target.value)}
-                placeholder="Don't update" /></td>
+                placeholder="Don't update" rows="10" cols="50" /></td>
             </tr>
           </tbody>
         </table>

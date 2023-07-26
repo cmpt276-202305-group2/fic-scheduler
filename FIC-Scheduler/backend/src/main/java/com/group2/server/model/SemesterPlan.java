@@ -1,6 +1,6 @@
 package com.group2.server.model;
 
-import java.util.Set;
+import java.util.*;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,4 +37,9 @@ public class SemesterPlan {
     @JoinTable(name = "classrooms_available_semester_plans", joinColumns = @JoinColumn(name = "semester_plan_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "classroom_available_id", referencedColumnName = "id"))
     private Set<Classroom> classroomsAvailable;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CourseCorequisite> courseCorequisites;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<InstructorSchedulingRequest> instructorSchedulingRequests;
 }

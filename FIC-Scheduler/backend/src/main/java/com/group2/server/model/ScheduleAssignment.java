@@ -23,18 +23,15 @@ public class ScheduleAssignment {
     @NonNull
     private PartOfDay partOfDay;
 
-    @ManyToOne
-    @JoinColumn(nullable = false)
+    @ManyToOne(optional = false)
     @NonNull
     private Classroom classroom;
 
-    @ManyToOne
-    @JoinColumn(nullable = false)
+    @ManyToOne(optional = false)
     @NonNull
     private CourseOffering course;
 
-    @ManyToOne
-    @JoinColumn(nullable = false)
+    @ManyToOne(optional = false)
     @NonNull
     private Instructor instructor;
 

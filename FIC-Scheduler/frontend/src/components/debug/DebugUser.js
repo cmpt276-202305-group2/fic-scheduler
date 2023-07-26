@@ -89,7 +89,7 @@ export function DebugUser() {
       }}>
         <h2>Create/Update</h2>
         <p style={{ color: 'red' }}>{errorMessage}</p>
-        <table>
+        <table className={styles.DebugFormTable}>
           <tbody>
             <tr>
               <td><label htmlFor="form-id">ID</label></td>

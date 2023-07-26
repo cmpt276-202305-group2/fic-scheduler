@@ -54,6 +54,9 @@ function Sidebar({ item, subitem }) {
               <li>
                 <BugReportIcon /> Debug Menu
               </li>
+              <li onClick={() => navigate("/debugMenu/actions")}>
+                &nbsp;&nbsp;&nbsp;<BugReportIcon /> Actions
+              </li>
               <li onClick={() => navigate("/debugMenu/blockSplit")}>
                 &nbsp;&nbsp;&nbsp;<BugReportIcon /> Block Splits
               </li>
