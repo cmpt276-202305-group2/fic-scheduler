@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.group2.server.model.*;
 import com.group2.server.repository.*;
 
+import lombok.*;
+
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Stream;
 
 @RestController
@@ -46,29 +49,44 @@ public class DebugController {
     private static final String[] firstNames = { "Olivia", "Sophia", "Amelia", "Emma", "Ava", "Charlotte", "Lily",
             "Hannah", "Nora", "Isabella", "Noah", "Liam", "Jackson", "Oliver", "Leo", "Lucas", "Luca", "Jack", "James",
             "Benjamin" };
-    private static final String[] lastNames = { "Smith", "Brown", "Tremblay", "Martin", "Roy", "Gagnon", "Lee",
-            "Wilson", "Johnson", "MacDonald", "Taylor", "Campbell", "Anderson", "Jones", "Leblanc", "Cote", "Williams",
-            "Miller", "Thompson", "Gauthier" };
+    private static final String[] lastNames = { "Tremblay", "Roy", "Gagnon", "MacDonald", "Leblanc", "Cote", "Gauthier",
+            "Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Garcia", "Rodriguez", "Wilson",
+            "Martinez", "Anderson", "Taylor", "Thomas", "Hernandez", "Moore", "Martin", "Jackson", "Thompson", "White",
+            "Lopez", "Lee", "Gonzalez", "Harris", "Clark", "Lewis", "Robinson", "Walker", "Perez", "Hall", "Young",
+            "Allen", "Sanchez", "Wright", "King", "Scott", "Green", "Baker", "Adams", "Nelson", "Hill", "Ramirez",
+            "Campbell", "Mitchell", "Roberts", "Carter", "Phillips", "Evans", "Turner", "Torres", "Parker", "Collins",
+            "Edwards", "Stewart", "Flores", "Morris", "Nguyen", "Murphy", "Rivera", "Cook", "Rogers", "Morgan",
+            "Peterson", "Cooper", "Reed", "Bailey", "Bell", "Gomez", "Kelly", "Howard", "Ward", "Cox", "Diaz",
+            "Richardson", "Wood", "Watson", "Brooks", "Bennett", "Gray", "James", "Reyes", "Cruz", "Hughes", "Price",
+            "Myers", "Long", "Foster", "Sanders", "Ross", "Morales", "Powell", "Sullivan", "Russell", "Ortiz",
+            "Jenkins", "Gutierrez", "Perry", "Butler", "Barnes", "Fisher" };
     private static final String[] fullNames = new String[60];
+
+    @Data
+    @AllArgsConstructor
+    private static class BlockRequirementTemplate {
+        private Set<String> allowedRoomTypes;
+        private Duration duration;
+    }
 
     private static final String halfPeriodSmallRoom = "Half period/small room";
     private static final String fullPeriodSmallRoom = "Full period/small room";
     private static final String fullPeriodLargeRoom = "Full period/large room";
     private static final String fullPeriodSmallRoomAndHalfPeriodComputerLab = "Full period/small room + half period/computer lab";
     private static final String fullPeriodSmallRoomAndFullPeriodScienceLab = "Full period/small room + full period/science lab";
-    private static final Map<String, List<BlockRequirement>> blockRequirements = Map.ofEntries(
+    private static final Map<String, List<BlockRequirementTemplate>> blockRequirements = Map.ofEntries(
             Map.entry(halfPeriodSmallRoom,
-                    List.of(new BlockRequirement(null, Set.of(roomTypeSmall), Duration.HALF))),
+                    List.of(new BlockRequirementTemplate(Set.of(roomTypeSmall), Duration.HALF))),
             Map.entry(fullPeriodSmallRoom,
-                    List.of(new BlockRequirement(null, Set.of(roomTypeSmall, roomTypeLarge), Duration.FULL))),
+                    List.of(new BlockRequirementTemplate(Set.of(roomTypeSmall, roomTypeLarge), Duration.FULL))),
             Map.entry(fullPeriodLargeRoom,
-                    List.of(new BlockRequirement(null, Set.of(roomTypeLarge), Duration.FULL))),
+                    List.of(new BlockRequirementTemplate(Set.of(roomTypeLarge), Duration.FULL))),
             Map.entry(fullPeriodSmallRoomAndHalfPeriodComputerLab,
-                    List.of(new BlockRequirement(null, Set.of(roomTypeSmall, roomTypeLarge), Duration.FULL),
-                            new BlockRequirement(null, Set.of(roomTypeComputerLab), Duration.HALF))),
+                    List.of(new BlockRequirementTemplate(Set.of(roomTypeSmall, roomTypeLarge), Duration.FULL),
+                            new BlockRequirementTemplate(Set.of(roomTypeComputerLab), Duration.HALF))),
             Map.entry(fullPeriodSmallRoomAndFullPeriodScienceLab,
-                    List.of(new BlockRequirement(null, Set.of(roomTypeSmall, roomTypeLarge), Duration.FULL),
-                            new BlockRequirement(null, Set.of(roomTypeScienceLab), Duration.FULL))));
+                    List.of(new BlockRequirementTemplate(Set.of(roomTypeSmall, roomTypeLarge), Duration.FULL),
+                            new BlockRequirementTemplate(Set.of(roomTypeScienceLab), Duration.FULL))));
     private static final Map<String, String> classrooms = Map.ofEntries(
             Map.entry("DISC1 2400 (L)", roomTypeLarge),
             Map.entry("DISC1 2420", roomTypeSmall),
@@ -101,9 +119,12 @@ public class DebugController {
     @PostMapping("/populate-test-blocks")
     public ResponseEntity<Void> populateTestBlocks() {
         try {
-            for (var e : blockRequirements.entrySet()) {
+            for (Entry<String, List<BlockRequirementTemplate>> e : blockRequirements.entrySet()) {
                 if (blockRequirementSplitRepository.findByName(e.getKey()).size() == 0) {
-                    blockRequirementSplitRepository.save(new BlockRequirementSplit(null, e.getKey(), e.getValue()));
+                    blockRequirementSplitRepository.save(new BlockRequirementSplit(null, e.getKey(),
+                            e.getValue().stream().map(
+                                    brt -> new BlockRequirement(null, brt.getAllowedRoomTypes(), brt.getDuration()))
+                                    .toList()));
                 }
             }
 
@@ -116,7 +137,7 @@ public class DebugController {
     @PostMapping("/populate-test-classrooms")
     public ResponseEntity<Void> populateTestClassrooms() {
         try {
-            for (var e : classrooms.entrySet()) {
+            for (Entry<String, String> e : classrooms.entrySet()) {
                 if (classroomRepository.findByRoomNumber(e.getKey()).size() == 0) {
                     classroomRepository.save(new Classroom(null, e.getKey(), e.getValue(),
                             "Created by DebugController.populateTestClassrooms"));
@@ -130,6 +151,13 @@ public class DebugController {
 
     @PostMapping("/populate-test-course-offerings")
     public ResponseEntity<Void> populateTestCourseOfferings() {
+        ResponseEntity<Void> result;
+        result = populateTestBlocks();
+        if (result.getStatusCode() != HttpStatus.OK)
+            return result;
+        result = populateTestInstructors();
+        if (result.getStatusCode() != HttpStatus.OK)
+            return result;
         try {
             var r = new Random(40);
             var instructors = instructorRepository.findAll().toArray(new Instructor[0]);
@@ -160,7 +188,7 @@ public class DebugController {
                     int maxApprovedInstructors = Math.min(minApprovedInstructors + numSections, instructors.length);
                     var approvedInstructors = new ArrayList<Instructor>(maxApprovedInstructors);
                     for (int j = 0; (j < instructors.length)
-                            && (approvedInstructors.size() >= maxApprovedInstructors); ++j) {
+                            && (approvedInstructors.size() < maxApprovedInstructors); ++j) {
                         if (r.nextBoolean()) {
                             approvedInstructors.add(instructors[j]);
                         }
@@ -184,9 +212,13 @@ public class DebugController {
                         allowedBlockSplits = genericAllowedBlockSplits;
                     }
                     for (int section = 0; section < numSections; ++section) {
+                        var name = String.format("%s%03d/O%d", subject, numberPart, section);
+                        var courseNumber = String.format("%s%03d", subject, numberPart);
+                        if (courseOfferingRepository.findByName(name).size() > 0)
+                            continue;
                         courseOfferingRepository.save(new CourseOffering(null,
-                                String.format("%s%03d/O%d", subject, numberPart, section),
-                                String.format("%s%03d", subject, numberPart),
+                                name,
+                                courseNumber,
                                 "Created by DebugController.populateTestCourseOfferings",
                                 Set.copyOf(approvedInstructors),
                                 allowedBlockSplits));
@@ -209,8 +241,9 @@ public class DebugController {
         try {
             var usedNames = new HashSet<String>();
             usedNames.addAll(instructorRepository.findAll().stream().map(i -> i.getName()).toList());
-            for (var name : fullNames) {
+            for (String name : fullNames) {
                 if (!usedNames.contains(name)) {
+                    usedNames.add(name);
                     instructorRepository
                             .save(new Instructor(null, name, "Created by DebugController.populateTestInstructors"));
                 }
@@ -223,6 +256,19 @@ public class DebugController {
 
     @PostMapping("/populate-test-semester-plan")
     public ResponseEntity<Void> populateTestSemesterPlan() {
+        ResponseEntity<Void> result;
+        result = populateTestBlocks();
+        if (result.getStatusCode() != HttpStatus.OK)
+            return result;
+        result = populateTestClassrooms();
+        if (result.getStatusCode() != HttpStatus.OK)
+            return result;
+        result = populateTestCourseOfferings();
+        if (result.getStatusCode() != HttpStatus.OK)
+            return result;
+        result = populateTestInstructors();
+        if (result.getStatusCode() != HttpStatus.OK)
+            return result;
         try {
             semesterPlanRepository.save(new SemesterPlan(null, null, null, null, null, null, null, null, null));
             return new ResponseEntity<Void>(HttpStatus.OK);

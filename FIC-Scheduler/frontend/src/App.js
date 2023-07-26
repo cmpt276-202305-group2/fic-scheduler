@@ -78,7 +78,11 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route
             path="/debugMenu"
-            element={<Navigate to="/debugMenu/semesterPlan" />}
+            element={<Navigate to="/debugMenu/actions" />}
+          />
+          <Route
+            path="/debugMenu/actions"
+            element={<DebugMenuPage subpage="actions" />}
           />
           <Route
             path="/debugMenu/blockSplit"
