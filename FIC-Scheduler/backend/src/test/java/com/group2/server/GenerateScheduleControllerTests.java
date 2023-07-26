@@ -75,7 +75,8 @@ public class GenerateScheduleControllerTests {
     }
 
     private SemesterPlan makeMockPlan(String semester) throws Exception {
-        return new SemesterPlan(1, "", "", semester, new HashSet<>(), new HashSet<>(), new HashSet<>());
+        return new SemesterPlan(1, "", "", semester, new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(),
+                new HashSet<>());
     }
 
     @Test

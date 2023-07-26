@@ -18,4 +18,6 @@ public class SemesterPlanDto {
     private List<EntityDto> coursesOffered;
     private List<InstructorAvailabilityDto> instructorsAvailable;
     private List<EntityDto> classroomsAvailable;
+    private List<CourseCorequisiteDto> courseCorequisites;
+    private List<InstructorSchedulingRequestDto> instructorSchedulingRequests;
 }

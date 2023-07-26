@@ -19,7 +19,7 @@ public class UserDto implements EntityDto {
 
     public static List<String> applicationUserRolesToDtoRoles(Set<Role> roles) {
         var strRoles = new ArrayList<String>();
-        for (var role : roles) {
+        for (Role role : roles) {
             strRoles.add(role.getAuthority());
         }
         strRoles.sort(Comparator.naturalOrder());

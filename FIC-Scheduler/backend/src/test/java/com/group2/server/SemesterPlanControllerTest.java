@@ -67,7 +67,10 @@ public class SemesterPlanControllerTest {
         Set<CourseOffering> coursesOffered = new HashSet<>();
         Set<InstructorAvailability> instructorsAvailable = new HashSet<>();
         Set<Classroom> classroomsAvailable = new HashSet<>();
-        return new SemesterPlan(id, name, notes, semester, coursesOffered, instructorsAvailable, classroomsAvailable);
+        Set<CourseCorequisite> courseCorequisites = new HashSet<>();
+        Set<InstructorSchedulingRequest> instructorSchedulingRequests = new HashSet<>();
+        return new SemesterPlan(id, name, notes, semester, coursesOffered, instructorsAvailable, classroomsAvailable,
+                courseCorequisites, instructorSchedulingRequests);
     }
 
     @Test
@@ -130,15 +133,16 @@ public class SemesterPlanControllerTest {
     @Test
     public void testReadOneByIdWithBadRequest() throws Exception {
         int semesterPlanId = 1;
-    
+
         // Mock the repository to return an empty optional, simulating the id not found
         when(semesterPlanRepository.findById(semesterPlanId)).thenReturn(Optional.empty());
-    
+
         // Perform the request and verify the response
         mockMvc.perform(get("/api/semester-plans/{id}", semesterPlanId))
                 .andExpect(status().isBadRequest());
-    
-        // Verify that semesterPlanRepository.findById() was called once with the correct ID
+
+        // Verify that semesterPlanRepository.findById() was called once with the
+        // correct ID
         verify(semesterPlanRepository, times(1)).findById(semesterPlanId);
     }
 
@@ -147,9 +151,9 @@ public class SemesterPlanControllerTest {
         // Mock the data to be sent in the request
         List<SemesterPlanDto> semesterPlanDtoList = new ArrayList<>();
         semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 1", "Notes for Plan 1", "2023 Spring",
-                new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 2", "Notes for Plan 2", "2023 Fall", new ArrayList<>(),
-                new ArrayList<>(), new ArrayList<>()));
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
 
         SemesterPlan savedSemesterPlans_1 = createMockSemesterPlan(1, "Plan 1", "Notes for Plan 1", "2023 Spring");
         SemesterPlan savedSemesterPlans_2 = createMockSemesterPlan(2, "Plan 2", "Notes for Plan 2", "2023 Fall");
@@ -182,7 +186,8 @@ public class SemesterPlanControllerTest {
         // Mock the data to be sent in the request
         int semesterPlanId = 1;
         SemesterPlanDto semesterPlanDto = new SemesterPlanDto(semesterPlanId, "Updated Plan", "Updated Notes",
-                "2023 Fall", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                "2023 Fall", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>());
 
         // Mock the data returned by the repository after updating
         SemesterPlan updatedSemesterPlan = createMockSemesterPlan(semesterPlanId, "Updated Plan", "Updated Notes",
