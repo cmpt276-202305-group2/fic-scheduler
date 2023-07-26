@@ -1,10 +1,25 @@
-import { Card } from "@mui/material";
+import {
+  Container,
+  Box,
+  Card,
+  Typography,
+  createTheme,
+  ThemeProvider,
+} from "@mui/material";
 import React, { useEffect, useState, useContext } from "react";
-import axios from 'axios';
-import styles from "./LogoutPage.module.css";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UserInfoContext } from "../App"; // Import UserInfoContext from App.js
-import { tokenConfig } from "../utils"
+import { tokenConfig } from "../utils";
+import { boxStyles, cardStyles } from "./LogoutPageStyles";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#0a5e28", // The dark green color you want for the button and the focus outline
+    },
+  },
+});
 
 function LogoutPage() {
   const navigate = useNavigate();
@@ -12,13 +27,11 @@ function LogoutPage() {
   const { setUserInfo } = useContext(UserInfoContext); // Access setUserInfo from UserInfoContext
 
   useEffect(() => {
-    // console.log("logout useEffect");
     setUserInfo(null);
 
-    axios.post('auth/logout', {}, tokenConfig())
-      .then((_response) => {
-        // console.log("Logout successful");
-      })
+    axios
+      .post("auth/logout", {}, tokenConfig())
+      .then((_response) => {})
       .catch((error) => {
         console.error(error);
       });
@@ -38,12 +51,20 @@ function LogoutPage() {
   }, [navigate, setUserInfo]);
 
   return (
-    <div className={styles.container}>
-      <Card className={styles.cardContainer}>
-        <h2>You have Successfully logged out</h2>
-        <p>Redirecting in {timer} seconds...</p>
-      </Card>
-    </div>
+    <ThemeProvider theme={theme}>
+      <Box sx={boxStyles}>
+        <Container maxWidth="sm">
+          <Card elevation={6} sx={cardStyles}>
+            <Typography variant="h5">
+              You have Successfully logged out
+            </Typography>
+            <Typography variant="body1">
+              Redirecting to login in {timer} seconds...
+            </Typography>
+          </Card>
+        </Container>
+      </Box>
+    </ThemeProvider>
   );
 }
 
