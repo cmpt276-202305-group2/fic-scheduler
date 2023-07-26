@@ -96,6 +96,19 @@ public class SemesterPlanControllerTest {
     }
 
     @Test
+    public void testReadListByQueryWithBadRequest() throws Exception {
+        // Mock the repository to throw an exception when calling findAll()
+        when(semesterPlanRepository.findAll()).thenThrow(new RuntimeException("Error occurred while fetching data"));
+
+        // Perform the request and verify the response
+        mockMvc.perform(get("/api/semester-plans"))
+                .andExpect(status().isBadRequest());
+
+        // Verify that semesterPlanRepository.findAll() was called once
+        verify(semesterPlanRepository, times(1)).findAll();
+    }
+
+    @Test
     public void testReadOneById() throws Exception {
         // Mock the data returned by the repository
         SemesterPlan mockSemesterPlan = createMockSemesterPlan(1, "Plan 1", "Notes for Plan 1", "2023 Spring");
@@ -112,6 +125,21 @@ public class SemesterPlanControllerTest {
 
         verify(semesterPlanRepository, times(1)).findById(1);
         verifyNoMoreInteractions(semesterPlanRepository);
+    }
+
+    @Test
+    public void testReadOneByIdWithBadRequest() throws Exception {
+        int semesterPlanId = 1;
+    
+        // Mock the repository to return an empty optional, simulating the id not found
+        when(semesterPlanRepository.findById(semesterPlanId)).thenReturn(Optional.empty());
+    
+        // Perform the request and verify the response
+        mockMvc.perform(get("/api/semester-plans/{id}", semesterPlanId))
+                .andExpect(status().isBadRequest());
+    
+        // Verify that semesterPlanRepository.findById() was called once with the correct ID
+        verify(semesterPlanRepository, times(1)).findById(semesterPlanId);
     }
 
     @Test
