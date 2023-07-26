@@ -45,16 +45,13 @@ const ImportInstructor = ({
   const handleSendToBackEnd = async () => {
     if (instructorSpreadsheetData.length > 0) {
       const jsonData = instructorSpreadsheetData.map((row) => {
-        return {
+        const data = {
+          id: null,
           name: row.name,
-          accreditationNames: [
-            row.accreditationNames1,
-            row.accreditationNames2,
-            row.accreditationNames3,
-            row.accreditationNames4,
-            row.accreditationNames5,
-          ].filter(Boolean),
+          notes: row.notes,
         };
+
+        return data;
       });
 
       try {
@@ -85,7 +82,7 @@ const ImportInstructor = ({
         showErrorMessage={showErrorMessage}
         isPreviewVisible={isPreviewVisible}
         handleSendToBackend={handleSendToBackEnd}
-        id="file-upload-one"
+        id={6}
         styles={styles}
       />
       <SpreadsheetTable

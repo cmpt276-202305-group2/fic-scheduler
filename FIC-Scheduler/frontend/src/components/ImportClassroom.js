@@ -45,20 +45,14 @@ const ImportClassroom = ({
   const handleSendToBackEnd = async () => {
     if (classroomSpreadsheetData.length > 0) {
       const jsonData = classroomSpreadsheetData.map((row) => {
-        return {
+        const data = {
+          id: null,
           roomNumber: row.roomNumber,
-          facilitesAvaliableNames: [
-            row.facilitesAvaliableNames1,
-            row.facilitesAvaliableNames2,
-            row.facilitesAvaliableNames3,
-            row.facilitesAvaliableNames4,
-            row.facilitesAvaliableNames5,
-            row.facilitesAvaliableNames6,
-            row.facilitesAvaliableNames7,
-            row.facilitesAvaliableNames8,
-            row.facilitesAvaliableNames9,
-          ].filter(Boolean),
+          facilitesAvaliableNames: row.roomType,
+          notes: row.notes,
         };
+
+        return data;
       });
 
       try {
@@ -89,7 +83,7 @@ const ImportClassroom = ({
         showErrorMessage={showErrorMessage}
         isPreviewVisible={isPreviewVisible}
         handleSendToBackend={handleSendToBackEnd}
-        id="file-upload-one"
+        id={3}
         styles={styles}
       />
       <SpreadsheetTable
