@@ -5,6 +5,7 @@ import {
   Typography,
   createTheme,
   ThemeProvider,
+  Button,
 } from "@mui/material";
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
@@ -25,6 +26,10 @@ function LogoutPage() {
   const navigate = useNavigate();
   const [timer, setTimer] = useState(5);
   const { setUserInfo } = useContext(UserInfoContext); // Access setUserInfo from UserInfoContext
+
+  const handleButtonClick = () => {
+    navigate("/login");
+  };
 
   useEffect(() => {
     setUserInfo(null);
@@ -61,6 +66,13 @@ function LogoutPage() {
             <Typography variant="body1">
               Redirecting to login in {timer} seconds...
             </Typography>
+            <Button
+              variant="contained"
+              sx={{ mt: 10, mb: 2, minHeight: "45px", width: "80%" }}
+              onClick={handleButtonClick}
+            >
+              Go to Login
+            </Button>
           </Card>
         </Container>
       </Box>

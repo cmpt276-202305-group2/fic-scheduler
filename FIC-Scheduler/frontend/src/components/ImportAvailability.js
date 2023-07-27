@@ -93,7 +93,7 @@ const ImportAvailabity = ({
         showErrorMessage={showErrorMessage}
         isPreviewVisible={isPreviewVisible}
         handleSendToBackend={handleSendToBackEnd}
-        id="file-upload-one"
+        id={2}
         styles={styles}
       />
       <SpreadsheetTable

@@ -5,9 +5,9 @@ import styles from "./FileImport.module.css";
 import { tokenConfig } from "../utils";
 import { FileUploader, SpreadsheetTable } from "./FileUploader";
 
-const ImportFacilities = ({
-  facilitiesSpreadsheetData,
-  setFacilitiesSpreadsheetData,
+const ImportAccreditation = ({
+  accreditationSpreadsheetData,
+  setAccreditationSpreadsheetData,
 }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
@@ -38,53 +38,67 @@ const ImportFacilities = ({
   const handleFileUpload = createFileUploadHandler(
     setSelectedFile,
     setShowErrorMessage,
-    setFacilitiesSpreadsheetData,
+    setAccreditationSpreadsheetData,
     setIsPreviewVisible
   );
 
   const handleSendToBackEnd = async () => {
-    if (facilitiesSpreadsheetData.length > 0) {
-      const jsonData = facilitiesSpreadsheetData.map((item) => ({
+    if (accreditationSpreadsheetData.length > 0) {
+      // Convert data to JSON format
+      const jsonData = accreditationSpreadsheetData.map((item) => ({
         name: item,
       }));
 
       try {
         const response = await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/api/facilites`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/accreditations`,
           jsonData,
-          tokenConfig()
+          tokenConfig(),
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
 
-        if (response.status === 200) {
-          const result = response.data;
-          console.log("File upload successful:", result);
+        if (response.status === 200 || response.status === 201) {
+          const responseData = response.data;
+          console.log("File upload successful. Response data:", responseData);
+        } else if (response.status === 409) {
+          // In case of conflicts (status code 409), the response data contains created and conflict accreditations
+          const responseData = response.data;
+          console.log("Conflict accreditations:", responseData.conflicts);
+          console.log(
+            "Successfully created accreditations:",
+            responseData.created
+          );
         } else {
           console.error("Error uploading Excel file:", response.statusText);
         }
       } catch (error) {
-        console.error("Error reading Excel file:", error);
+        console.error("Error sending JSON data to the backend:", error);
       }
     }
   };
 
   return (
     <div className={styles.tableHolder}>
-      <h2 className={styles.title}>Facilities</h2>
+      <h2 className={styles.title}>Accreditation</h2>
       <FileUploader
         selectedFile={selectedFile}
         handleFileUpload={handleFileUpload}
         showErrorMessage={showErrorMessage}
         isPreviewVisible={isPreviewVisible}
         handleSendToBackend={handleSendToBackEnd}
-        id="file-upload-one"
+        id={1}
         styles={styles}
       />
       <SpreadsheetTable
-        spreadsheetData={facilitiesSpreadsheetData}
+        spreadsheetData={accreditationSpreadsheetData}
         styles={styles}
       />
     </div>
   );
 };
 
-export default ImportFacilities;
+export default ImportAccreditation;
