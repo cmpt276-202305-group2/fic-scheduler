@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -79,6 +80,20 @@ public class InstructorControllerTest {
     }
 
     @Test
+    public void testReadListByQueryWithBadRequest() throws Exception {
+        // Mock the instructorRepository to throw a custom exception when findAll() is called
+        when(instructorRepository.findAll()).thenThrow(new RuntimeException("Something went wrong"));
+
+        // Perform the request and verify the response
+        mockMvc.perform(get("/api/instructors"))
+                .andExpect(status().isBadRequest());
+
+        // Verify that instructorRepository.findAll() was called once
+        verify(instructorRepository, times(1)).findAll();
+        verifyNoMoreInteractions(instructorRepository);
+    }
+
+    @Test
     public void testReadOneById() throws Exception {
         // Mock the data returned by the repository
         Instructor mockInstructor = new Instructor(1, "John Doe", "Mathematics");
@@ -94,6 +109,22 @@ public class InstructorControllerTest {
 
         // Verify that instructorRepository.findById() was called once
         verify(instructorRepository, times(1)).findById(1);
+        verifyNoMoreInteractions(instructorRepository);
+    }
+
+    @Test
+    public void testReadOneByIdNotFound() throws Exception {
+        int instructorId = 1;
+
+        // Mock the instructorRepository to return an empty optional when findById() is called
+        when(instructorRepository.findById(instructorId)).thenThrow(new RuntimeException("Instructor Not found"));
+
+        // Perform the request and verify the response
+        mockMvc.perform(get("/api/instructors/{id}", instructorId))
+                .andExpect(status().isBadRequest());
+
+        // Verify that instructorRepository.findById() was called once with the correct ID
+        verify(instructorRepository, times(1)).findById(instructorId);
         verifyNoMoreInteractions(instructorRepository);
     }
 
@@ -125,6 +156,24 @@ public class InstructorControllerTest {
 
         // Verify that instructorRepository.save() was called twice
         verify(instructorRepository, times(2)).save(any(Instructor.class));
+        verifyNoMoreInteractions(instructorRepository);
+    }
+
+    @Test
+    public void testCreateOrUpdateListBadRequest() throws Exception {
+        // Mock the data to be sent in the request
+        List<InstructorDto> instructorDtoList = new ArrayList<>();
+        instructorDtoList.add(new InstructorDto(null, null, "Notes"));
+        instructorDtoList.add(new InstructorDto(null, "Jane Smith", null));
+
+        // Perform the request and verify the response
+        mockMvc.perform(post("/api/instructors")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(instructorDtoList)))
+                .andExpect(status().isBadRequest());
+
+        // Verify that instructorRepository.saveAll() was called once with the correct list of instructors
+        verify(instructorRepository, times(1)).save(any());
         verifyNoMoreInteractions(instructorRepository);
     }
 
@@ -166,6 +215,22 @@ public class InstructorControllerTest {
     }
 
     @Test
+    public void testUpdateOneByIdBadRequest() throws Exception {
+        int instructorId = 1;
+        InstructorDto instructorDto = new InstructorDto(2, "John Doe", "Notes");
+
+        // Perform the request and verify the response
+        mockMvc.perform(put("/api/instructors/{id}", instructorId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(instructorDto)))
+                .andExpect(status().isBadRequest());
+
+        // Verify that instructorRepository.findById() was not called because of the mismatch in the ID
+        verify(instructorRepository, times(0)).findById(instructorId);
+        verifyNoMoreInteractions(instructorRepository);
+    }
+
+    @Test
     public void testDeleteOneById() throws Exception {
 
         // Perform the request and verify the response
@@ -174,6 +239,19 @@ public class InstructorControllerTest {
 
         // Verify that instructorRepository.deleteById() was called once
         verify(instructorRepository, times(1)).deleteById(1);
+        verifyNoMoreInteractions(instructorRepository);
+    }
+
+    @Test
+    public void testDeleteOneByIdExceptionCase() throws Exception {
+
+        doThrow(IllegalArgumentException.class).when(instructorRepository).deleteById(any(Integer.class));
+
+        // Perform the request and verify the response
+        mockMvc.perform(delete("/api/instructors/{id}", 1))
+                .andExpect(status().isBadRequest());
+
+        verify(instructorRepository, times(1)).deleteById(any(Integer.class));
         verifyNoMoreInteractions(instructorRepository);
     }
 
