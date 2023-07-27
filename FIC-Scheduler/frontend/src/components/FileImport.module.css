@@ -1,74 +1,75 @@
 .container {
-  margin-top: 20px;
+    margin-top: 20px;
 }
 
 .fileInput {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .tableWrapper {
-  max-width: 100%;
-  overflow-x: auto;
-  height: 600px;
+    max-width: 100%;
+    overflow-x: auto;
+    height: 600px;
 }
 
 .title {
-  color: black;
-  font-size: 30px;
-  position: sticky;
-  left: 0;
-  margin-top: -10px;
-  margin-bottom: 5px;
-  font-weight: bold;
+    color: black;
+    font-size: 30px;
+    position: sticky;
+    text-align: left;
+    left: 0;
+    margin-top: -10px;
+    margin-bottom: 5px;
+    font-weight: bold;
 }
 
 .tableHolder {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 30px;
-  border: 3px solid #417A1A;
-  border-radius: 5px;
-  padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    border: 3px solid #417A1A;
+    border-radius: 5px;
+    padding: 10px;
 }
 
 .table {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
 }
 
 th,
 td {
-  padding: 8px;
-  border: 1px solid #ddd;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    padding: 8px;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .emptyMessage {
-  margin-top: 5px;
-  font-style: italic;
-  font-size: 15px;
-  color: #888;
+    margin-top: 5px;
+    font-style: italic;
+    font-size: 15px;
+    color: #888;
 }
 
 .fileUploadInput {
-  width: 200px;
-  height: 36px;
-  margin-bottom: 8.5px;
-  margin-right: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 5px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-size: 15px;
+    width: 200px;
+    height: 36px;
+    margin-bottom: 8.5px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 15px;
 }
 
 .cell {
-  font-weight: bold;
-  background-color: #f0f0f0;
+    font-weight: bold;
+    background-color: #f0f0f0;
 }
