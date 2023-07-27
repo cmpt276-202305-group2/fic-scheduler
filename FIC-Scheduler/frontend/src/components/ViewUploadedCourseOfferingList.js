@@ -15,28 +15,40 @@ import { tokenConfig } from "../utils";
 export function ViewUploadedCourseOfferingList() {
   const [allCourseOfferings, setAllCourseOfferings] = useState(null);
   const [instructorsMap, setInstructorsMap] = useState({});
+  const [blocksMap, setBlocksMap] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [courseOfferingsResponse, instructorsResponse] =
+        const [courseOfferingsResponse, instructorsResponse, blocksResponse] =
           await Promise.all([
             axios.get("api/course-offerings", tokenConfig()),
             axios.get("api/instructors", tokenConfig()),
+            axios.get("api/block-splits", tokenConfig()),
           ]);
 
         setAllCourseOfferings(courseOfferingsResponse.data);
 
+        //this is how the mapping should look like
         const instructorsData = instructorsResponse.data;
         const instructorsById = instructorsData.reduce((acc, instructor) => {
           acc[instructor.id] = instructor;
           return acc;
         }, {});
         setInstructorsMap(instructorsById);
+
+        //this is similar but gon be for blocks
+        const blocksData = blocksResponse.data;
+        const blocksById = blocksData.reduce((acc, block) => {
+          acc[block.id] = block;
+          return acc;
+        }, {});
+        setBlocksMap(blocksById);
       } catch (error) {
         console.error("Error fetching data:", error);
         setAllCourseOfferings(null);
         setInstructorsMap({});
+        setBlocksMap({});
       }
     };
 
@@ -45,6 +57,10 @@ export function ViewUploadedCourseOfferingList() {
 
   const getInstructorName = (instructorId) => {
     return instructorsMap[instructorId]?.name || "N/A";
+  };
+
+  const getBlockName = (blockId) => {
+    return blocksMap[blockId]?.name || "N/A";
   };
 
   var data = <h3>No Data</h3>;
@@ -135,7 +151,12 @@ export function ViewUploadedCourseOfferingList() {
                     ))}
                   </TableCell>
                   <TableCell key="5">
-                    {JSON.stringify(row.allowedBlockSplits)}
+                    {row.allowedBlockSplits.map((block) => (
+                      <span key={block.id}>
+                        {getBlockName(block.id)}
+                        <br />
+                      </span>
+                    ))}
                   </TableCell>
                 </TableRow>
               ))}
