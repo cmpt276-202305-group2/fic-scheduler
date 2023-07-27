@@ -1,5 +1,6 @@
 package com.group2.server;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +32,7 @@ public class GenerateScheduleControllerTests {
     private MockMvc mockMvc;
 
     @MockBean
-    private ScheduleRepository classScheduleRepository;
+    private ScheduleRepository scheduleRepository;
 
     @MockBean
     private SemesterPlanRepository semesterPlanRepository;
@@ -83,6 +84,11 @@ public class GenerateScheduleControllerTests {
     public void testGenerateSchedule() throws Exception {
         //Mock the repository call
         when(semesterPlanRepository.findById(1)).thenReturn(Optional.ofNullable(mockPlan));
+        when(scheduleRepository.save(any())).thenAnswer(
+            i -> {
+                var sched = (Schedule)i.getArgument(0);
+                return sched;
+            });
 
         // Perform the request and verify the response
         mockMvc.perform(MockMvcRequestBuilders.post("/api/generate-schedule")

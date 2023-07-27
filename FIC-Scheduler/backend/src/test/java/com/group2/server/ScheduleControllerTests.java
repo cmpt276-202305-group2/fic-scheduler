@@ -37,7 +37,7 @@ public class ScheduleControllerTests {
     private MockMvc mockMvc;
 
     @MockBean
-    private ScheduleRepository classScheduleRepository;
+    private ScheduleRepository scheduleRepository;
 
     @MockBean
     private SemesterPlanRepository semesterPlanRepository;
@@ -87,7 +87,7 @@ public class ScheduleControllerTests {
     @Test
     public void testGetLatestSchedule() throws Exception {
         // Mock the data returned by the repository
-        when(classScheduleRepository.findAll()).thenReturn(List.of(mockSchedule));
+        when(scheduleRepository.findAll()).thenReturn(List.of(mockSchedule));
 
         // Perform the request
         mockMvc.perform(MockMvcRequestBuilders.get("/api/schedules/latest")
@@ -103,7 +103,7 @@ public class ScheduleControllerTests {
     public void testGetScheduleById() throws Exception {
         // Mock the data returned by the repository
         int scheduleId = 1;
-        when(classScheduleRepository.findById(scheduleId)).thenReturn(Optional.ofNullable(mockSchedule));
+        when(scheduleRepository.findById(scheduleId)).thenReturn(Optional.ofNullable(mockSchedule));
 
         // Perform the request and verify the response
         mockMvc.perform(MockMvcRequestBuilders.get("/api/schedules/{id}", scheduleId)
@@ -118,7 +118,7 @@ public class ScheduleControllerTests {
     @Test
     public void testGetSchedulesByQuery() throws Exception {
         // Mock the data returned by the repository
-        when(classScheduleRepository.findBySemester(anyString())).thenReturn(new HashSet<>(List.of(mockSchedule)));
+        when(scheduleRepository.findBySemester(anyString())).thenReturn(new HashSet<>(List.of(mockSchedule)));
     
         // Perform the request and verify the response
         mockMvc.perform(MockMvcRequestBuilders.get("/api/schedules").param("semester", "Fall 2023")

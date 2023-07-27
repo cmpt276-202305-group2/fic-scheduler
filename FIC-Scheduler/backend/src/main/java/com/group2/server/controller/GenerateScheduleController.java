@@ -16,7 +16,8 @@ import com.google.ortools.sat.CpSolverStatus;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
 import com.google.ortools.sat.Literal;
-import com.group2.server.dto.GenerateScheduleDto;
+
+import com.group2.server.dto.*;
 import com.group2.server.model.*;
 import com.group2.server.repository.*;
 
@@ -29,12 +30,15 @@ public class GenerateScheduleController {
     private ScheduleRepository scheduleRepository;
 
     @Autowired
+    private ScheduleController scheduleController;
+
+    @Autowired
     private SemesterPlanRepository semesterPlanRepository;
 
     private final Pattern baseNamePattern = Pattern.compile("^(.*?)(?>\\s*-\\s*[0-9]+)?$");
 
     @PostMapping("/generate-schedule")
-    public ResponseEntity<Void> generateSchedule(@RequestBody GenerateScheduleDto generateScheduleDto) {
+    public ResponseEntity<ScheduleDto> generateSchedule(@RequestBody GenerateScheduleDto generateScheduleDto) {
         try {
             Schedule sched = new Schedule();
             Integer planId = generateScheduleDto.getSemesterPlan().getId();
@@ -79,9 +83,9 @@ public class GenerateScheduleController {
                 assignments.add(new ScheduleAssignment(null, dayOfWeek, partOfDay, classroom, course, instructor));
             }
             sched.setAssignments(assignments);
-            scheduleRepository.save(sched);
+            sched = scheduleRepository.save(sched);
 
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(scheduleController.toDto(sched), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
