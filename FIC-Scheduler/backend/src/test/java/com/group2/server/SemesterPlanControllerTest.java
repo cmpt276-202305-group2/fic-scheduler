@@ -184,6 +184,27 @@ public class SemesterPlanControllerTest {
     }
 
     @Test
+    public void testCreateOrUpdateListExceptionCase() throws Exception {
+        // Mock the repository to throw an exception when saving
+        when(semesterPlanRepository.save(any(SemesterPlan.class))).thenThrow(new RuntimeException());
+    
+        // Mock the data in the request body, where the first SemesterPlanDto is valid,
+        // and the second one will cause an exception when trying to save it
+        List<SemesterPlanDto> semesterPlanDtoList = new ArrayList<>();
+        semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 1", "Notes for Plan 1", "Fall 2023", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList(), new ArrayList()));
+        semesterPlanDtoList.add(new SemesterPlanDto(null, "Invalid Plan", "Invalid Notes", "Invalid Semester", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList(), new ArrayList()));
+    
+        // Perform the request and verify the response
+        mockMvc.perform(post("/api/semester-plans")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(semesterPlanDtoList)))
+                .andExpect(status().isBadRequest());
+    
+        // Verify that semesterPlanRepository.save() was called once with the correct entity
+        verify(semesterPlanRepository, times(1)).save(any(SemesterPlan.class));
+    }
+
+    @Test
     public void testUpdateOneById() throws Exception {
         // Mock the data to be sent in the request
         int semesterPlanId = 1;
@@ -221,6 +242,22 @@ public class SemesterPlanControllerTest {
         assertEquals("Updated Plan", capturedSemesterPlan.getName());
         assertEquals("Updated Notes", capturedSemesterPlan.getNotes());
         assertEquals("2023 Fall", capturedSemesterPlan.getSemester());
+    }
+
+    @Test
+    public void testUpdateOneByIdExceptionCase() throws Exception {
+        int semesterPlanId = 1;
+        SemesterPlanDto semesterPlanDto = new SemesterPlanDto(2, "Plan 1", "Notes for Plan 1", "Fall 2023", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),  new ArrayList(), new ArrayList());
+
+        // Perform the request and verify the response
+        mockMvc.perform(put("/api/semester-plans/{id}", semesterPlanId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(semesterPlanDto)))
+                .andExpect(status().isBadRequest());
+
+        // Verify that semesterPlanRepository.findById() was not called
+        verify(semesterPlanRepository, times(0)).findById(semesterPlanId);
+        verifyNoInteractions(semesterPlanRepository);
     }
 
     @Test
