@@ -2,24 +2,22 @@ package com.group2.server.controller;
 
 import java.util.*;
 import java.util.regex.*;
-import java.util.stream.IntStream;
+// import java.util.stream.*;
 
+import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.google.ortools.sat.CpModel;
-import com.google.ortools.sat.CpSolver;
-import com.google.ortools.sat.CpSolverSolutionCallback;
-import com.google.ortools.sat.CpSolverStatus;
-import com.google.ortools.sat.LinearExpr;
-import com.google.ortools.sat.LinearExprBuilder;
-import com.google.ortools.sat.Literal;
+import com.google.ortools.Loader;
+import com.google.ortools.sat.*;
 
 import com.group2.server.dto.*;
 import com.group2.server.model.*;
 import com.group2.server.repository.*;
+
+import lombok.*;
 
 @RestController
 @RequestMapping("/api")
@@ -40,7 +38,6 @@ public class GenerateScheduleController {
     @PostMapping("/generate-schedule")
     public ResponseEntity<ScheduleDto> generateSchedule(@RequestBody GenerateScheduleDto generateScheduleDto) {
         try {
-            Schedule sched = new Schedule();
             Integer planId = generateScheduleDto.getSemesterPlan().getId();
             SemesterPlan plan = planId != null ? semesterPlanRepository.findById(planId).orElse(null) : null;
 
@@ -48,170 +45,282 @@ public class GenerateScheduleController {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
 
-            var scheduleNames = Set.copyOf(scheduleRepository.findAll().stream().map(s -> s.getName()).toList());
-            String name = plan.getName();
-            if (scheduleNames.contains(name)) {
-                String baseName = name;
-                Matcher nameMatcher = baseNamePattern.matcher(name);
-                if (nameMatcher.matches()) {
-                    baseName = nameMatcher.group(1);
-                }
-                for (int i = 1; scheduleNames.contains(name); ++i) {
-                    name = String.format("%s - %d", baseName, i);
-                }
+            var generator = new ScheduleGenerator(plan);
+            List<Schedule> schedules = generator.generate();
+            Schedule schedule;
+            if (schedules.size() > 0) {
+                schedule = schedules.get(0);
+            } else {
+                schedule = new Schedule();
+                schedule.setNotes("Unable to generate a schedule! Check for irreconcilable conflicts.");
             }
 
-            sched.setName(name);
-            sched.setNotes(String.format("Generated schedule from %s (%s):\n%s", plan.getName(), plan.getSemester(),
-                    plan.getNotes()));
-            sched.setSemester(plan.getSemester());
+            schedule = setupScheduleMetadata(plan, schedule);
+            schedule = scheduleRepository.save(schedule);
+            var scheduleDto = scheduleController.toDto(schedule);
 
-            // TODO test code just generates a random schedule -- make it real
-            HashSet<ScheduleAssignment> assignments = new HashSet<>();
-            var r = new Random();
-            var daysOfWeek = new DayOfWeek[] { DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
-                    DayOfWeek.THURSDAY, DayOfWeek.FRIDAY };
-            var partsOfDay = new PartOfDay[] { PartOfDay.MORNING, PartOfDay.AFTERNOON, PartOfDay.EVENING };
-            var classrooms = plan.getClassroomsAvailable().toArray(new Classroom[0]);
-            var instructor_availabilities = plan.getInstructorsAvailable().toArray(new InstructorAvailability[0]);
-
-            for (var course : plan.getCoursesOffered()) {
-                var dayOfWeek = daysOfWeek[r.nextInt(partsOfDay.length)];
-                var partOfDay = partsOfDay[r.nextInt(partsOfDay.length)];
-                var classroom = classrooms[r.nextInt(classrooms.length)];
-                var instructor = instructor_availabilities[r.nextInt(instructor_availabilities.length)].getInstructor();
-                assignments.add(new ScheduleAssignment(null, dayOfWeek, partOfDay, classroom, course, instructor));
-            }
-            sched.setAssignments(assignments);
-            sched = scheduleRepository.save(sched);
-
-            return new ResponseEntity<>(scheduleController.toDto(sched), HttpStatus.OK);
+            return new ResponseEntity<>(scheduleDto, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    int numNurses = 4;
-    int numDays = 3;
-    int numShifts = 3;
+    private Schedule setupScheduleMetadata(SemesterPlan plan, Schedule schedule) {
+        Set<String> scheduleNames = Set.copyOf(scheduleRepository.findAll().stream().map(s -> s.getName()).toList());
+        String name = plan.getName();
+        if (scheduleNames.contains(name)) {
+            String baseName = name;
+            Matcher nameMatcher = baseNamePattern.matcher(name);
+            if (nameMatcher.matches()) {
+                baseName = nameMatcher.group(1);
+            }
+            for (int i = 1; scheduleNames.contains(name); ++i) {
+                name = String.format("%s - %d", baseName, i);
+            }
+        }
 
-    int[] allNurses = IntStream.range(0, numNurses).toArray();
-    int[] allDays = IntStream.range(0, numDays).toArray();
-    int[] allShifts = IntStream.range(0, numShifts).toArray();
+        schedule.setName(name);
+        if ((schedule.getNotes() != null) && (schedule.getNotes().length() > 0)) {
+            schedule.setNotes(schedule.getNotes() + "\n\n");
+        }
+        schedule.setNotes((Optional.of(schedule.getNotes()).orElse(""))
+                + String.format("Generated schedule from %s (%s):\n%s", plan.getName(), plan.getSemester(),
+                        plan.getNotes()));
+        schedule.setSemester(plan.getSemester());
 
-    public void orSample() {
+        return schedule;
+    }
+
+    private class ScheduleGenerator {
+        @Data
+        @AllArgsConstructor
+        private static class Block {
+            private DayOfWeek dayOfWeek;
+            private PartOfDay partOfDay;
+        }
+
+        @Data
+        @AllArgsConstructor
+        private static class Slot {
+            private Literal slotAllocated;
+            private DayOfWeek dayOfWeek;
+            private PartOfDay partOfDay;
+            private Classroom classroom;
+            private CourseOffering course;
+            private Instructor instructor;
+        }
+
+        // private static final DayOfWeek[] daysOfWeek = new DayOfWeek[] {
+        // DayOfWeek.MONDAY, DayOfWeek.TUESDAY,
+        // DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY };
+        // private static final PartOfDay[] partsOfDay = new PartOfDay[] {
+        // PartOfDay.MORNING_EARLY, PartOfDay.MORNING_LATE,
+        // PartOfDay.AFTERNOON_EARLY, PartOfDay.AFTERNOON_LATE, PartOfDay.EVENING_EARLY,
+        // PartOfDay.EVENING_LATE };
+        // private static final Block[] blocks = Stream.of(daysOfWeek)
+        // .flatMap(d -> Stream.of(partsOfDay).map(p -> new Block(d,
+        // p))).toArray(Block[]::new);
+
+        private CourseOffering[] coursesOffered;
+        // private Classroom[] classrooms;
+        // private InstructorAvailability[] instructorAvailabilities;
+        // HashMap<String, List<Classroom>> classroomsByType;
+
         CpModel model = new CpModel();
-
-        Literal[][][] shifts = new Literal[numNurses][numDays][numShifts];
-        for (int n : allNurses) {
-            for (int d : allDays) {
-                for (int s : allShifts) {
-                    shifts[n][d][s] = model.newBoolVar("shifts_n" + n + "d" + d + "s" + s);
-                }
-            }
-        }
-
-        for (int d : allDays) {
-            for (int s : allShifts) {
-                List<Literal> nurses = new ArrayList<>();
-                for (int n : allNurses) {
-                    nurses.add(shifts[n][d][s]);
-                }
-                model.addExactlyOne(nurses);
-            }
-        }
-
-        for (int n : allNurses) {
-            for (int d : allDays) {
-                List<Literal> work = new ArrayList<>();
-                for (int s : allShifts) {
-                    work.add(shifts[n][d][s]);
-                }
-                model.addAtMostOne(work);
-            }
-        }
-
-        // Try to distribute the shifts evenly, so that each nurse works
-        // minShiftsPerNurse shifts. If this is not possible, because the total
-        // number of shifts is not divisible by the number of nurses, some nurses will
-        // be assigned one more shift.
-        int minShiftsPerNurse = (numShifts * numDays) / numNurses;
-        int maxShiftsPerNurse;
-        if ((numShifts * numDays) % numNurses == 0) {
-            maxShiftsPerNurse = minShiftsPerNurse;
-        } else {
-            maxShiftsPerNurse = minShiftsPerNurse + 1;
-        }
-        for (int n : allNurses) {
-            LinearExprBuilder shiftsWorked = LinearExpr.newBuilder();
-            for (int d : allDays) {
-                for (int s : allShifts) {
-                    shiftsWorked.add(shifts[n][d][s]);
-                }
-            }
-            model.addLinearConstraint(shiftsWorked, minShiftsPerNurse, maxShiftsPerNurse);
-        }
-
         CpSolver solver = new CpSolver();
-        solver.getParameters().setLinearizationLevel(0);
-        // Tell the solver to enumerate all solutions.
-        solver.getParameters().setEnumerateAllSolutions(true);
 
-        final int solutionLimit = 5;
-        class VarArraySolutionPrinterWithLimit extends CpSolverSolutionCallback {
-            public VarArraySolutionPrinterWithLimit(
-                    int[] allNurses, int[] allDays, int[] allShifts, Literal[][][] shifts, int limit) {
-                solutionCount = 0;
-                this.allNurses = allNurses;
-                this.allDays = allDays;
-                this.allShifts = allShifts;
-                this.shifts = shifts;
-                solutionLimit = limit;
+        private ArrayList<Slot> allSlots = new ArrayList<>();
+
+        public ScheduleGenerator(SemesterPlan plan) {
+            Loader.loadNativeLibraries();
+
+            coursesOffered = plan.getCoursesOffered().toArray(CourseOffering[]::new);
+            // classrooms = plan.getClassroomsAvailable().toArray(Classroom[]::new);
+            // instructorAvailabilities =
+            // plan.getInstructorsAvailable().toArray(InstructorAvailability[]::new);
+            // classroomsByType = makeClassroomsByTypeMap(classrooms);
+
+            prepareModel();
+        }
+
+        // private HashMap<String, List<Classroom>> makeClassroomsByTypeMap(Classroom[]
+        // classrooms) {
+        // HashMap<String, List<Classroom>> classroomsByType = new HashMap<>();
+        // for (Classroom classroom : classrooms) {
+        // classroomsByType.compute(classroom.getRoomType(), (t, list) -> {
+        // if (list == null) {
+        // list = new ArrayList<Classroom>();
+        // }
+        // list.add(classroom);
+        // return list;
+        // });
+        // }
+        // return classroomsByType;
+        // }
+
+        private void prepareModel() {
+            // For the basic assignment task:
+            //
+            // There's one variable for each possible assignment of:
+            // - a particular course to be taught by
+            // - a particular instructor,
+            // - in a particular block,
+            // - in a particular room.
+            //
+            // If that instructor is teaching that course at that time, the variable
+            // corresponding to that particular assignment has value 1, otherwise 0.
+            //
+            // Satisfaction of the basic constraint that each course must have a timeslot,
+            // instructor, and room are achieved by, for each attribute, summing over all
+            // the possible assignments of that attribute and applying an "exactly 1"
+            // constraint. Other basic constraints like "an instructor can only be assigned
+            // to one course in a particular timeslot" or "two courses can't be taught in
+            // the same room at the same time" are mostly modeled by taking sums of
+            // different combinations of variables and applying "at most 1" constraints to
+            // them.
+
+            // Set of constraints: "exactly one" by course
+            HashMap<Integer, ArrayList<Literal>> variablesByCourse = new HashMap<>();
+            // HashMap<Integer, List<Literal>> variablesByBlock;
+            // Set of constraints: "at most one" by instructor-block
+            HashMap<Integer, ArrayList<Literal>> variablesByInstructorBlock = new HashMap<>();
+            // Set of constraints: "at most one" by room-block
+            // HashMap<Integer, List<Literal>> variablesByClassroom;
+
+            // Literal[] lits = new Literal[] { model.newBoolVar("a"),
+            // model.newBoolVar("b"),
+            // model.newBoolVar("c"),
+            // model.newBoolVar("d") };
+            // model.addExactlyOne(lits);
+            // model.addAtMostOne(new Literal[] { lits[0], lits[1] });
+            // model.addAtMostOne(new Literal[] { lits[2], lits[3] });
+            // for (Literal lit : lits) {
+            // allSlots.add(
+            // new Slot(lit, DayOfWeek.MONDAY, PartOfDay.MORNING,
+            // new Classroom(null, "room" + lit.getIndex(), "Small", ""),
+            // new CourseOffering(null, "CMPT100/O1", "CMPT100", "", Set.of(), Set.of()),
+            // new Instructor(null, "instructor", "")));
+            // }
+
+            Classroom classroom = new Classroom(null, "The Room", "Small", "");
+            for (CourseOffering course : coursesOffered) {
+                ArrayList<Literal> courseVars = variablesByCourse.compute(course.getId(),
+                        (k, v) -> v != null ? v : new ArrayList<>());
+                for (Instructor instructor : course.getApprovedInstructors()) {
+                    for (int block = 0; block < 5; ++block) {
+                        int instructorBlockId = instructor.getId() * 5 + block;
+                        ArrayList<Literal> instructorVars = variablesByInstructorBlock.compute(instructorBlockId,
+                                (k, v) -> v != null ? v : new ArrayList<>());
+                        Literal lit = model.newBoolVar(String.format("b%di%dc%d", block, instructor.getId(),
+                                course.getId()));
+                        courseVars.add(lit);
+                        instructorVars.add(lit);
+                        allSlots.add(new Slot(lit, DayOfWeek.values()[block], PartOfDay.MORNING, classroom, course,
+                                instructor));
+                    }
+                    // for (BlockRequirementSplit blockReqSplit : course.getAllowedBlockSplits())
+                    // {
+                    // for (BlockRequirement blockReq : blockReqSplit.getBlocks()) {
+                    // // for (String roomType : blockReq.getAllowedRoomTypes()) { for (Classroom
+                    // // classroom :...
+                    // switch (blockReq.getDuration()) {
+                    // case HALF: {
+                    // break;
+                    // }
+                    // case FULL: {
+                    // break;
+                    // }
+                    // }
+                    // }
+                    // }
+                }
             }
 
-            @Override
-            public void onSolutionCallback() {
-                System.out.printf("Solution #%d:%n", solutionCount);
-                for (int d : allDays) {
-                    System.out.printf("Day %d%n", d);
-                    for (int n : allNurses) {
-                        boolean isWorking = false;
-                        for (int s : allShifts) {
-                            if (booleanValue(shifts[n][d][s])) {
-                                isWorking = true;
-                                System.out.printf("  Nurse %d work shift %d%n", n, s);
-                            }
-                        }
-                        if (!isWorking) {
-                            System.out.printf("  Nurse %d does not work%n", n);
+            // Each course must be assigned in exactly one slot
+            for (ArrayList<Literal> variables : variablesByCourse.values()) {
+                logger.info("Course variables: {}",
+                        String.join(", ", variables.stream().map(Literal::toString).toList()));
+                model.addExactlyOne(variables);
+            }
+            // Each instructor must be assigned at most one class per blokc
+            for (ArrayList<Literal> variables : variablesByInstructorBlock.values()) {
+                logger.info("Instructor variables: {}",
+                        String.join(", ", variables.stream().map(Literal::toString).toList()));
+                model.addAtMostOne(variables);
+            }
+            // May need a "max classes per instructor" constraint
+
+            // // Try to distribute the shifts evenly, so that each nurse works
+            // // minShiftsPerNurse shifts. If this is not possible, because the total
+            // // number of shifts is not divisible by the number of nurses, some nurses
+            // will
+            // // be assigned one more shift.
+            // int minShiftsPerNurse = (numShifts * numDays) / numNurses;
+            // int maxShiftsPerNurse;
+            // if ((numShifts * numDays) % numNurses == 0) {
+            // maxShiftsPerNurse = minShiftsPerNurse;
+            // } else {
+            // maxShiftsPerNurse = minShiftsPerNurse + 1;
+            // }
+            // for (int n : allNurses) {
+            // LinearExprBuilder shiftsWorked = LinearExpr.newBuilder();
+            // for (int d : allDays) {
+            // for (int s : allShifts) {
+            // shiftsWorked.add(shifts[n][d][s]);
+            // }
+            // }
+            // model.addLinearConstraint(shiftsWorked, minShiftsPerNurse,
+            // maxShiftsPerNurse);
+            // }
+
+            solver.getParameters().setLinearizationLevel(0);
+            // Tell the solver to enumerate all solutions.
+            solver.getParameters().setEnumerateAllSolutions(true);
+        }
+
+        public List<Schedule> generate() {
+            ArrayList<Schedule> schedules = new ArrayList<>();
+            CpSolverSolutionCallback solutionCallback = new CpSolverSolutionCallback() {
+                static final int maxSolutions = 10;
+                int solutionsFound = 0;
+
+                // for (var course : plan.getCoursesOffered()) {
+                // var dayOfWeek = daysOfWeek[r.nextInt(partsOfDay.length)];
+                // var partOfDay = partsOfDay[r.nextInt(partsOfDay.length)];
+                // var classroom = classrooms[r.nextInt(classrooms.length)];
+                // var instructor =
+                // instructorAvailabilities[r.nextInt(instructorAvailabilities.length)].getInstructor();
+                // assignments.add(new ScheduleAssignment(null, dayOfWeek, partOfDay, classroom,
+                // course, instructor));
+                // }
+                // schedule.setAssignments(assignments);
+                // schedule = scheduleRepository.save(schedule);
+                @Override
+                public void onSolutionCallback() {
+                    logger.info("Found solution");
+                    for (Slot slot : allSlots) {
+                        if (booleanValue(slot.getSlotAllocated())) {
+                            logger.info("ALLOCATED: {} {} {} {} {}", slot.getClassroom().getRoomNumber(),
+                                    slot.getDayOfWeek(), slot.getPartOfDay(), slot.getCourse().getName(),
+                                    slot.getInstructor().getName());
                         }
                     }
+                    ++solutionsFound;
+                    if (solutionsFound >= maxSolutions) {
+                        stopSearch();
+                    }
                 }
-                solutionCount++;
-                if (solutionCount >= solutionLimit) {
-                    System.out.printf("Stop search after %d solutions%n", solutionLimit);
-                    stopSearch();
-                }
-            }
+            };
 
-            public int getSolutionCount() {
-                return solutionCount;
-            }
+            CpSolverStatus status = solver.solve(model, solutionCallback);
+            logger.info("CP Solver status: {}", status);
+            // CpSolverStatus.FEASIBLE?
 
-            private int solutionCount;
-            private final int[] allNurses;
-            private final int[] allDays;
-            private final int[] allShifts;
-            private final Literal[][][] shifts;
-            private final int solutionLimit;
+            return schedules;
         }
 
-        VarArraySolutionPrinterWithLimit cb = new VarArraySolutionPrinterWithLimit(allNurses, allDays, allShifts,
-                shifts, solutionLimit);
-
-        CpSolverStatus status = solver.solve(model, cb);
-        System.out.println("Status: " + status);
-        System.out.println(cb.getSolutionCount() + " solutions found.");
     }
+
+    private static final Logger logger = LoggerFactory.getLogger(CourseOfferingController.class);
 
 }
