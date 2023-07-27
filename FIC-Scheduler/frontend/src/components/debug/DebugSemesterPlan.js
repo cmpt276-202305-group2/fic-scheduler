@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import styles from "../../pages/Common.module.css";
 
@@ -16,6 +17,7 @@ export function DebugSemesterPlan() {
   const [formInstructorsAvailable, setFormInstructorsAvailable] = useState('');
   const [formClassroomsAvailable, setFormClassroomsAvailable] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
 
   const clearForm = () => {
     setFormId('');
@@ -51,29 +53,44 @@ export function DebugSemesterPlan() {
           </tr>
         </thead>
         <tbody>
-          {
-            allSemesterPlans.map((row, rowIndex) => {
-              const rowId = row.Id;
-              return (
-                <tr key={rowIndex}>
-                  <td key="generate"><a href="script:void;" onClick={
-                    (_) => {
-                      axios.post("api/generate-schedule", { semesterPlan: { id: rowId } }, tokenConfig()).then(
-                        (response) => { setAllSemesterPlans(response.data); },
-                        (_) => { setAllSemesterPlans(null); });
-                    }
-                  }>gen</a></td>
-                  <td key="0">{row.id}</td>
-                  <td key="1">{row.name}</td>
-                  <td key="2">{row.notes}</td>
-                  <td key="3">{row.semester}</td>
-                  <td key="4"><pre>{JSON.stringify(row.coursesOffered, null, 2)}</pre></td>
-                  <td key="5"><pre>{JSON.stringify(row.instructorsAvailable, null, 2)}</pre></td>
-                  <td key="6"><pre>{JSON.stringify(row.classroomsAvailable, null, 2)}</pre></td>
-                </tr>
-              );
-            })
-          }
+          {allSemesterPlans.map((row, rowIndex) => {
+            const rowId = row.id;
+            return (
+              <tr key={rowIndex}>
+                <td key="generate">
+                  <button
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      /*optional*/
+                      // fontFamily: ["arial", "sans-serif"],
+                      color: "#069",
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                    }}
+                    onClick={
+                      (event) => {
+                        event.preventDefault();
+                        const postData = { semesterPlan: { id: rowId } };
+                        console.log(JSON.stringify(postData));
+                        axios.post("api/generate-schedule", postData, tokenConfig()).then(
+                          (response) => { navigate("/debugMenu/schedule"); },
+                          (error) => { setErrorMessage("Generate for id=" + rowId + " failed: " + error.message); }
+                        );
+                      }
+                    }>gen</button>
+                </td>
+                <td key="0">{row.id}</td>
+                <td key="1">{row.name}</td>
+                <td key="2"><pre>{row.notes}</pre></td>
+                <td key="3">{row.semester}</td>
+                <td key="4"><pre>{JSON.stringify(row.coursesOffered, null, 2)}</pre></td>
+                <td key="5"><pre>{JSON.stringify(row.instructorsAvailable, null, 2)}</pre></td>
+                <td key="6"><pre>{JSON.stringify(row.classroomsAvailable, null, 2)}</pre></td>
+              </tr>
+            );
+          })}
         </tbody>
       </table >);
   }
