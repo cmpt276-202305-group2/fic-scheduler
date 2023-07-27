@@ -1,9 +1,12 @@
 package com.group2.server.controller;
 
 import java.util.*;
+import java.util.regex.*;
 import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.google.ortools.sat.CpModel;
@@ -13,7 +16,8 @@ import com.google.ortools.sat.CpSolverStatus;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
 import com.google.ortools.sat.Literal;
-import com.group2.server.dto.GenerateScheduleDto;
+
+import com.group2.server.dto.*;
 import com.group2.server.model.*;
 import com.group2.server.repository.*;
 
@@ -23,42 +27,68 @@ import com.group2.server.repository.*;
 public class GenerateScheduleController {
 
     @Autowired
-    private ScheduleRepository classScheduleRepository;
+    private ScheduleRepository scheduleRepository;
+
+    @Autowired
+    private ScheduleController scheduleController;
 
     @Autowired
     private SemesterPlanRepository semesterPlanRepository;
 
+    private final Pattern baseNamePattern = Pattern.compile("^(.*?)(?>\\s*-\\s*[0-9]+)?$");
+
     @PostMapping("/generate-schedule")
-    public Schedule generateSchedule(@RequestBody GenerateScheduleDto generateScheduleDto) {
-        Schedule sched = new Schedule();
-        Integer planId = generateScheduleDto.getSemesterPlan().getId();
-        SemesterPlan plan = planId != null ? semesterPlanRepository.findById(planId).orElse(null) : null;
+    public ResponseEntity<ScheduleDto> generateSchedule(@RequestBody GenerateScheduleDto generateScheduleDto) {
+        try {
+            Schedule sched = new Schedule();
+            Integer planId = generateScheduleDto.getSemesterPlan().getId();
+            SemesterPlan plan = planId != null ? semesterPlanRepository.findById(planId).orElse(null) : null;
 
-        if (plan == null) {
-            return null;
+            if (plan == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            var scheduleNames = Set.copyOf(scheduleRepository.findAll().stream().map(s -> s.getName()).toList());
+            String name = plan.getName();
+            if (scheduleNames.contains(name)) {
+                String baseName = name;
+                Matcher nameMatcher = baseNamePattern.matcher(name);
+                if (nameMatcher.matches()) {
+                    baseName = nameMatcher.group(1);
+                }
+                for (int i = 1; scheduleNames.contains(name); ++i) {
+                    name = String.format("%s - %d", baseName, i);
+                }
+            }
+
+            sched.setName(name);
+            sched.setNotes(String.format("Generated schedule from %s (%s):\n%s", plan.getName(), plan.getSemester(),
+                    plan.getNotes()));
+            sched.setSemester(plan.getSemester());
+
+            // TODO test code just generates a random schedule -- make it real
+            HashSet<ScheduleAssignment> assignments = new HashSet<>();
+            var r = new Random();
+            var daysOfWeek = new DayOfWeek[] { DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
+                    DayOfWeek.THURSDAY, DayOfWeek.FRIDAY };
+            var partsOfDay = new PartOfDay[] { PartOfDay.MORNING, PartOfDay.AFTERNOON, PartOfDay.EVENING };
+            var classrooms = plan.getClassroomsAvailable().toArray(new Classroom[0]);
+            var instructor_availabilities = plan.getInstructorsAvailable().toArray(new InstructorAvailability[0]);
+
+            for (var course : plan.getCoursesOffered()) {
+                var dayOfWeek = daysOfWeek[r.nextInt(partsOfDay.length)];
+                var partOfDay = partsOfDay[r.nextInt(partsOfDay.length)];
+                var classroom = classrooms[r.nextInt(classrooms.length)];
+                var instructor = instructor_availabilities[r.nextInt(instructor_availabilities.length)].getInstructor();
+                assignments.add(new ScheduleAssignment(null, dayOfWeek, partOfDay, classroom, course, instructor));
+            }
+            sched.setAssignments(assignments);
+            sched = scheduleRepository.save(sched);
+
+            return new ResponseEntity<>(scheduleController.toDto(sched), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        sched.setSemester(plan.getSemester());
-
-        // TODO test code just generates a random schedule -- make it real
-        HashSet<ScheduleAssignment> assignments = new HashSet<>();
-        var r = new Random();
-        var daysOfWeek = new DayOfWeek[] { DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY,
-                DayOfWeek.FRIDAY };
-        var partsOfDay = new PartOfDay[] { PartOfDay.MORNING, PartOfDay.AFTERNOON, PartOfDay.EVENING };
-        var classrooms = plan.getClassroomsAvailable().toArray(new Classroom[0]);
-        var instructor_availabilities = plan.getInstructorsAvailable().toArray(new InstructorAvailability[0]);
-
-        for (var course : plan.getCoursesOffered()) {
-            var dayOfWeek = daysOfWeek[r.nextInt(partsOfDay.length)];
-            var partOfDay = partsOfDay[r.nextInt(partsOfDay.length)];
-            var classroom = classrooms[r.nextInt(classrooms.length)];
-            var instructor = instructor_availabilities[r.nextInt(instructor_availabilities.length)].getInstructor();
-            assignments.add(new ScheduleAssignment(null, dayOfWeek, partOfDay, classroom, course, instructor));
-        }
-        sched.setAssignments(assignments);
-        classScheduleRepository.save(sched);
-        return sched;
     }
 
     int numNurses = 4;

@@ -84,6 +84,20 @@
   text-align: start;
 }
 
+.DebugDataTable td {
+  text-align: left;
+  vertical-align: top;
+}
+
+.DebugFormTable * {
+  text-align: left;
+  vertical-align: top;
+}
+
+.DebugFormTable td:first-child {
+  text-align: right;
+}
+
 /* this is gonna make sure it works for the smaller devices */
 @media (max-width: 600px) {
   .Container {

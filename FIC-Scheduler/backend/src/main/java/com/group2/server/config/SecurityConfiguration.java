@@ -79,6 +79,7 @@ public class SecurityConfiguration {
                     auth.requestMatchers(mvcMatcherBuilder.pattern("/api/semester-plans/**"))
                             .hasAnyRole(Role.ADMIN.toString(), Role.COORDINATOR.toString());
                     auth.requestMatchers(mvcMatcherBuilder.pattern("/api/users/**")).hasAnyRole(Role.ADMIN.toString());
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/debug/**")).hasAnyRole(Role.DEBUG.toString());
                     auth.anyRequest().denyAll();
                 })
                 .oauth2ResourceServer(

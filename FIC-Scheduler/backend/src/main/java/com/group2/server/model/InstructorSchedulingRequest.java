@@ -6,24 +6,20 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "instructor_availability")
-public class InstructorAvailability {
+@Entity(name = "instructor_scheduling_request")
+public class InstructorSchedulingRequest {
     @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @NonNull
-    private DayOfWeek dayOfWeek;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @NonNull
-    private PartOfDay partOfDay;
-
     @ManyToOne(optional = false)
     @NonNull
     private Instructor instructor;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @NonNull
+    private SchedulingRequest schedulingRequest;
+
 }

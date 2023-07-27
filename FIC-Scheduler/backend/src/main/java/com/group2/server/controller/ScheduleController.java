@@ -153,7 +153,8 @@ public class ScheduleController {
                         return dto;
                     });
         }
-        return new ScheduleDto(schedule.getId(), schedule.getName(), schedule.getNotes(), schedule.getSemester(), null);
+        return new ScheduleDto(schedule.getId(), schedule.getName(), schedule.getNotes(), schedule.getSemester(),
+                List.copyOf(courses.values()));
     }
 
     public Schedule createOrUpdateFromDto(ScheduleDto scheduleDto) {

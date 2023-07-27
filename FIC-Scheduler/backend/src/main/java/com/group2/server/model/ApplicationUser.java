@@ -25,8 +25,7 @@ public class ApplicationUser implements UserDetails {
     @NonNull
     private String password;
 
-    @ElementCollection(fetch = FetchType.EAGER, targetClass = Role.class)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private Set<Role> authorities;

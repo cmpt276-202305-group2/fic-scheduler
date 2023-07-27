@@ -75,7 +75,7 @@ export function DebugBlockSplit() {
       }}>
         <h2>Create/Update</h2>
         <p style={{ color: 'red' }}>{errorMessage}</p>
-        <table>
+        <table className={styles.DebugFormTable}>
           <tbody>
             <tr>
               <td><label htmlFor="form-id">ID</label></td>
@@ -91,9 +91,9 @@ export function DebugBlockSplit() {
             </tr>
             <tr>
               <td><label htmlFor="form-blocks">Room Name</label></td>
-              <td><input id="form-blocks" type="text" name="formBlocks" value={formBlocks}
+              <td><textarea id="form-blocks" name="formBlocks" value={formBlocks}
                 onChange={(event) => setFormBlocks(event.target.value)}
-                placeholder="Don't update" /></td>
+                placeholder="Don't update" rows="10" cols="50" /></td>
             </tr>
           </tbody>
         </table>
