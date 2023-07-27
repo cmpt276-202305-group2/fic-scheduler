@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from "react";
 
 import axios from "axios";
-import readExcelFile from "./readExcelfile";
+
 import styles from "./FileImport.module.css";
 import { tokenConfig } from "../utils";
-import { FileUploader, SpreadsheetTable } from "./FileUploader";
+import { SpreadsheetTable } from "./FileUploader";
 
-const ImportSemesterPlan = ({
-  semesterPlanSpreadsheetData,
-  setSemesterPlanSpreadsheetData,
-}) => {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+const ImportSemesterPlan = () => {
   const [coursesData, setCoursesData] = useState([]);
   const [instructorsData, setInstructorsData] = useState([]);
   const [classroomsData, setClassroomsData] = useState([]);
+  const [semesterPlanData, setSemesterPlanData] = useState([]);
 
   useEffect(() => {
     // Fetch data from the backend
@@ -48,49 +43,37 @@ const ImportSemesterPlan = ({
       .catch((error) => {
         console.error("Error fetching classrooms data:", error);
       });
+
+    // In this example, let's assume semester plan data is already available or fetched from elsewhere.
+    // You can replace this with the actual logic to fetch the semester plan data if needed.
+    const exampleSemesterPlanData = [
+      {
+        name: "Semester Plan 1",
+        notes: "Example notes for Semester Plan 1",
+        semesterID: 1,
+      },
+      {
+        name: "Semester Plan 2",
+        notes: "Example notes for Semester Plan 2",
+        semesterID: 2,
+      },
+      // Add more semester plan data objects as needed
+    ];
+
+    setSemesterPlanData(exampleSemesterPlanData);
   }, []);
 
-  const createFileUploadHandler =
-    (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
-    async (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-      const allowedFormats = ["xlsx", "csv"];
-      const fileExtension = file.name.split(".").pop().toLowerCase();
-      if (!allowedFormats.includes(fileExtension)) {
-        setErrorMessage(true);
-        return;
-      }
-      setErrorMessage(false);
-      try {
-        const data = await readExcelFile(file);
-        setData(data);
-        setFile(file.name);
-        setIsPreviewVisible(true);
-      } catch (error) {
-        console.error("Error reading Excel file:", error);
-      }
-    };
-
-  const handleFileUpload = createFileUploadHandler(
-    setSelectedFile,
-    setShowErrorMessage,
-    setSemesterPlanSpreadsheetData,
-    setIsPreviewVisible
-  );
-
   const handleSendToBackEnd = async () => {
-    if (semesterPlanSpreadsheetData.length > 0) {
-      // Convert data to JSON format
-      const jsonData = semesterPlanSpreadsheetData.map((item) => ({
+    if (semesterPlanData.length > 0) {
+      // Convert data to JSON format and include ID fields from coursesData, instructorsData, and classroomsData
+      const jsonData = semesterPlanData.map((item) => ({
         name: item.name,
         notes: item.notes,
         semesterID: item.semesterID,
-        coursesOffered: coursesData, // Replace coursesData with the actual data received from the backend
-        instructorsAvailable: instructorsData, // Replace instructorsData with the actual data received from the backend
-        classroomsAvailable: classroomsData, // Replace classroomsData with the actual data received from the backend
+        coursesOffered: coursesData,
+        instructorsAvailable: instructorsData,
+        classroomsAvailable: classroomsData,
       }));
-
       try {
         const response = await axios.post(
           `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
@@ -126,19 +109,9 @@ const ImportSemesterPlan = ({
   return (
     <div className={styles.tableHolder}>
       <h2 className={styles.title}>Semester Plan</h2>
-      <FileUploader
-        selectedFile={selectedFile}
-        handleFileUpload={handleFileUpload}
-        showErrorMessage={showErrorMessage}
-        isPreviewVisible={isPreviewVisible}
-        handleSendToBackend={handleSendToBackEnd}
-        id={1}
-        styles={styles}
-      />
-      <SpreadsheetTable
-        spreadsheetData={semesterPlanSpreadsheetData}
-        styles={styles}
-      />
+
+      <SpreadsheetTable spreadsheetData={semesterPlanData} styles={styles} />
+      <button onClick={handleSendToBackEnd}>Send Data to Backend</button>
     </div>
   );
 };
