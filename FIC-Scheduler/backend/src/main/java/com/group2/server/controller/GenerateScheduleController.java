@@ -1,8 +1,9 @@
 package com.group2.server.controller;
 
 import java.util.*;
+import java.util.function.*;
 import java.util.regex.*;
-// import java.util.stream.*;
+import java.util.stream.*;
 
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class GenerateScheduleController {
 
     @Autowired
     private SemesterPlanRepository semesterPlanRepository;
+
+    @Autowired
+    private BlockRequirementSplitRepository blockRequirementSplitRepository;
 
     private final Pattern baseNamePattern = Pattern.compile("^(.*?)(?>\\s*-\\s*[0-9]+)?$");
 
@@ -92,70 +96,175 @@ public class GenerateScheduleController {
     }
 
     private class ScheduleGenerator {
-        @Data
-        @AllArgsConstructor
-        private static class Block {
-            private DayOfWeek dayOfWeek;
-            private PartOfDay partOfDay;
-        }
-
-        @Data
-        @AllArgsConstructor
-        private static class Slot {
-            private Literal slotAllocated;
-            private DayOfWeek dayOfWeek;
-            private PartOfDay partOfDay;
-            private Classroom classroom;
-            private CourseOffering course;
-            private Instructor instructor;
-        }
-
-        // private static final DayOfWeek[] daysOfWeek = new DayOfWeek[] {
-        // DayOfWeek.MONDAY, DayOfWeek.TUESDAY,
-        // DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY };
-        // private static final PartOfDay[] partsOfDay = new PartOfDay[] {
+        private static final DayOfWeek[] days = new DayOfWeek[] {
+                DayOfWeek.MONDAY, DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY };
+        // private static final PartOfDay[] times = new PartOfDay[] {
         // PartOfDay.MORNING_EARLY, PartOfDay.MORNING_LATE,
         // PartOfDay.AFTERNOON_EARLY, PartOfDay.AFTERNOON_LATE, PartOfDay.EVENING_EARLY,
         // PartOfDay.EVENING_LATE };
-        // private static final Block[] blocks = Stream.of(daysOfWeek)
-        // .flatMap(d -> Stream.of(partsOfDay).map(p -> new Block(d,
-        // p))).toArray(Block[]::new);
+        private static final PartOfDay[] times = new PartOfDay[] {
+                PartOfDay.MORNING, PartOfDay.AFTERNOON, PartOfDay.EVENING };
 
         private CourseOffering[] coursesOffered;
-        // private Classroom[] classrooms;
-        // private InstructorAvailability[] instructorAvailabilities;
-        // HashMap<String, List<Classroom>> classroomsByType;
+        private Classroom[] classrooms;
+        private Integer[] instructorIds;
+        private InstructorAvailability[] instructorAvailabilities;
+        HashMap<String, List<Classroom>> classroomsByType;
 
         CpModel model = new CpModel();
         CpSolver solver = new CpSolver();
 
-        private ArrayList<Slot> allSlots = new ArrayList<>();
+        private record Slot(
+                BoolVar modelVar,
+                DayOfWeek dayOfWeek,
+                PartOfDay partOfDay,
+                Classroom classroom,
+                CourseOffering course,
+                Instructor instructor) {
+        }
+
+        private HashMap<Integer, Slot> allSlots;
 
         public ScheduleGenerator(SemesterPlan plan) {
             Loader.loadNativeLibraries();
 
             coursesOffered = plan.getCoursesOffered().toArray(CourseOffering[]::new);
-            // classrooms = plan.getClassroomsAvailable().toArray(Classroom[]::new);
-            // instructorAvailabilities =
-            // plan.getInstructorsAvailable().toArray(InstructorAvailability[]::new);
-            // classroomsByType = makeClassroomsByTypeMap(classrooms);
+            classrooms = plan.getClassroomsAvailable().toArray(Classroom[]::new);
+            instructorAvailabilities = plan.getInstructorsAvailable().toArray(InstructorAvailability[]::new);
+            instructorIds = Stream.of(instructorAvailabilities).map(ia -> ia.getInstructor().getId()).distinct()
+                    .toArray(Integer[]::new);
+            classroomsByType = makeClassroomsByTypeMap(classrooms);
 
+            // prepareSlotIds();
             prepareModel();
         }
 
-        // private HashMap<String, List<Classroom>> makeClassroomsByTypeMap(Classroom[]
-        // classrooms) {
-        // HashMap<String, List<Classroom>> classroomsByType = new HashMap<>();
-        // for (Classroom classroom : classrooms) {
-        // classroomsByType.compute(classroom.getRoomType(), (t, list) -> {
-        // if (list == null) {
-        // list = new ArrayList<Classroom>();
+        private HashMap<String, List<Classroom>> makeClassroomsByTypeMap(Classroom[] classrooms) {
+            HashMap<String, List<Classroom>> classroomsByType = new HashMap<>();
+            for (Classroom classroom : classrooms) {
+                classroomsByType.compute(classroom.getRoomType(), (t, list) -> {
+                    if (list == null) {
+                        list = new ArrayList<Classroom>();
+                    }
+                    list.add(classroom);
+                    return list;
+                });
+            }
+            return classroomsByType;
+        }
+
+        // If Java had tuples built in I probably wouldn't have gone to all this trouble
+
+        // private static final int daySlotIdShift = 0;
+        // private static final int daySlotIdSize = Integer.SIZE -
+        // Integer.numberOfLeadingZeros(DayOfWeek.values().length);
+        // private static final int daySlotIdMask = ((1 << daySlotIdSize) - 1) <<
+        // daySlotIdShift;
+        // private static final int timeSlotIdShift = daySlotIdShift + daySlotIdSize;
+        // private static final int timeSlotIdSize = Integer.SIZE
+        // - Integer.numberOfLeadingZeros(PartOfDay.values().length);
+        // private static final int timeSlotIdMask = ((1 << timeSlotIdSize) - 1) <<
+        // timeSlotIdShift;
+
+        // private static final int courseSlotIdShift = timeSlotIdShift +
+        // timeSlotIdSize;
+        // private int courseSlotIdSize;
+        // private int courseSlotIdMask;
+
+        // private int instructorSlotIdShift;
+        // private int instructorSlotIdSize;
+        // private int instructorSlotIdMask;
+        // private int classroomSlotIdShift;
+        // private int classroomSlotIdSize;
+        // private int classroomSlotIdMask;
+
+        // private int slotIdSize;
+        // private int denseSlotIdArraySize;
+
+        // private void prepareSlotIds() {
+        // courseSlotIdSize = Integer.SIZE -
+        // Integer.numberOfLeadingZeros(coursesOffered.length);
+        // courseSlotIdMask = ((1 << courseSlotIdSize) - 1) << courseSlotIdShift;
+        // instructorSlotIdShift = courseSlotIdShift + courseSlotIdSize;
+        // instructorSlotIdSize = Integer.SIZE -
+        // Integer.numberOfLeadingZeros(instructorIds.length);
+        // instructorSlotIdMask = ((1 << instructorSlotIdSize) - 1) <<
+        // instructorSlotIdShift;
+        // classroomSlotIdShift = instructorSlotIdShift + instructorSlotIdSize;
+        // classroomSlotIdSize = Integer.SIZE -
+        // Integer.numberOfLeadingZeros(classrooms.length);
+        // classroomSlotIdMask = ((1 << classroomSlotIdSize) - 1) <<
+        // classroomSlotIdShift;
+        // slotIdSize = classroomSlotIdShift + classroomSlotIdSize;
+        // denseSlotIdArraySize = 1 << slotIdSize;
         // }
-        // list.add(classroom);
-        // return list;
-        // });
+
+        // private int daySlotId(DayOfWeek day) {
+        // return day.ordinal() << daySlotIdShift;
         // }
-        // return classroomsByType;
+
+        // private int timeSlotId(PartOfDay time) {
+        // return time.ordinal() << timeSlotIdShift;
+        // }
+
+        // private int courseSlotId(CourseOffering course) {
+        // int findId = course.getId();
+        // for (int i = 0; i < coursesOffered.length; ++i) {
+        // if (findId == coursesOffered[i].getId()) {
+        // return i << courseSlotIdShift;
+        // }
+        // }
+        // return -1;
+        // }
+
+        // private int instructorSlotId(Instructor instructor) {
+        // int findId = instructor.getId();
+        // for (int i = 0; i < coursesOffered.length; ++i) {
+        // if (findId == instructorIds[i]) {
+        // return i << instructorSlotIdShift;
+        // }
+        // }
+        // return -1;
+        // }
+
+        // private int classroomSlotId(Classroom classroom) {
+        // int findId = classroom.getId();
+        // for (int i = 0; i < classrooms.length; ++i) {
+        // if (findId == classrooms[i].getId()) {
+        // return i << classroomSlotIdShift;
+        // }
+        // }
+        // return -1;
+        // }
+
+        // private int slotIdOf(CourseOffering course, DayOfWeek day, PartOfDay time,
+        // Instructor instructor,
+        // Classroom classroom) {
+        // return daySlotId(day) | timeSlotId(time) | courseSlotId(course) |
+        // instructorSlotId(instructor)
+        // | classroomSlotId(classroom);
+        // }
+
+        // private CourseOffering slotIdCourse(int slotId) {
+        // return coursesOffered[(slotId & courseSlotIdMask) >> courseSlotIdShift];
+        // }
+
+        // private Integer slotIdInstructorId(int slotId) {
+        // return instructorIds[(slotId & instructorSlotIdMask) >>
+        // instructorSlotIdShift];
+        // }
+
+        // private Classroom slotIdClassroom(int slotId) {
+        // return classrooms[(slotId & classroomSlotIdMask) >> classroomSlotIdShift];
+        // }
+
+        // private DayOfWeek slotIdDay(int slotId) {
+        // return DayOfWeek.values()[(slotId & daySlotIdMask) >> daySlotIdShift];
+        // }
+
+        // private PartOfDay slotIdTime(int slotId) {
+        // return PartOfDay.values()[(slotId & timeSlotIdMask) >> timeSlotIdShift];
         // }
 
         private void prepareModel() {
@@ -179,76 +288,92 @@ public class GenerateScheduleController {
             // different combinations of variables and applying "at most 1" constraints to
             // them.
 
-            // Set of constraints: "exactly one" by course
-            HashMap<Integer, ArrayList<Literal>> variablesByCourse = new HashMap<>();
-            // HashMap<Integer, List<Literal>> variablesByBlock;
-            // Set of constraints: "at most one" by instructor-block
-            HashMap<Integer, ArrayList<Literal>> variablesByInstructorBlock = new HashMap<>();
-            // Set of constraints: "at most one" by room-block
-            // HashMap<Integer, List<Literal>> variablesByClassroom;
-
-            // Literal[] lits = new Literal[] { model.newBoolVar("a"),
-            // model.newBoolVar("b"),
-            // model.newBoolVar("c"),
-            // model.newBoolVar("d") };
-            // model.addExactlyOne(lits);
-            // model.addAtMostOne(new Literal[] { lits[0], lits[1] });
-            // model.addAtMostOne(new Literal[] { lits[2], lits[3] });
-            // for (Literal lit : lits) {
-            // allSlots.add(
-            // new Slot(lit, DayOfWeek.MONDAY, PartOfDay.MORNING,
-            // new Classroom(null, "room" + lit.getIndex(), "Small", ""),
-            // new CourseOffering(null, "CMPT100/O1", "CMPT100", "", Set.of(), Set.of()),
-            // new Instructor(null, "instructor", "")));
+            // HashMap<Integer, ArrayList<>>
+            // HashMap<Integer, ArrayList<RoomType>>
+            // for (BlockRequirementSplit blockReqSplit :
+            // blockRequirementSplitRepository.findAll()) {
+            // for (BlockRequirement blockReq : blockReqSplit.getBlocks()) {
+            // for (String roomType : blockReq.getAllowedRoomTypes()) {
+            // }
+            // }
             // }
 
-            Classroom classroom = new Classroom(null, "The Room", "Small", "");
+            logger.info("Generating slots");
+            // First, enumerate all our variables
+            allSlots = new HashMap<>();
+            int nextSlotId = 1;
             for (CourseOffering course : coursesOffered) {
-                ArrayList<Literal> courseVars = variablesByCourse.compute(course.getId(),
-                        (k, v) -> v != null ? v : new ArrayList<>());
                 for (Instructor instructor : course.getApprovedInstructors()) {
-                    for (int block = 0; block < 5; ++block) {
-                        int instructorBlockId = instructor.getId() * 5 + block;
-                        ArrayList<Literal> instructorVars = variablesByInstructorBlock.compute(instructorBlockId,
-                                (k, v) -> v != null ? v : new ArrayList<>());
-                        Literal lit = model.newBoolVar(String.format("b%di%dc%d", block, instructor.getId(),
-                                course.getId()));
-                        courseVars.add(lit);
-                        instructorVars.add(lit);
-                        allSlots.add(new Slot(lit, DayOfWeek.values()[block], PartOfDay.MORNING, classroom, course,
-                                instructor));
+                    for (DayOfWeek day : days) {
+                        for (PartOfDay time : times) {
+                            for (Classroom classroom : classrooms) {// classroomsByType.get(roomType)) {
+                                // int slotId = slotIdOf(course, day, time, instructor, classroom);
+                                int slotId = nextSlotId++;
+                                BoolVar lit = model.newBoolVar(String.format("s%08x", slotId));
+                                allSlots.put(slotId, new Slot(lit, day, time, classroom, course, instructor));
+                            }
+                        }
                     }
-                    // for (BlockRequirementSplit blockReqSplit : course.getAllowedBlockSplits())
-                    // {
-                    // for (BlockRequirement blockReq : blockReqSplit.getBlocks()) {
-                    // // for (String roomType : blockReq.getAllowedRoomTypes()) { for (Classroom
-                    // // classroom :...
-                    // switch (blockReq.getDuration()) {
-                    // case HALF: {
-                    // break;
-                    // }
-                    // case FULL: {
-                    // break;
-                    // }
-                    // }
-                    // }
-                    // }
                 }
             }
 
-            // Each course must be assigned in exactly one slot
-            for (ArrayList<Literal> variables : variablesByCourse.values()) {
-                logger.info("Course variables: {}",
-                        String.join(", ", variables.stream().map(Literal::toString).toList()));
-                model.addExactlyOne(variables);
+            // BiConsumer<Function<Integer, Object>, Consumer<ArrayList<Literal>>>
+            // addGroupingConstraint = (
+            // groupKeyFn, constraintFn) -> {
+            BiConsumer<Function<Slot, Object>, Consumer<ArrayList<Literal>>> addGroupingConstraint = (
+                    groupKeyFn, constraintFn) -> {
+                HashMap<Object, ArrayList<Literal>> groupedVars = new HashMap<>();
+                for (Map.Entry<Integer, Slot> entry : allSlots.entrySet()) {
+                    // int slotId = entry.getKey();
+                    // Object groupKey = groupKeyFn.apply(slotId);
+                    Object groupKey = groupKeyFn.apply(entry.getValue());
+
+                    groupedVars.compute(groupKey, (k, v) -> {
+                        if (v == null)
+                            v = new ArrayList<>();
+                        v.add(entry.getValue().modelVar());
+                        return v;
+                    });
+                }
+                for (ArrayList<Literal> modelVars : groupedVars.values()) {
+                    constraintFn.accept(modelVars);
+                }
+            };
+
+            long denseSize = (long) days.length * times.length * classrooms.length * instructorIds.length
+                    * coursesOffered.length;
+            logger.info("Total slots: {} (dense size {}: {}% reduction from culling)", allSlots.size(), denseSize,
+                    (1.0d - ((double) allSlots.size() / (double) denseSize) * 100d));
+            logger.info("Generating constraints");
+            // For constraints: "exactly one" by course-block -- make sure every course is
+            // being taught, and is only taught once
+            // To make multiple block splits work, we would have to make this more complex:
+            // instead of "exactly one" slot, we'd be choosing "exactly one pattern"
+            addGroupingConstraint.accept(
+                    // (slotId) -> slotIdCourse(slotId),
+                    (slot) -> slot.course(),
+                    (modelVars) -> model.addExactlyOne(modelVars));
+
+            // For constraints: "at most one" by instructor-block -- don't double-book
+            // instructors
+            record InstructorBlock(Integer instructorId, DayOfWeek day, PartOfDay time) {
             }
-            // Each instructor must be assigned at most one class per blokc
-            for (ArrayList<Literal> variables : variablesByInstructorBlock.values()) {
-                logger.info("Instructor variables: {}",
-                        String.join(", ", variables.stream().map(Literal::toString).toList()));
-                model.addAtMostOne(variables);
+            ;
+            addGroupingConstraint.accept(
+                    // (slotId) -> new InstructorBlock(slotIdInstructorId(slotId),
+                    // slotIdDay(slotId), slotIdTime(slotId)),
+                    (slot) -> new InstructorBlock(slot.instructor().getId(), slot.dayOfWeek(), slot.partOfDay()),
+                    (modelVars) -> model.addAtMostOne(modelVars));
+
+            // For constraints: "at most one" by room-block -- don't double-book rooms
+            record ClassroomBlock(Classroom classroom, DayOfWeek day, PartOfDay time) {
             }
-            // May need a "max classes per instructor" constraint
+            ;
+            addGroupingConstraint.accept(
+                    // (slotId) -> new ClassroomBlock(slotIdClassroom(slotId), slotIdDay(slotId),
+                    // slotIdTime(slotId)),
+                    (slot) -> new ClassroomBlock(slot.classroom(), slot.dayOfWeek(), slot.partOfDay()),
+                    (modelVars) -> model.addAtMostOne(modelVars));
 
             // // Try to distribute the shifts evenly, so that each nurse works
             // // minShiftsPerNurse shifts. If this is not possible, because the total
@@ -279,6 +404,7 @@ public class GenerateScheduleController {
         }
 
         public List<Schedule> generate() {
+            logger.info("Solving");
             ArrayList<Schedule> schedules = new ArrayList<>();
             CpSolverSolutionCallback solutionCallback = new CpSolverSolutionCallback() {
                 static final int maxSolutions = 10;
@@ -297,12 +423,12 @@ public class GenerateScheduleController {
                 // schedule = scheduleRepository.save(schedule);
                 @Override
                 public void onSolutionCallback() {
+                    // TODO assert that the solution is a real solution!
                     logger.info("Found solution");
-                    for (Slot slot : allSlots) {
-                        if (booleanValue(slot.getSlotAllocated())) {
-                            logger.info("ALLOCATED: {} {} {} {} {}", slot.getClassroom().getRoomNumber(),
-                                    slot.getDayOfWeek(), slot.getPartOfDay(), slot.getCourse().getName(),
-                                    slot.getInstructor().getName());
+                    for (Slot slot : allSlots.values()) {
+                        if (booleanValue(slot.modelVar())) {
+                            logger.info("ALLOCATED: {} {} {} {} {}", slot.classroom().getRoomNumber(), slot.dayOfWeek(),
+                                    slot.partOfDay(), slot.course().getName(), slot.instructor().getName());
                         }
                     }
                     ++solutionsFound;
