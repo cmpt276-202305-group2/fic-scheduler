@@ -13,7 +13,6 @@ import styles from "./FileImport.module.css";
 import { tokenConfig } from "../utils";
 
 export function ViewUploadedAvailabilityList() {
-  //   const [Availability, SetAvailability] = useState(null);
   const [backendData, setBackendData] = useState(null);
   const partOfDayOptions = ["AM", "EVE", "PM"];
   const partOfDayMap = {
@@ -31,6 +30,7 @@ export function ViewUploadedAvailabilityList() {
         ]);
 
         const instructorsData = instructorsResponse.data;
+        console.log("instructorsData: ", instructorsData);
         const instructorsById = instructorsData.reduce((acc, instructor) => {
           acc[instructor.id] = instructor;
           return acc;
@@ -39,7 +39,7 @@ export function ViewUploadedAvailabilityList() {
         const instructorsAvailable =
           semesterPlanResponse.data.instructorsAvailable;
         instructorsAvailable.sort((a, b) => a.instructor.id - b.instructor.id);
-
+        console.log("instructorsAvailable: ", instructorsAvailable);
         let idCounter = 0;
         const grouped = instructorsAvailable.reduce((acc, item) => {
           const existing = acc.find(
