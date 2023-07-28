@@ -5,9 +5,9 @@ import styles from "./FileImport.module.css";
 import { tokenConfig } from "../utils";
 import { FileUploader, SpreadsheetTable } from "./FileUploader";
 
-const ImportAvailabity = ({
-  availabilitySpreadsheetData,
-  setAvailabilitySpreadsheetData,
+const ImportAccreditation = ({
+  accreditationSpreadsheetData,
+  setAccreditationSpreadsheetData,
 }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
@@ -38,71 +38,67 @@ const ImportAvailabity = ({
   const handleFileUpload = createFileUploadHandler(
     setSelectedFile,
     setShowErrorMessage,
-    setAvailabilitySpreadsheetData,
+    setAccreditationSpreadsheetData,
     setIsPreviewVisible
   );
 
   const handleSendToBackEnd = async () => {
-    if (availabilitySpreadsheetData.length > 0) {
-      const jsonData = [];
-      const instructorDataMap = {};
-
-      for (const row of availabilitySpreadsheetData) {
-        const time = row.time;
-        const dayOfWeek = row.dayOfWeek;
-        const partOfDay = row.partOfDay;
-        const instructorName = row.instructorName; // Assuming the instructor name is in a column named 'instructorName' in the spreadsheet
-
-        const key = `${time}_${dayOfWeek}_${partOfDay}`;
-
-        if (!instructorDataMap[key]) {
-          instructorDataMap[key] = {
-            time,
-            dayOfWeek,
-            partOfDay,
-            instructorData: {
-              id: null, // Assuming the ID will be determined later on the server-side
-              name: instructorName,
-            },
-          };
-          jsonData.push(instructorDataMap[key]);
-        }
-      }
+    if (accreditationSpreadsheetData.length > 0) {
+      // Convert data to JSON format
+      const jsonData = accreditationSpreadsheetData.map((item) => ({
+        name: item,
+      }));
 
       try {
         const response = await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/api/instructors`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/accreditations`,
           jsonData,
-          tokenConfig()
+          tokenConfig(),
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
 
-        if (response.status === 200) {
-          const result = response.data;
-          console.log("File upload successful:", result);
+        if (response.status === 200 || response.status === 201) {
+          const responseData = response.data;
+          console.log("File upload successful. Response data:", responseData);
+        } else if (response.status === 409) {
+          // In case of conflicts (status code 409), the response data contains created and conflict accreditations
+          const responseData = response.data;
+          console.log("Conflict accreditations:", responseData.conflicts);
+          console.log(
+            "Successfully created accreditations:",
+            responseData.created
+          );
         } else {
+          console.error("Error uploading Excel file:", response.statusText);
         }
-      } catch (error) {}
+      } catch (error) {
+        console.error("Error sending JSON data to the backend:", error);
+      }
     }
   };
 
   return (
     <div className={styles.tableHolder}>
-      <h2 className={styles.title}>Instructor Availability</h2>
+      <h2 className={styles.title}>Accreditation</h2>
       <FileUploader
         selectedFile={selectedFile}
         handleFileUpload={handleFileUpload}
         showErrorMessage={showErrorMessage}
         isPreviewVisible={isPreviewVisible}
         handleSendToBackend={handleSendToBackEnd}
-        id={2}
+        id={1}
         styles={styles}
       />
       <SpreadsheetTable
-        spreadsheetData={availabilitySpreadsheetData}
+        spreadsheetData={accreditationSpreadsheetData}
         styles={styles}
       />
     </div>
   );
 };
 
-export default ImportAvailabity;
+export default ImportAccreditation;

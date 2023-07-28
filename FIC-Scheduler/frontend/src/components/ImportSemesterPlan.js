@@ -1,57 +1,82 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
 import axios from "axios";
-import readExcelFile from "./readExcelfile";
+
 import styles from "./FileImport.module.css";
 import { tokenConfig } from "../utils";
-import { FileUploader, SpreadsheetTable } from "./FileUploader";
+import { SpreadsheetTable } from "./FileUploader";
 
-const ImportAccreditation = ({
-  accreditationSpreadsheetData,
-  setAccreditationSpreadsheetData,
-}) => {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+const ImportSemesterPlan = () => {
+  const [coursesData, setCoursesData] = useState([]);
+  const [instructorsData, setInstructorsData] = useState([]);
+  const [classroomsData, setClassroomsData] = useState([]);
+  const [semesterPlanData, setSemesterPlanData] = useState([]);
 
-  const createFileUploadHandler =
-    (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
-    async (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-      const allowedFormats = ["xlsx", "csv"];
-      const fileExtension = file.name.split(".").pop().toLowerCase();
-      if (!allowedFormats.includes(fileExtension)) {
-        setErrorMessage(true);
-        return;
-      }
-      setErrorMessage(false);
-      try {
-        const data = await readExcelFile(file);
-        setData(data);
-        setFile(file.name);
-        setIsPreviewVisible(true);
-      } catch (error) {
-        console.error("Error reading Excel file:", error);
-      }
-    };
+  useEffect(() => {
+    // Fetch data from the backend
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/courses`)
+      .then((response) => {
+        const filteredCourseData = response.data.map((course) => course.id);
+        setCoursesData(filteredCourseData);
+      })
+      .catch((error) => {
+        console.error("Error fetching courses data:", error);
+      });
 
-  const handleFileUpload = createFileUploadHandler(
-    setSelectedFile,
-    setShowErrorMessage,
-    setAccreditationSpreadsheetData,
-    setIsPreviewVisible
-  );
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/instructors`)
+      .then((response) => {
+        const filteredInstructorData = response.data;
+        setInstructorsData(filteredInstructorData);
+      })
+      .catch((error) => {
+        console.error("Error fetching instructors data:", error);
+      });
+
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/classrooms`)
+      .then((response) => {
+        const filteredClassData = response.data.map((cls) => cls.id);
+        setClassroomsData(filteredClassData);
+      })
+      .catch((error) => {
+        console.error("Error fetching classrooms data:", error);
+      });
+
+    // In this example, let's assume semester plan data is already available or fetched from elsewhere.
+    // You can replace this with the actual logic to fetch the semester plan data if needed.
+    const exampleSemesterPlanData = [
+      {
+        name: "Semester Plan 1",
+        notes: "Example notes for Semester Plan 1",
+        semesterID: 1,
+      },
+      {
+        name: "Semester Plan 2",
+        notes: "Example notes for Semester Plan 2",
+        semesterID: 2,
+      },
+      // Add more semester plan data objects as needed
+    ];
+
+    setSemesterPlanData(exampleSemesterPlanData);
+  }, []);
 
   const handleSendToBackEnd = async () => {
-    if (accreditationSpreadsheetData.length > 0) {
-      // Convert data to JSON format
-      const jsonData = accreditationSpreadsheetData.map((item) => ({
-        name: item,
+    if (semesterPlanData.length > 0) {
+      // Convert data to JSON format and include ID fields from coursesData, instructorsData, and classroomsData
+      const jsonData = semesterPlanData.map((item) => ({
+        name: item.name,
+        notes: item.notes,
+        semesterID: item.semesterID,
+        coursesOffered: coursesData,
+        instructorsAvailable: instructorsData,
+        classroomsAvailable: classroomsData,
       }));
-
       try {
         const response = await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/api/accreditations`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
           jsonData,
           tokenConfig(),
           {
@@ -65,15 +90,15 @@ const ImportAccreditation = ({
           const responseData = response.data;
           console.log("File upload successful. Response data:", responseData);
         } else if (response.status === 409) {
-          // In case of conflicts (status code 409), the response data contains created and conflict accreditations
+          // In case of conflicts (status code 409), the response data contains created and conflict semester plans
           const responseData = response.data;
-          console.log("Conflict accreditations:", responseData.conflicts);
+          console.log("Conflict semester plans:", responseData.conflicts);
           console.log(
-            "Successfully created accreditations:",
+            "Successfully created semester plans:",
             responseData.created
           );
         } else {
-          console.error("Error uploading Excel file:", response.statusText);
+          console.error("Error uploading file:", response.statusText);
         }
       } catch (error) {
         console.error("Error sending JSON data to the backend:", error);
@@ -83,22 +108,12 @@ const ImportAccreditation = ({
 
   return (
     <div className={styles.tableHolder}>
-      <h2 className={styles.title}>Accreditation</h2>
-      <FileUploader
-        selectedFile={selectedFile}
-        handleFileUpload={handleFileUpload}
-        showErrorMessage={showErrorMessage}
-        isPreviewVisible={isPreviewVisible}
-        handleSendToBackend={handleSendToBackEnd}
-        id={1}
-        styles={styles}
-      />
-      <SpreadsheetTable
-        spreadsheetData={accreditationSpreadsheetData}
-        styles={styles}
-      />
+      <h2 className={styles.title}>Semester Plan</h2>
+
+      <SpreadsheetTable spreadsheetData={semesterPlanData} styles={styles} />
+      <button onClick={handleSendToBackEnd}>Send Data to Backend</button>
     </div>
   );
 };
 
-export default ImportAccreditation;
+export default ImportSemesterPlan;

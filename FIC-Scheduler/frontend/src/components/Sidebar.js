@@ -48,7 +48,7 @@ function Sidebar({ item, subitem }) {
                         <ClassIcon />
                         Manage Courses
                     </li>
-                    <li onClick={() => navigate("/viewSemsterPlan")}>
+                    <li onClick={() => navigate("/viewSemesterPlan")}>
                         <CalendarViewMonthIcon /> View Semester Plan
                     </li>
                 </CheckAuth>
