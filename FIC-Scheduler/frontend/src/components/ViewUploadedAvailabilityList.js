@@ -135,7 +135,6 @@ export function ViewUploadedAvailabilityList() {
                   availabilities[time] = "Available";
                 });
 
-                console.log(availabilities);
                 return (
                   <TableRow key={rowIndex}>
                     <TableCell key="id">{row.instructorId}</TableCell>
