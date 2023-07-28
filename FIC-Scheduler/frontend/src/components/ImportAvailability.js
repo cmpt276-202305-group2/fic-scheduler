@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import axios from "axios";
 import readExcelFile from "./readExcelfile";
 import styles from "./FileImport.module.css";
+import Button from "@mui/material/Button";
 import { tokenConfig } from "../utils";
 import { FileUploader, SpreadsheetTable } from "./FileUploader";
-
+import { ViewUploadedAvailabilityList } from "./ViewUploadedAvailabilityList";
 const ImportAvailabity = ({
   availabilitySpreadsheetData,
   setAvailabilitySpreadsheetData,
@@ -12,6 +13,8 @@ const ImportAvailabity = ({
   const [selectedFile, setSelectedFile] = useState(null);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+  const [isInstructorAvailabilityVisible, setisInstructorAvailabilityVisible] =
+    useState(false);
 
   const createFileUploadHandler =
     (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
@@ -85,6 +88,13 @@ const ImportAvailabity = ({
     }
   };
 
+  const handleShowAvailabilityList = () => {
+    setisInstructorAvailabilityVisible(
+      (setisInstructorAvailabilityVisible) =>
+        !setisInstructorAvailabilityVisible
+    );
+  };
+
   return (
     <div className={styles.tableHolder}>
       <h2 className={styles.title}>Instructor Availability</h2>
@@ -101,6 +111,21 @@ const ImportAvailabity = ({
         spreadsheetData={availabilitySpreadsheetData}
         styles={styles}
       />
+      <Button
+        onClick={handleShowAvailabilityList}
+        variant="contained"
+        color="primary"
+        sx={{
+          color: "white",
+          backgroundColor: "#417A1A",
+          "&:hover": { backgroundColor: "#417A1A" },
+        }}
+        style={{ marginBottom: 10, marginTop: 10 }}
+      >
+        {isInstructorAvailabilityVisible ? "Hide" : "Show"} Current Availability
+        List
+      </Button>
+      {isInstructorAvailabilityVisible && <ViewUploadedAvailabilityList />}
     </div>
   );
 };

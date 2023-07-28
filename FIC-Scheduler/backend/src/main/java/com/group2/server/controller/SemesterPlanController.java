@@ -48,6 +48,29 @@ public class SemesterPlanController {
         }
     }
 
+    @GetMapping("/semester-plans/latest")
+    public ResponseEntity<?> readLatestSemesterPlan() {
+        SemesterPlan latestSemesterPlan = null;
+        int latestId = -1;
+
+        for (var semesterPlan : semesterPlanRepository.findAll()) {
+            if ((int) semesterPlan.getId() > latestId) {
+                latestSemesterPlan = semesterPlan;
+                latestId = (int) semesterPlan.getId();
+            }
+        }
+
+        if (latestSemesterPlan == null) {
+            // Respond with an error message if no semester plans exist
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "No semester plans in the database");
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(toDto(latestSemesterPlan), HttpStatus.OK);
+    }
+
+
     @PostMapping("/semester-plans")
     public ResponseEntity<List<SemesterPlanDto>> createOrUpdateList(
             @RequestBody List<SemesterPlanDto> semesterPlanDtoList) {
