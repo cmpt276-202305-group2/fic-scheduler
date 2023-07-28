@@ -48,15 +48,15 @@ const ImportAvailabity = ({
       const instructorDataMap = {};
 
       for (const row of availabilitySpreadsheetData) {
-        const instructorName = row.instructorName;
+        const time = row.time;
         const dayOfWeek = row.dayOfWeek;
         const partOfDay = row.partOfDay;
 
-        const key = `${instructorName}_${dayOfWeek}_${partOfDay}`;
+        const key = `${time}_${dayOfWeek}_${partOfDay}`;
 
         if (!instructorDataMap[key]) {
           instructorDataMap[key] = {
-            instructorName,
+            time,
             dayOfWeek,
             partOfDay,
           };
