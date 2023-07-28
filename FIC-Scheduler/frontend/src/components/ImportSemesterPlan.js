@@ -27,7 +27,7 @@ const ImportSemesterPlan = () => {
     axios
       .get(`${process.env.REACT_APP_BACKEND_URL}/api/instructors`)
       .then((response) => {
-        const filteredInstructorData = response.data.map((ins) => ins.id);
+        const filteredInstructorData = response.data;
         setInstructorsData(filteredInstructorData);
       })
       .catch((error) => {
