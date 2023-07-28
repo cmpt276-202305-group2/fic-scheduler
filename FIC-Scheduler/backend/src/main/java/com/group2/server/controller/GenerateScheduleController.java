@@ -112,8 +112,10 @@ public class GenerateScheduleController {
         private InstructorAvailability[] instructorAvailabilities;
         HashMap<String, List<Classroom>> classroomsByType;
 
-        CpModel model = new CpModel();
-        CpSolver solver = new CpSolver();
+        private SemesterPlan semesterPlan;
+
+        private CpModel model = new CpModel();
+        private CpSolver solver = new CpSolver();
 
         private record Slot(
                 BoolVar modelVar,
@@ -136,7 +138,7 @@ public class GenerateScheduleController {
                     .toArray(Instructor[]::new);
             classroomsByType = makeClassroomsByTypeMap(classrooms);
 
-            // prepareSlotIds();
+            semesterPlan = plan;
             prepareModel();
         }
 
@@ -215,7 +217,7 @@ public class GenerateScheduleController {
             long denseSize = (long) days.length * times.length * classrooms.length * instructors.length
                     * coursesOffered.length;
             logger.info("Total slots: {} (dense size {}: {}% reduction from culling)", allSlots.size(), denseSize,
-                    (1.0d - ((double) allSlots.size() / (double) denseSize) * 100d));
+                    (1.0d - ((double) allSlots.size() / (double) denseSize)) * 100d);
             logger.info("Generating constraints");
             // For constraints: "exactly one" by course-block -- make sure every course is
             // being taught, and is only taught once
@@ -286,23 +288,30 @@ public class GenerateScheduleController {
             logger.info("Solving");
             ArrayList<Schedule> schedules = new ArrayList<>();
             CpSolverSolutionCallback solutionCallback = new CpSolverSolutionCallback() {
-                static final int maxSolutions = 10;
+                static final int maxSolutions = 1;
                 int solutionsFound = 0;
 
                 @Override
                 public void onSolutionCallback() {
                     // TODO assert that the solution is a real solution!
                     logger.info("Found solution");
+                    var assignments = new HashSet<ScheduleAssignment>(coursesOffered.length);
                     for (Slot slot : allSlots) {
                         if (booleanValue(slot.modelVar())) {
                             logger.info("ALLOCATED: {} {} {} {} {}", slot.classroom().getRoomNumber(), slot.dayOfWeek(),
                                     slot.partOfDay(), slot.course().getName(), slot.instructor().getName());
+                            assignments.add(new ScheduleAssignment(null, slot.dayOfWeek(),
+                                    slot.partOfDay(), slot.classroom(), slot.course(), slot.instructor()));
                         }
                     }
                     ++solutionsFound;
                     if (solutionsFound >= maxSolutions) {
                         stopSearch();
                     }
+                    var schedule = new Schedule(null,
+                            String.format("Schedule #%d - %s", solutionsFound + 1, semesterPlan.getSemester()),
+                            "", semesterPlan.getSemester(), assignments);
+                    schedules.add(schedule);
                 }
             };
 

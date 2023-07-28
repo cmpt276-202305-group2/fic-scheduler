@@ -62,8 +62,7 @@ public class DebugController {
             "Richardson", "Wood", "Watson", "Brooks", "Bennett", "Gray", "James", "Reyes", "Cruz", "Hughes", "Price",
             "Myers", "Long", "Foster", "Sanders", "Ross", "Morales", "Powell", "Sullivan", "Russell", "Ortiz",
             "Jenkins", "Gutierrez", "Perry", "Butler", "Barnes", "Fisher" };
-    // private static final String[] fullNames = new String[60];
-    private static final String[] fullNames = new String[30];
+    private static final String[] fullNames = new String[60];
 
     @Data
     @AllArgsConstructor
@@ -108,9 +107,7 @@ public class DebugController {
             Map.entry("DISC1 3520", roomTypeSmall),
             Map.entry("DISC1 3540", roomTypeSmall),
             Map.entry("DISC1 3560", roomTypeSmall));
-    // private static final String[] subjects = { "CMPT", "PHYS", "ENGL", "BUS",
-    // "POL", "ECON", "ILS", "ALC" };
-    private static final String[] subjects = { "CMPT", "ENGL", "ILS", "ALC" };
+    private static final String[] subjects = { "CMPT", "PHYS", "ENGL", "BUS", "POL", "ECON", "ILS", "ALC" };
 
     static {
         for (int i = 0; i < fullNames.length; ++i) {
