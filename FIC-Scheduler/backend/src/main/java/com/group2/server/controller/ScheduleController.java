@@ -104,18 +104,21 @@ public class ScheduleController {
 
     public ScheduleDto toDto(Schedule schedule) {
         var courses = new HashMap<CourseOffering, CourseAssignmentDto>();
-        for (var assignment : schedule.getAssignments()) {
-            courses.computeIfAbsent(assignment.getCourse(),
-                    (course) -> {
-                        var dto = new CourseAssignmentDto();
-                        dto.setCourse(new CourseOfferingDto(course.getId(), course.getName(), course.getCourseNumber(),
-                                course.getNotes(),
-                                course.getApprovedInstructors().stream()
-                                        .map(i -> (EntityDto) new EntityReferenceDto(i.getId())).toList(),
-                                course.getAllowedBlockSplits().stream()
-                                        .map(bd -> (EntityDto) new EntityReferenceDto(bd.getId())).toList()));
-                        return dto;
-                    });
+        if (schedule.getAssignments() != null) {
+            for (var assignment : schedule.getAssignments()) {
+                courses.computeIfAbsent(assignment.getCourse(),
+                        (course) -> {
+                            var dto = new CourseAssignmentDto();
+                            dto.setCourse(new CourseOfferingDto(course.getId(), course.getName(),
+                                    course.getCourseNumber(),
+                                    course.getNotes(),
+                                    course.getApprovedInstructors().stream()
+                                            .map(i -> (EntityDto) new EntityReferenceDto(i.getId())).toList(),
+                                    course.getAllowedBlockSplits().stream()
+                                            .map(bd -> (EntityDto) new EntityReferenceDto(bd.getId())).toList()));
+                            return dto;
+                        });
+            }
         }
         return new ScheduleDto(schedule.getId(), schedule.getName(), schedule.getNotes(), schedule.getSemester(),
                 List.copyOf(courses.values()));
