@@ -27,30 +27,8 @@ const ImportSemesterPlan = () => {
     axios
       .get(`${process.env.REACT_APP_BACKEND_URL}/api/instructors`)
       .then((response) => {
-        const filteredInstructorData = response.data.map((ins) => ins.id);
+        const filteredInstructorData = response.data;
         setInstructorsData(filteredInstructorData);
-        axios
-          .get(`${process.env.REACT_APP_BACKEND_URL}/api/avaliability`)
-          .then((response) => {
-            const filteredAvaliabilityData = response.data.map((row) => {
-              // Check if the instructor ID exists in filteredInstructorData
-              const instructorID = filteredInstructorData.includes(
-                row.instructorID
-              )
-                ? row.instructorID
-                : null;
-
-              return {
-                partofDay: row.partOfDay,
-                time: row.time,
-                instructorID: instructorID,
-              };
-            });
-            setClassroomsData(filteredAvaliabilityData);
-          })
-          .catch((error) => {
-            console.error("Error fetching avaliability data:", error);
-          });
       })
       .catch((error) => {
         console.error("Error fetching instructors data:", error);

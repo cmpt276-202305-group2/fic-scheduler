@@ -51,6 +51,7 @@ const ImportAvailabity = ({
         const time = row.time;
         const dayOfWeek = row.dayOfWeek;
         const partOfDay = row.partOfDay;
+        const instructorName = row.instructorName; // Assuming the instructor name is in a column named 'instructorName' in the spreadsheet
 
         const key = `${time}_${dayOfWeek}_${partOfDay}`;
 
@@ -59,6 +60,10 @@ const ImportAvailabity = ({
             time,
             dayOfWeek,
             partOfDay,
+            instructorData: {
+              id: null, // Assuming the ID will be determined later on the server-side
+              name: instructorName,
+            },
           };
           jsonData.push(instructorDataMap[key]);
         }
@@ -66,7 +71,7 @@ const ImportAvailabity = ({
 
       try {
         const response = await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/api/instructorAvailabilities`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/instructors`,
           jsonData,
           tokenConfig()
         );
@@ -74,13 +79,9 @@ const ImportAvailabity = ({
         if (response.status === 200) {
           const result = response.data;
           console.log("File upload successful:", result);
-          // Add any further actions or state updates upon successful backend upload
         } else {
-          // console.error("Error uploading Excel file:", response.statusText);
         }
-      } catch (error) {
-        // console.error("Error uploading Excel file:", error);
-      }
+      } catch (error) {}
     }
   };
 
