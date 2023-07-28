@@ -28,9 +28,6 @@ public class ScheduleController {
     @Autowired
     private InstructorRepository instructorRepository;
 
-    @Autowired
-    private BlockRequirementSplitRepository blockRequirementSplitRepository;
-
     @GetMapping("/schedules/latest")
     public ResponseEntity<ScheduleDto> readLatestSchedule() {
         Schedule latestSchedule = null;
@@ -42,40 +39,7 @@ public class ScheduleController {
                 latestId = (int) sched.getId();
             }
         }
-
-        // TODO remove test code
-        if (latestSchedule == null) {
-            latestSchedule = new Schedule();
-            latestSchedule.setSemester("Fall 2023");
-            HashSet<ScheduleAssignment> assignments = new HashSet<>();
-            var alfred = new Instructor(null, "Alfred", "");
-            var shaniqua = new Instructor(null, "Shaniqua", "");
-            var chenoa = new Instructor(null, "Chenoa", "");
-            var twoHalfBlocks = blockRequirementSplitRepository.save(new BlockRequirementSplit(null,
-                    "Two 1/2 Blocks", List.of(new BlockRequirement(null, Set.of(), Duration.HALF),
-                            new BlockRequirement(null, Set.of(), Duration.HALF))));
-            var oneFullBlock = blockRequirementSplitRepository.save(new BlockRequirementSplit(null,
-                    "One Full Block", List.of(new BlockRequirement(null, Set.of(), Duration.FULL))));
-            var oneFullPhysBlock = blockRequirementSplitRepository.save(new BlockRequirementSplit(null,
-                    "One Full Block", List.of(new BlockRequirement(null, Set.of(), Duration.FULL))));
-            var cmpt120 = new CourseOffering(null, "CMPT 120", "CMPT 120", "", Set.of(alfred, chenoa),
-                    Set.of(twoHalfBlocks, oneFullBlock));
-            var phys125 = new CourseOffering(null, "PHYS 125", "PHYS 125", "", Set.of(alfred, chenoa),
-                    Set.of(oneFullPhysBlock));
-            var engl105w = new CourseOffering(null, "ENGL 105W", "ENGL 105W", "", Set.of(alfred, chenoa),
-                    Set.of(twoHalfBlocks, oneFullBlock));
-            var room2400 = new Classroom(null, "DIS1 2400", "", "");
-            var room2550 = new Classroom(null, "DIS1 2550", "", "");
-            assignments
-                    .add(new ScheduleAssignment(null, DayOfWeek.MONDAY, PartOfDay.MORNING, room2400, cmpt120, chenoa));
-            assignments.add(
-                    new ScheduleAssignment(null, DayOfWeek.MONDAY, PartOfDay.AFTERNOON, room2550, phys125, alfred));
-            assignments.add(
-                    new ScheduleAssignment(null, DayOfWeek.WEDNESDAY, PartOfDay.EVENING, room2400, engl105w, shaniqua));
-            latestSchedule.setAssignments(assignments);
-        }
-
-        return new ResponseEntity<>(toDto(latestSchedule), HttpStatus.OK);
+        return new ResponseEntity<>(latestSchedule != null ? toDto(latestSchedule) : null, HttpStatus.OK);
     }
 
     @GetMapping("/schedules")
@@ -140,18 +104,21 @@ public class ScheduleController {
 
     public ScheduleDto toDto(Schedule schedule) {
         var courses = new HashMap<CourseOffering, CourseAssignmentDto>();
-        for (var assignment : schedule.getAssignments()) {
-            courses.computeIfAbsent(assignment.getCourse(),
-                    (course) -> {
-                        var dto = new CourseAssignmentDto();
-                        dto.setCourse(new CourseOfferingDto(course.getId(), course.getName(), course.getCourseNumber(),
-                                course.getNotes(),
-                                course.getApprovedInstructors().stream()
-                                        .map(i -> (EntityDto) new EntityReferenceDto(i.getId())).toList(),
-                                course.getAllowedBlockSplits().stream()
-                                        .map(bd -> (EntityDto) new EntityReferenceDto(bd.getId())).toList()));
-                        return dto;
-                    });
+        if (schedule.getAssignments() != null) {
+            for (var assignment : schedule.getAssignments()) {
+                courses.computeIfAbsent(assignment.getCourse(),
+                        (course) -> {
+                            var dto = new CourseAssignmentDto();
+                            dto.setCourse(new CourseOfferingDto(course.getId(), course.getName(),
+                                    course.getCourseNumber(),
+                                    course.getNotes(),
+                                    course.getApprovedInstructors().stream()
+                                            .map(i -> (EntityDto) new EntityReferenceDto(i.getId())).toList(),
+                                    course.getAllowedBlockSplits().stream()
+                                            .map(bd -> (EntityDto) new EntityReferenceDto(bd.getId())).toList()));
+                            return dto;
+                        });
+            }
         }
         return new ScheduleDto(schedule.getId(), schedule.getName(), schedule.getNotes(), schedule.getSemester(),
                 List.copyOf(courses.values()));

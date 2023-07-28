@@ -62,7 +62,8 @@ public class DebugController {
             "Richardson", "Wood", "Watson", "Brooks", "Bennett", "Gray", "James", "Reyes", "Cruz", "Hughes", "Price",
             "Myers", "Long", "Foster", "Sanders", "Ross", "Morales", "Powell", "Sullivan", "Russell", "Ortiz",
             "Jenkins", "Gutierrez", "Perry", "Butler", "Barnes", "Fisher" };
-    private static final String[] fullNames = new String[60];
+    // private static final String[] fullNames = new String[60];
+    private static final String[] fullNames = new String[30];
 
     @Data
     @AllArgsConstructor
@@ -107,13 +108,23 @@ public class DebugController {
             Map.entry("DISC1 3520", roomTypeSmall),
             Map.entry("DISC1 3540", roomTypeSmall),
             Map.entry("DISC1 3560", roomTypeSmall));
-    private static final String[] subjects = { "CMPT", "PHYS", "ENGL", "BUS", "POL", "ECON", "ILS", "ALC" };
+    // private static final String[] subjects = { "CMPT", "PHYS", "ENGL", "BUS",
+    // "POL", "ECON", "ILS", "ALC" };
+    private static final String[] subjects = { "CMPT", "ENGL", "ILS", "ALC" };
 
     static {
         for (int i = 0; i < fullNames.length; ++i) {
             var r = new Random(13);
-            for (i = 0; i < fullNames.length; ++i) {
-                fullNames[i] = firstNames[r.nextInt(firstNames.length)] + " " + lastNames[r.nextInt(lastNames.length)];
+            for (i = 0; i < fullNames.length;) {
+                String fullName = firstNames[r.nextInt(firstNames.length)] + " "
+                        + lastNames[r.nextInt(lastNames.length)];
+                for (int j = 0; j < i; ++j) {
+                    if (fullName.equals(fullNames[j])) {
+                        continue;
+                    }
+                }
+                fullNames[i] = fullName;
+                ++i;
             }
         }
     }
