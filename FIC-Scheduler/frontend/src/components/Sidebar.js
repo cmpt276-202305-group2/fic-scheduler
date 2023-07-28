@@ -4,7 +4,6 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import BugReportIcon from "@mui/icons-material/BugReport";
 import Button from "@mui/material/Button";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ClassIcon from "@mui/icons-material/Class";
 import SchoolIcon from "@mui/icons-material/School";
 import DashboardCustomizeIcon from "@mui/icons-material/DashboardCustomize";
@@ -26,9 +25,6 @@ function Sidebar({ item, subitem }) {
         <CheckAuth permittedRoles={["INSTRUCTOR"]}>
           <li onClick={() => navigate("/viewInstructorSchedule")}>
             <CalendarMonthIcon /> Instructor Schedule
-          </li>
-          <li>
-            <CloudUploadIcon /> Upload My Preferences
           </li>
         </CheckAuth>
         <CheckAuth permittedRoles={["COORDINATOR"]}>
