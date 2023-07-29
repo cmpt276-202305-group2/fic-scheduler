@@ -50,8 +50,8 @@ const ImportAvailabity = ({
 
       for (const row of availabilitySpreadsheetData) {
         const time = row.time;
-        const dayOfWeek = row.dayOfWeek;
-        const partOfDay = row.partOfDay;
+        const dayofWeek = row.dayOfWeek;
+        const partofDay = row.partOfDay;
         const instructorName = row.instructorName;
 
         // Check for duplicate names
@@ -60,8 +60,8 @@ const ImportAvailabity = ({
         } else {
           instructorDataMap[instructorName] = {
             time,
-            dayOfWeek,
-            partOfDay,
+            dayofWeek,
+            partofDay,
             instructorData: {
               id: null,
               name: instructorName,
