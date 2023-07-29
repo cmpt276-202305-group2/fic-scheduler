@@ -112,8 +112,16 @@ public class DebugController {
     static {
         for (int i = 0; i < fullNames.length; ++i) {
             var r = new Random(13);
-            for (i = 0; i < fullNames.length; ++i) {
-                fullNames[i] = firstNames[r.nextInt(firstNames.length)] + " " + lastNames[r.nextInt(lastNames.length)];
+            for (i = 0; i < fullNames.length;) {
+                String fullName = firstNames[r.nextInt(firstNames.length)] + " "
+                        + lastNames[r.nextInt(lastNames.length)];
+                for (int j = 0; j < i; ++j) {
+                    if (fullName.equals(fullNames[j])) {
+                        continue;
+                    }
+                }
+                fullNames[i] = fullName;
+                ++i;
             }
         }
     }
