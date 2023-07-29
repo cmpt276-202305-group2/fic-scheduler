@@ -6,172 +6,199 @@ import Button from "@mui/material/Button";
 import { tokenConfig } from "../utils";
 import { FileUploader, SpreadsheetTable } from "./FileUploader";
 import { ViewUploadedAvailabilityList } from "./ViewUploadedAvailabilityList";
-const ImportAvailabity = ({
-  availabilitySpreadsheetData,
-  setAvailabilitySpreadsheetData,
-}) => {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
-  const [instructors, setInstructors] = useState([]);
-  const [jsonData, setJsonData] = useState([]);
-  const [isInstructorAvailabilityVisible, setisInstructorAvailabilityVisible] =
-    useState(false);
 
-  const createFileUploadHandler =
-    (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
-    async (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-      const allowedFormats = ["xlsx", "csv"];
-      const fileExtension = file.name.split(".").pop().toLowerCase();
-      if (!allowedFormats.includes(fileExtension)) {
-        setErrorMessage(true);
-        return;
-      }
-      setErrorMessage(false);
-      try {
-        const data = await readExcelFile(file);
-        setData(data);
-        setFile(file.name);
-        setIsPreviewVisible(true);
-      } catch (error) {
-        console.error("Error reading Excel file:", error);
-      }
+const ImportAvailabity = ({
+    availabilitySpreadsheetData,
+    setAvailabilitySpreadsheetData,
+}) => {
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [showErrorMessage, setShowErrorMessage] = useState(false);
+    const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+    const [instructors, setInstructors] = useState([]);
+    const [jsonData, setJsonData] = useState([]);
+    const [isInstructorAvailabilityVisible, setisInstructorAvailabilityVisible] =
+        useState(false);
+
+    const createFileUploadHandler =
+        (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
+            async (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const allowedFormats = ["xlsx", "csv"];
+                const fileExtension = file.name.split(".").pop().toLowerCase();
+                if (!allowedFormats.includes(fileExtension)) {
+                    setErrorMessage(true);
+                    return;
+                }
+                setErrorMessage(false);
+                try {
+                    const data = await readExcelFile(file);
+                    setData(data);
+                    setFile(file.name);
+                    setIsPreviewVisible(true);
+                } catch (error) {
+                    console.error("Error reading Excel file:", error);
+                }
+            };
+
+    const handleFileUpload = createFileUploadHandler(
+        setSelectedFile,
+        setShowErrorMessage,
+        setAvailabilitySpreadsheetData,
+        setIsPreviewVisible
+    );
+
+    const handleSendToBackEnd = async () => {
+        if (availabilitySpreadsheetData.length > 0) {
+            const instructorDataMap = {};
+            const duplicateNames = [];
+
+            for (const row of availabilitySpreadsheetData) {
+                const instructorName = row[0];
+                console.log("Instructor Name:", instructorName);
+                console.log("Row:", row);
+                const instructorData = {
+                    id: null,
+                    name: instructorName,
+                    availability: [], // Add an empty array for availability data
+                };
+
+                // Define the days of the week and parts of the day
+                // Define the days of the week and parts of the day
+                const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+                const partsOfDay = ['AM', 'PM', 'EVE'];
+
+                // Get the availability data for the instructor
+                const availabilityData = row.slice(1); // Assuming the first element is the instructor's name
+
+                for (let dayIndex = 0; dayIndex < daysOfWeek.length; dayIndex++) {
+                    for (let partIndex = 0; partIndex < partsOfDay.length; partIndex++) {
+                        const isAvailable = availabilityData[dayIndex * partsOfDay.length + partIndex] === 1;
+
+                        if (isAvailable) {
+                            instructorData.availability.push({
+                                dayOfWeek: daysOfWeek[dayIndex],
+                                partOfDay: partsOfDay[partIndex],
+                            });
+                        }
+                    }
+                }
+
+                // Check for duplicate names
+                if (instructorDataMap[instructorName]) {
+                    duplicateNames.push(instructorName);
+                } else {
+                    instructorDataMap[instructorName] = instructorData;
+                    jsonData.push(instructorData);
+                }
+            }
+
+            // use these to set data for the instructor and JSONdata
+            setInstructors(Object.values(instructorDataMap));
+            setJsonData(jsonData);
+
+            // Check if duplicate names are found and handle the error
+            if (duplicateNames.length > 0) {
+                // You can display the duplicate names or show an error message to the user
+                console.error("Duplicate names found in the file:", duplicateNames);
+                return;
+            }
+
+            try {
+                console.log("Sending data to backend:", jsonData);
+
+                let response = await axios.get(
+                    `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans/latest`,
+                    tokenConfig()
+                );
+
+                // If the latest semester plan doesn't exist, create a new one
+                if (!response.data) {
+                    const semesterPlan = {
+                        name: "SomeName",
+                        semester: "SomeSemester",
+                        notes: "",
+                        coursesOffered: [],
+                        instructorsAvailable: [],
+                        classroomsAvailable: [],
+                        courseCorequisites: [],
+                        instructorSchedulingRequests: [],
+                    };
+
+                    response = await axios.post(
+                        `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
+                        semesterPlan,
+                        tokenConfig()
+                    );
+                }
+
+                // Then update the semester plan with the new instructor availability data
+                if (response.status === 200 || response.status === 201) {
+                    response = await axios.put(
+                        `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
+                        jsonData,
+                        tokenConfig()
+                    );
+
+                    // If the PUT request is successful, send the instructor data
+                    if (response.status === 200) {
+                        response = await axios.post(
+                            `${process.env.REACT_APP_BACKEND_URL}/api/instructors`,
+                            instructors,
+                            tokenConfig()
+                        );
+
+                        if (response.status === 200 || response.status === 201) {
+                            console.log("Instructor data upload successful:", response.data);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error sending data to backend:", error);
+            }
+        }
     };
 
-  const handleFileUpload = createFileUploadHandler(
-    setSelectedFile,
-    setShowErrorMessage,
-    setAvailabilitySpreadsheetData,
-    setIsPreviewVisible
-  );
-
-  const handleSendToBackEnd = async () => {
-    if (availabilitySpreadsheetData.length > 0) {
-      // const jsonData = [];
-      const instructorDataMap = {};
-
-      for (const row of availabilitySpreadsheetData) {
-        const time = row.time;
-        const dayOfWeek = row.dayOfWeek;
-        const partOfDay = row.partOfDay;
-        const instructorName = row.instructorName;
-
-        const key = `${time}_${dayOfWeek}_${partOfDay}`;
-
-        if (!instructorDataMap[key]) {
-          instructorDataMap[key] = {
-            time,
-            dayOfWeek,
-            partOfDay,
-            instructorData: {
-              id: null,
-              name: instructorName,
-            },
-          };
-          jsonData.push(instructorDataMap[key]);
-        }
-      }
-      // use these to set data for the instructor and JSONdata aka availability something like this
-      setInstructors(Object.values(instructorDataMap));
-      setJsonData(jsonData);
-
-      try {
-        console.log("Sending data to backend:", jsonData);
-
-        let response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans/latest`,
-          tokenConfig()
+    const handleShowAvailabilityList = () => {
+        setisInstructorAvailabilityVisible(
+            (setisInstructorAvailabilityVisible) =>
+                !setisInstructorAvailabilityVisible
         );
+    };
 
-        // If the latest semester plan doesn't exist, create a new one
-        if (!response.data) {
-          const semesterPlan = {
-            name: "SomeName",
-            semester: "SomeSemester",
-            notes: "",
-            coursesOffered: [],
-            instructorsAvailable: [],
-            classroomsAvailable: [],
-            courseCorequisites: [],
-            instructorSchedulingRequests: [],
-          };
-
-          response = await axios.post(
-            `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
-            semesterPlan,
-            tokenConfig()
-          );
-        }
-
-        // Then update the semester plan with the new instructor availability data
-        if (response.status === 200 || response.status === 201) {
-          response = await axios.put(
-            `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
-            jsonData,
-            tokenConfig()
-          );
-
-          // If the PUT request is successful, send the instructor data
-          if (response.status === 200) {
-            response = await axios.post(
-              `${process.env.REACT_APP_BACKEND_URL}/api/instructors`,
-              instructors,
-              tokenConfig()
-            );
-
-            if (response.status === 200 || response.status === 201) {
-              console.log("Instructor data upload successful:", response.data);
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Error sending data to backend:", error);
-      }
-    }
-  };
-
-  const handleShowAvailabilityList = () => {
-    setisInstructorAvailabilityVisible(
-      (setisInstructorAvailabilityVisible) =>
-        !setisInstructorAvailabilityVisible
+    return (
+        <div className={styles.tableHolder}>
+            <h2 className={styles.title}>Instructor Availability</h2>
+            <FileUploader
+                selectedFile={selectedFile}
+                handleFileUpload={handleFileUpload}
+                showErrorMessage={showErrorMessage}
+                isPreviewVisible={isPreviewVisible}
+                handleSendToBackend={handleSendToBackEnd}
+                id={2}
+                styles={styles}
+            />
+            <SpreadsheetTable
+                spreadsheetData={availabilitySpreadsheetData}
+                styles={styles}
+            />
+            <Button
+                onClick={handleShowAvailabilityList}
+                variant="contained"
+                color="primary"
+                sx={{
+                    color: "white",
+                    backgroundColor: "#417A1A",
+                    "&:hover": { backgroundColor: "#417A1A" },
+                }}
+                style={{ marginBottom: 10, marginTop: 10 }}
+            >
+                {isInstructorAvailabilityVisible ? "Hide" : "Show"} Current Availability
+                List
+            </Button>
+            {isInstructorAvailabilityVisible && <ViewUploadedAvailabilityList />}
+        </div>
     );
-  };
-
-  return (
-    <div className={styles.tableHolder}>
-      <h2 className={styles.title}>Instructor Availability</h2>
-      <FileUploader
-        selectedFile={selectedFile}
-        handleFileUpload={handleFileUpload}
-        showErrorMessage={showErrorMessage}
-        isPreviewVisible={isPreviewVisible}
-        handleSendToBackend={handleSendToBackEnd}
-        id={2}
-        styles={styles}
-      />
-      <SpreadsheetTable
-        spreadsheetData={availabilitySpreadsheetData}
-        styles={styles}
-      />
-      <Button
-        onClick={handleShowAvailabilityList}
-        variant="contained"
-        color="primary"
-        sx={{
-          color: "white",
-          backgroundColor: "#417A1A",
-          "&:hover": { backgroundColor: "#417A1A" },
-        }}
-        style={{ marginBottom: 10, marginTop: 10 }}
-      >
-        {isInstructorAvailabilityVisible ? "Hide" : "Show"} Current Availability
-        List
-      </Button>
-      {isInstructorAvailabilityVisible && <ViewUploadedAvailabilityList />}
-    </div>
-  );
 };
 
 export default ImportAvailabity;
