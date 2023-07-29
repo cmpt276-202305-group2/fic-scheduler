@@ -57,9 +57,7 @@ const ImportAvailabity = ({
         const instructorName = row[0];
         console.log("Instructor Name:", instructorName);
         console.log("Row:", row);
-        const instructorData = {
-          availability: [], // Add an empty array for availability data
-        };
+        const instructorData = {};
 
         // Define the days of the week and parts of the day
         const daysOfWeek = [
@@ -86,7 +84,7 @@ const ImportAvailabity = ({
                 dayOfWeek: daysOfWeek[dayIndex],
               };
 
-              instructorData.availability.push(availabilityEntry);
+              instructorData.push(availabilityEntry);
             }
           }
         }
