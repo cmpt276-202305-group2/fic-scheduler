@@ -6,6 +6,7 @@ import Button from "@mui/material/Button";
 import { tokenConfig } from "../utils";
 import { FileUploader, SpreadsheetTable } from "./FileUploader";
 import { ViewUploadedAvailabilityList } from "./ViewUploadedAvailabilityList";
+
 const ImportAvailabity = ({
   availabilitySpreadsheetData,
   setAvailabilitySpreadsheetData,
@@ -49,33 +50,51 @@ const ImportAvailabity = ({
 
   const handleSendToBackEnd = async () => {
     if (availabilitySpreadsheetData.length > 0) {
-      // const jsonData = [];
       const instructorDataMap = {};
       const duplicateNames = [];
 
       for (const row of availabilitySpreadsheetData) {
-        const time = row.time;
-        const dayOfWeek = row.dayOfWeek;
-        const partOfDay = row.partOfDay;
-        const instructorName = row.instructorName;
+        const instructorName = row.InstructorName;
+        const instructorData = {
+          id: null,
+          name: instructorName,
+          availability: [], // Add an empty array for availability data
+        };
+
+        // Define the days of the week and parts of the day
+        const daysOfWeek = [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+        ];
+        const partsOfDay = ["AM", "PM", "EVE"];
+
+        for (const day of daysOfWeek) {
+          for (const partOfDay of partsOfDay) {
+            const availabilityKey = `${day} ${partOfDay}`;
+            const isAvailable = row[availabilityKey] === 1;
+
+            if (isAvailable) {
+              instructorData.availability.push({
+                dayOfWeek: day,
+                partOfDay: partOfDay,
+              });
+            }
+          }
+        }
 
         // Check for duplicate names
         if (instructorDataMap[instructorName]) {
           duplicateNames.push(instructorName);
         } else {
-          instructorDataMap[instructorName] = {
-            time,
-            dayOfWeek,
-            partOfDay,
-            instructorData: {
-              id: null,
-              name: instructorName,
-            },
-          };
-          jsonData.push(instructorDataMap[instructorName]);
+          instructorDataMap[instructorName] = instructorData;
+          jsonData.push(instructorData);
         }
       }
-      // use these to set data for the instructor and JSONdata aka availability something like this
+
+      // use these to set data for the instructor and JSONdata
       setInstructors(Object.values(instructorDataMap));
       setJsonData(jsonData);
 
