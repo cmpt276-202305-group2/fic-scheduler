@@ -11,14 +11,14 @@ export function DebugSchedule() {
   const [formId, setFormId] = useState('');
   const [formName, setFormName] = useState('');
   const [formNotes, setFormNotes] = useState('');
-  const [formAssignments, setFormAssignments] = useState('');
+  const [formCourses, setFormCourses] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const clearForm = () => {
     setFormId('');
     setFormName('');
     setFormNotes('');
-    setFormAssignments('[]');
+    setFormCourses('');
   }
 
   useEffect(() => {
@@ -31,17 +31,13 @@ export function DebugSchedule() {
   var data = (<div>No schedules</div>);
   if (((allSchedules ?? null) !== null) && (allSchedules instanceof Array)) {
     data = (
-      <table>
+      <table className={styles.DebugDataTable}>
         <thead>
           <tr>
             <th key="0">id</th>
             <th key="1">name</th>
             <th key="2">notes</th>
             <th key="3">assignments</th>
-            {/* <th key="2">course</th>
-            <th key="1">partOfDay</th>
-            <th key="2">classroom</th>
-            <th key="2">instructor</th> */}
           </tr>
         </thead>
         <tbody>
@@ -49,8 +45,8 @@ export function DebugSchedule() {
             <tr key={rowIndex}>
               <td key="0">{row.id}</td>
               <td key="1">{row.name}</td>
-              <td key="2">{row.notes}</td>
-              <td key="3">{row.assignments}</td>
+              <td key="2"><pre>{row.notes}</pre></td>
+              <td key="3"><pre>{JSON.stringify(row.courses, null, 2)}</pre></td>
             </tr>
           ))}
         </tbody>
@@ -83,7 +79,7 @@ export function DebugSchedule() {
       }}>
         <h2>Create/Update</h2>
         <p style={{ color: 'red' }}>{errorMessage}</p>
-        <table>
+        <table className={styles.DebugFormTable}>
           <tbody>
             <tr>
               <td><label htmlFor="form-id">ID</label></td>
@@ -101,13 +97,13 @@ export function DebugSchedule() {
               <td><label htmlFor="form-notes">Notes</label></td>
               <td><input id="form-notes" type="text" name="formNotes" value={formNotes}
                 onChange={(event) => setFormNotes(event.target.value)}
-                placeholder="Don't update" /></td>
+                placeholder="Don't update" size="50" /></td>
             </tr>
             <tr>
-              <td><label htmlFor="form-assignments">Assignments</label></td>
-              <td><input id="form-assignments" type="text" name="formAssignments" value={formAssignments}
-                onChange={(event) => setFormAssignments(event.target.value)}
-                placeholder="Don't update" /></td>
+              <td><label htmlFor="form-courses">Courses</label></td>
+              <td><textarea id="form-courses" name="formCourses" value={formCourses}
+                onChange={(event) => setFormCourses(event.target.value)}
+                placeholder="Don't update" rows="10" cols="50" /></td>
             </tr>
           </tbody>
         </table>

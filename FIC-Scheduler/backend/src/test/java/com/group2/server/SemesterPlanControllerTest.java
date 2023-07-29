@@ -8,6 +8,7 @@ import com.group2.server.repository.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -67,7 +69,10 @@ public class SemesterPlanControllerTest {
         Set<CourseOffering> coursesOffered = new HashSet<>();
         Set<InstructorAvailability> instructorsAvailable = new HashSet<>();
         Set<Classroom> classroomsAvailable = new HashSet<>();
-        return new SemesterPlan(id, name, notes, semester, coursesOffered, instructorsAvailable, classroomsAvailable);
+        Set<CourseCorequisite> courseCorequisites = new HashSet<>();
+        Set<InstructorSchedulingRequest> instructorSchedulingRequests = new HashSet<>();
+        return new SemesterPlan(id, name, notes, semester, coursesOffered, instructorsAvailable, classroomsAvailable,
+                courseCorequisites, instructorSchedulingRequests);
     }
 
     @Test
@@ -96,7 +101,7 @@ public class SemesterPlanControllerTest {
     }
 
     @Test
-    public void testReadListByQueryWithBadRequest() throws Exception {
+    public void testReadListByQueryExceptionCase() throws Exception {
         // Mock the repository to throw an exception when calling findAll()
         when(semesterPlanRepository.findAll()).thenThrow(new RuntimeException("Error occurred while fetching data"));
 
@@ -128,17 +133,18 @@ public class SemesterPlanControllerTest {
     }
 
     @Test
-    public void testReadOneByIdWithBadRequest() throws Exception {
+    public void testReadOneByIdExceptionCase() throws Exception {
         int semesterPlanId = 1;
-    
+
         // Mock the repository to return an empty optional, simulating the id not found
         when(semesterPlanRepository.findById(semesterPlanId)).thenReturn(Optional.empty());
-    
+
         // Perform the request and verify the response
         mockMvc.perform(get("/api/semester-plans/{id}", semesterPlanId))
                 .andExpect(status().isBadRequest());
-    
-        // Verify that semesterPlanRepository.findById() was called once with the correct ID
+
+        // Verify that semesterPlanRepository.findById() was called once with the
+        // correct ID
         verify(semesterPlanRepository, times(1)).findById(semesterPlanId);
     }
 
@@ -147,9 +153,9 @@ public class SemesterPlanControllerTest {
         // Mock the data to be sent in the request
         List<SemesterPlanDto> semesterPlanDtoList = new ArrayList<>();
         semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 1", "Notes for Plan 1", "2023 Spring",
-                new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 2", "Notes for Plan 2", "2023 Fall", new ArrayList<>(),
-                new ArrayList<>(), new ArrayList<>()));
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
 
         SemesterPlan savedSemesterPlans_1 = createMockSemesterPlan(1, "Plan 1", "Notes for Plan 1", "2023 Spring");
         SemesterPlan savedSemesterPlans_2 = createMockSemesterPlan(2, "Plan 2", "Notes for Plan 2", "2023 Fall");
@@ -178,11 +184,33 @@ public class SemesterPlanControllerTest {
     }
 
     @Test
+    public void testCreateOrUpdateListExceptionCase() throws Exception {
+        // Mock the repository to throw an exception when saving
+        when(semesterPlanRepository.save(any(SemesterPlan.class))).thenThrow(new RuntimeException());
+    
+        // Mock the data in the request body, where the first SemesterPlanDto is valid,
+        // and the second one will cause an exception when trying to save it
+        List<SemesterPlanDto> semesterPlanDtoList = new ArrayList<>();
+        semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 1", "Notes for Plan 1", "Fall 2023", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList(), new ArrayList()));
+        semesterPlanDtoList.add(new SemesterPlanDto(null, "Invalid Plan", "Invalid Notes", "Invalid Semester", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList(), new ArrayList()));
+    
+        // Perform the request and verify the response
+        mockMvc.perform(post("/api/semester-plans")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(semesterPlanDtoList)))
+                .andExpect(status().isBadRequest());
+    
+        // Verify that semesterPlanRepository.save() was called once with the correct entity
+        verify(semesterPlanRepository, times(1)).save(any(SemesterPlan.class));
+    }
+
+    @Test
     public void testUpdateOneById() throws Exception {
         // Mock the data to be sent in the request
         int semesterPlanId = 1;
         SemesterPlanDto semesterPlanDto = new SemesterPlanDto(semesterPlanId, "Updated Plan", "Updated Notes",
-                "2023 Fall", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                "2023 Fall", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>());
 
         // Mock the data returned by the repository after updating
         SemesterPlan updatedSemesterPlan = createMockSemesterPlan(semesterPlanId, "Updated Plan", "Updated Notes",
@@ -203,23 +231,54 @@ public class SemesterPlanControllerTest {
                 .andExpect(jsonPath("$.semester").value("2023 Fall"));
 
         verify(semesterPlanRepository, times(1)).findById(semesterPlanId);
-        verify(semesterPlanRepository, times(1)).save(any());
+
+        ArgumentCaptor<SemesterPlan> semesterPlanCaptor = ArgumentCaptor.forClass(SemesterPlan.class);
+        verify(semesterPlanRepository, times(1)).save(semesterPlanCaptor.capture());
         verifyNoMoreInteractions(semesterPlanRepository);
+
+        // Verify the updated SemesterPlan data
+        SemesterPlan capturedSemesterPlan = semesterPlanCaptor.getValue();
+        assertEquals(1, capturedSemesterPlan.getId());
+        assertEquals("Updated Plan", capturedSemesterPlan.getName());
+        assertEquals("Updated Notes", capturedSemesterPlan.getNotes());
+        assertEquals("2023 Fall", capturedSemesterPlan.getSemester());
+    }
+
+    @Test
+    public void testUpdateOneByIdExceptionCase() throws Exception {
+        int semesterPlanId = 1;
+        SemesterPlanDto semesterPlanDto = new SemesterPlanDto(2, "Plan 1", "Notes for Plan 1", "Fall 2023", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),  new ArrayList(), new ArrayList());
+
+        // Perform the request and verify the response
+        mockMvc.perform(put("/api/semester-plans/{id}", semesterPlanId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(semesterPlanDto)))
+                .andExpect(status().isBadRequest());
+
+        // Verify that semesterPlanRepository.findById() was not called
+        verify(semesterPlanRepository, times(0)).findById(semesterPlanId);
+        verifyNoInteractions(semesterPlanRepository);
     }
 
     @Test
     public void testDeleteOneById() throws Exception {
-        // Mock the data to be deleted
-        int semesterPlanId = 1;
-        SemesterPlan deletedSemesterPlan = createMockSemesterPlan(semesterPlanId, "Plan 1", "Notes for Plan 1",
-                "2023 Spring");
-        when(semesterPlanRepository.findById(semesterPlanId)).thenReturn(Optional.of(deletedSemesterPlan));
-
         // Perform the request and verify the response
-        mockMvc.perform(delete("/api/semester-plans/{id}", semesterPlanId))
+        mockMvc.perform(delete("/api/semester-plans/{id}", 1))
                 .andExpect(status().isOk());
 
-        verify(semesterPlanRepository, times(1)).deleteById(semesterPlanId);
+        verify(semesterPlanRepository, times(1)).deleteById(1);
+        verifyNoMoreInteractions(semesterPlanRepository);
+    }
+
+    @Test
+    public void testDeleteOneByIdExceptionCase() throws Exception {
+
+        doThrow(IllegalArgumentException.class).when(semesterPlanRepository).deleteById(any(Integer.class));
+        // Perform the request and verify the response
+        mockMvc.perform(delete("/api/semester-plans/{id}", 1))
+                .andExpect(status().isBadRequest());
+
+        verify(semesterPlanRepository, times(1)).deleteById(any(Integer.class));
         verifyNoMoreInteractions(semesterPlanRepository);
     }
 
