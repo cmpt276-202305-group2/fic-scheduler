@@ -49,7 +49,7 @@ const ImportAvailabity = ({
 
   const handleSendToBackEnd = async () => {
     if (availabilitySpreadsheetData.length > 0) {
-      //   const jsonData = [];
+      // const jsonData = [];
       const instructorDataMap = {};
 
       for (const row of availabilitySpreadsheetData) {
@@ -73,6 +73,9 @@ const ImportAvailabity = ({
           jsonData.push(instructorDataMap[key]);
         }
       }
+      // use these to set data for the instructor and JSONdata aka availability something like this
+      setInstructors(Object.values(instructorDataMap));
+      setJsonData(jsonData);
 
       try {
         console.log("Sending data to backend:", jsonData);
