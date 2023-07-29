@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import axios from "axios";
 import readExcelFile from "./readExcelfile";
 import styles from "./FileImport.module.css";
+import Button from "@mui/material/Button";
 import { tokenConfig } from "../utils";
 import { FileUploader, SpreadsheetTable } from "./FileUploader";
-
+import { ViewUploadedAvailabilityList } from "./ViewUploadedAvailabilityList";
 const ImportAvailabity = ({
   availabilitySpreadsheetData,
   setAvailabilitySpreadsheetData,
@@ -12,6 +13,10 @@ const ImportAvailabity = ({
   const [selectedFile, setSelectedFile] = useState(null);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+  const [instructors, setInstructors] = useState([]);
+  const [jsonData, setJsonData] = useState([]);
+  const [isInstructorAvailabilityVisible, setisInstructorAvailabilityVisible] =
+    useState(false);
 
   const createFileUploadHandler =
     (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
@@ -44,7 +49,7 @@ const ImportAvailabity = ({
 
   const handleSendToBackEnd = async () => {
     if (availabilitySpreadsheetData.length > 0) {
-      const jsonData = [];
+      // const jsonData = [];
       const instructorDataMap = {};
       const duplicateNames = [];
 
@@ -70,6 +75,9 @@ const ImportAvailabity = ({
           jsonData.push(instructorDataMap[instructorName]);
         }
       }
+      // use these to set data for the instructor and JSONdata aka availability something like this
+      setInstructors(Object.values(instructorDataMap));
+      setJsonData(jsonData);
 
       // Check if duplicate names are found and handle the error
       if (duplicateNames.length > 0) {
@@ -79,19 +87,65 @@ const ImportAvailabity = ({
       }
 
       try {
-        const response = await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/api/instructors`,
-          jsonData,
+        console.log("Sending data to backend:", jsonData);
+
+        let response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans/latest`,
           tokenConfig()
         );
 
-        if (response.status === 200) {
-          const result = response.data;
-          console.log("File upload successful:", result);
-        } else {
+        // If the latest semester plan doesn't exist, create a new one
+        if (!response.data) {
+          const semesterPlan = {
+            name: "SomeName",
+            semester: "SomeSemester",
+            notes: "",
+            coursesOffered: [],
+            instructorsAvailable: [],
+            classroomsAvailable: [],
+            courseCorequisites: [],
+            instructorSchedulingRequests: [],
+          };
+
+          response = await axios.post(
+            `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
+            semesterPlan,
+            tokenConfig()
+          );
         }
-      } catch (error) {}
+
+        // Then update the semester plan with the new instructor availability data
+        if (response.status === 200 || response.status === 201) {
+          response = await axios.put(
+            `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
+            jsonData,
+            tokenConfig()
+          );
+
+          // If the PUT request is successful, send the instructor data
+          if (response.status === 200) {
+            response = await axios.post(
+              `${process.env.REACT_APP_BACKEND_URL}/api/instructors`,
+              instructors,
+              tokenConfig()
+            );
+
+            if (response.status === 200 || response.status === 201) {
+              console.log("Instructor data upload successful:", response.data);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error sending data to backend:", error);
+      }
     }
+  };
+
+  const handleShowAvailabilityList = () => {
+    setisInstructorAvailabilityVisible(
+      (setisInstructorAvailabilityVisible) =>
+        !setisInstructorAvailabilityVisible
+    );
   };
 
   return (
@@ -110,6 +164,21 @@ const ImportAvailabity = ({
         spreadsheetData={availabilitySpreadsheetData}
         styles={styles}
       />
+      <Button
+        onClick={handleShowAvailabilityList}
+        variant="contained"
+        color="primary"
+        sx={{
+          color: "white",
+          backgroundColor: "#417A1A",
+          "&:hover": { backgroundColor: "#417A1A" },
+        }}
+        style={{ marginBottom: 10, marginTop: 10 }}
+      >
+        {isInstructorAvailabilityVisible ? "Hide" : "Show"} Current Availability
+        List
+      </Button>
+      {isInstructorAvailabilityVisible && <ViewUploadedAvailabilityList />}
     </div>
   );
 };
