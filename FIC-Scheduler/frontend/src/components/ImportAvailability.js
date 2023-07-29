@@ -46,27 +46,36 @@ const ImportAvailabity = ({
     if (availabilitySpreadsheetData.length > 0) {
       const jsonData = [];
       const instructorDataMap = {};
+      const duplicateNames = [];
 
       for (const row of availabilitySpreadsheetData) {
         const time = row.time;
         const dayOfWeek = row.dayOfWeek;
         const partOfDay = row.partOfDay;
-        const instructorName = row.instructorName; // Assuming the instructor name is in a column named 'instructorName' in the spreadsheet
+        const instructorName = row.instructorName;
 
-        const key = `${time}_${dayOfWeek}_${partOfDay}`;
-
-        if (!instructorDataMap[key]) {
-          instructorDataMap[key] = {
+        // Check for duplicate names
+        if (instructorDataMap[instructorName]) {
+          duplicateNames.push(instructorName);
+        } else {
+          instructorDataMap[instructorName] = {
             time,
             dayOfWeek,
             partOfDay,
             instructorData: {
-              id: null, // Assuming the ID will be determined later on the server-side
+              id: null,
               name: instructorName,
             },
           };
-          jsonData.push(instructorDataMap[key]);
+          jsonData.push(instructorDataMap[instructorName]);
         }
+      }
+
+      // Check if duplicate names are found and handle the error
+      if (duplicateNames.length > 0) {
+        // You can display the duplicate names or show an error message to the user
+        console.error("Duplicate names found in the file:", duplicateNames);
+        return;
       }
 
       try {
