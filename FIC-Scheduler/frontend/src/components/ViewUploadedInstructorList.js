@@ -27,7 +27,11 @@ export function ViewUploadedInstructorList() {
   }, [setAllInstructors]);
 
   var data = <div>No instructors</div>;
-  if ((allInstructors ?? null) !== null && allInstructors instanceof Array) {
+  if (
+    (allInstructors ?? null) !== null &&
+    allInstructors instanceof Array &&
+    allInstructors.length > 0
+  ) {
     data = (
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer
