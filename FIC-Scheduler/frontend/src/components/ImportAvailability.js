@@ -57,7 +57,6 @@ const ImportAvailabity = ({
         const instructorName = row[0];
         console.log("Instructor Name:", instructorName);
         console.log("Row:", row);
-        const instructorData = {};
 
         // Define the days of the week and parts of the day
         const daysOfWeek = [
@@ -84,22 +83,22 @@ const ImportAvailabity = ({
                 dayOfWeek: daysOfWeek[dayIndex],
               };
 
-              instructorData.push(availabilityEntry);
+              // Check for duplicate names
+              if (instructorDataMap[instructorName]) {
+                instructorDataMap[instructorName].push(availabilityEntry);
+              } else {
+                instructorDataMap[instructorName] = [availabilityEntry];
+              }
             }
           }
         }
-
-        // Check for duplicate names
-        if (instructorDataMap[instructorName]) {
-          duplicateNames.push(instructorName);
-        } else {
-          instructorDataMap[instructorName] = instructorData;
-          jsonData.push(instructorData);
-        }
       }
 
+      // Flatten the instructorDataMap into jsonData array
+      jsonData.push(Object.values(instructorDataMap).flat());
+
       // use these to set data for the instructor and JSONdata
-      setInstructors(Object.values(instructorDataMap));
+      setInstructors(jsonData);
       setJsonData(jsonData);
 
       // Check if duplicate names are found and handle the error
