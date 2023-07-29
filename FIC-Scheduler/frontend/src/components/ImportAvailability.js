@@ -14,6 +14,7 @@ const ImportAvailabity = ({
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [instructors, setInstructors] = useState([]);
+  const [jsonData, setJsonData] = useState([]);
   const [isInstructorAvailabilityVisible, setisInstructorAvailabilityVisible] =
     useState(false);
 
@@ -48,7 +49,7 @@ const ImportAvailabity = ({
 
   const handleSendToBackEnd = async () => {
     if (availabilitySpreadsheetData.length > 0) {
-      const jsonData = [];
+      //   const jsonData = [];
       const instructorDataMap = {};
 
       for (const row of availabilitySpreadsheetData) {
