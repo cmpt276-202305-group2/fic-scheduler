@@ -97,9 +97,10 @@ const ImportAvailabity = ({
 
       // Flatten the instructorDataMap into jsonData array
       jsonData.push(Object.values(instructorDataMap).flat());
+      instructors.push(instructorNamesAndNotes);
 
       // use these to set data for the instructor and JSONdata
-      setInstructors(instructorNamesAndNotes);
+      setInstructors(instructors);
       setJsonData(jsonData);
 
       // Check if duplicate names are found and handle the error
