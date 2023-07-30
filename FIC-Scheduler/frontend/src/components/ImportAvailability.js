@@ -51,13 +51,14 @@ const ImportAvailabity = ({
   const handleSendToBackEnd = async () => {
     if (availabilitySpreadsheetData.length > 0) {
       const instructorDataMap = {};
+      const instructorNamesAndNotes = [];
       const duplicateNames = [];
 
       for (const row of availabilitySpreadsheetData.slice(1)) {
         const instructorName = row[0];
         console.log("Instructor Name:", instructorName);
         console.log("Row:", row);
-
+        instructorNamesAndNotes.push({ instructorName });
         // Define the days of the week and parts of the day
         const daysOfWeek = [
           "MONDAY",
@@ -98,7 +99,7 @@ const ImportAvailabity = ({
       jsonData.push(Object.values(instructorDataMap).flat());
 
       // use these to set data for the instructor and JSONdata
-      setInstructors(jsonData);
+      setInstructors(instructorNamesAndNotes);
       setJsonData(jsonData);
 
       // Check if duplicate names are found and handle the error
