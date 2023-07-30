@@ -112,35 +112,59 @@ const ImportAvailabity = ({
         console.log("Sending data to backend:", jsonData);
 
         let response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans/latest`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
           tokenConfig()
         );
 
+        console.log("this is get response Response:", response);
+        console.log(
+          "this is get response Data.data.latest:",
+          response.data[response.data.length - 1]
+        );
+        console.log("this is response.data.length:", response.data.length);
+
         // If the latest semester plan doesn't exist, create a new one
-        if (!response.data) {
+        if (response.data && response.data.length === 0) {
           const semesterPlan = {
-            name: "SomeName",
-            semester: "SomeSemester",
-            notes: "",
+            id: "",
+            name: "semesterPlan",
+            notes: "some notes",
+            semester: "semesterPlanTest",
             coursesOffered: [],
             instructorsAvailable: [],
             classroomsAvailable: [],
-            courseCorequisites: [],
-            instructorSchedulingRequests: [],
           };
+
+          console.log("there was no semesterPlan creating ...");
 
           response = await axios.post(
             `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
-            semesterPlan,
+            [semesterPlan],
             tokenConfig()
           );
         }
 
+        const thisId = response.data[response.data.length - 1].id;
+
         // Then update the semester plan with the new instructor availability data
         if (response.status === 200 || response.status === 201) {
-          response = await axios.put(
+          console.log("we are in the update part ...");
+          const unwrappedData = jsonData[0];
+          console.log("stringified object:", JSON.stringify(unwrappedData));
+          const semesterPlan = {
+            id: thisId.toString(),
+            name: "semesterPlan",
+            notes: "some notes",
+            semester: "semesterPlanTest",
+            coursesOffered: [],
+            instructorsAvailable: unwrappedData,
+            classroomsAvailable: [],
+          };
+
+          console.log("this is semesterPlan id for update:", semesterPlan.id);
+          response = await axios.post(
             `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
-            jsonData,
+            [semesterPlan],
             tokenConfig()
           );
 
