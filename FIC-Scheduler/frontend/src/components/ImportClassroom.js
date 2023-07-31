@@ -53,11 +53,11 @@ const ImportClassroom = ({
 
   const handleSendToBackEnd = async () => {
     if (classroomSpreadsheetData.length > 0) {
-      const jsonData = classroomSpreadsheetData.map((row) => {
+      const jsonData = classroomSpreadsheetData.slice(1).map((row) => {
         const data = {
           id: null,
           roomNumber: row[0],
-          facilitesAvaliableNames: row[1],
+          roomType: row[1],
           notes: row[2],
         };
 
@@ -72,7 +72,7 @@ const ImportClassroom = ({
         );
 
         if (response.status === 200) {
-          const result = response.json();
+          const result = response.data;
           console.log("File upload successful:", result);
         } else {
           console.error("Error uploading Excel file:", response.statusText);
