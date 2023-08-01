@@ -8,7 +8,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "semester_plan")
+@jakarta.persistence.Entity(name = "semester_plan")
 public class SemesterPlan {
     @Setter(AccessLevel.PROTECTED)
     @Id

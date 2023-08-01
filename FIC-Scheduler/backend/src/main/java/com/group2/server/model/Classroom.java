@@ -6,8 +6,8 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "classroom")
-public class Classroom {
+@jakarta.persistence.Entity(name = "classroom")
+public class Classroom implements Entity {
     @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

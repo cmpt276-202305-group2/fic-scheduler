@@ -10,8 +10,8 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "application_user")
-public class ApplicationUser implements UserDetails {
+@jakarta.persistence.Entity(name = "application_user")
+public class ApplicationUser implements UserDetails, Entity {
     @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

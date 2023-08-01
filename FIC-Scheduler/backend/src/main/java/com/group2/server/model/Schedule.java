@@ -8,7 +8,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "schedule")
+@jakarta.persistence.Entity(name = "schedule")
 public class Schedule {
     @Setter(AccessLevel.PROTECTED)
     @Id

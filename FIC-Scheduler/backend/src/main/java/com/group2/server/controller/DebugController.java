@@ -334,7 +334,8 @@ public class DebugController {
                 }
                 semesterPlanRepository.save(
                         new SemesterPlan(null, name, "Created by DebugController.populateTestSemesterPlan", semester,
-                                courseOfferings, Set.copyOf(instructorAvailabilities), classrooms, Set.of(), Set.of()));
+                                courseOfferings, Set.copyOf(instructorAvailabilities), classrooms, Set.of(),
+                                Set.of()));
             }
             return new ResponseEntity<Void>(HttpStatus.OK);
         } catch (Exception e) {

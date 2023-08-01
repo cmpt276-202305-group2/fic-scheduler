@@ -8,8 +8,8 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "block_requirement_split")
-public class BlockRequirementSplit {
+@jakarta.persistence.Entity(name = "block_requirement_split")
+public class BlockRequirementSplit implements Entity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

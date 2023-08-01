@@ -110,7 +110,7 @@ public class GenerateScheduleController {
         private Classroom[] classrooms;
         private Instructor[] instructors;
         private InstructorAvailability[] instructorAvailabilities;
-        HashMap<String, List<Classroom>> classroomsByType;
+        private HashMap<String, List<Classroom>> classroomsByType;
 
         private SemesterPlan semesterPlan;
 

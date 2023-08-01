@@ -247,7 +247,8 @@ public class SemesterPlanControllerTest {
     @Test
     public void testUpdateOneByIdExceptionCase() throws Exception {
         int semesterPlanId = 1;
-        SemesterPlanDto semesterPlanDto = new SemesterPlanDto(2, "Plan 1", "Notes for Plan 1", "Fall 2023", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),  new ArrayList<>(), new ArrayList<>());
+        SemesterPlanDto semesterPlanDto = new SemesterPlanDto(2, "Plan 1", "Notes for Plan 1", "Fall 2023",
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         // Perform the request and verify the response
         mockMvc.perform(put("/api/semester-plans/{id}", semesterPlanId)
