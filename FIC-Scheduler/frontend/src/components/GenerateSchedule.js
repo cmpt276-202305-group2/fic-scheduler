@@ -86,7 +86,7 @@ function GenerateSchedule() {
                 Generate Schedule
             </Button>
             {showErrorMessage && (
-                <div style={{ fontSize: 20 }}>Please Finish Importing Data Before Generating Schedule</div>
+                <div style={{ fontSize: 20 }}>Please Import all the Files Properly</div>
             )}
             {showScheduleTable && <ScheduleTable />}
         </div>
