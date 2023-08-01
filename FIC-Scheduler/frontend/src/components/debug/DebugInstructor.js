@@ -170,6 +170,7 @@ export function DebugInstructor() {
             </Button>
 
             <Button
+              sx={{ mb: 3, mt: 1 }}
               onClick={(event) => {
                 event.preventDefault();
                 if (formId) {
