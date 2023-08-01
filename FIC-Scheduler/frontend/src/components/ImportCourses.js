@@ -106,7 +106,7 @@ const ImportCourses = ({
             />
             {showSuccessMessage && (
                 <h2 className={styles.successMessage}>
-                    List of Course Offering Uploaded Succesfully!
+                    List of Course Offering successfully uploaded!
                 </h2>
             )}
             <SpreadsheetTable
