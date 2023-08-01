@@ -191,8 +191,8 @@ public class SemesterPlanControllerTest {
         // Mock the data in the request body, where the first SemesterPlanDto is valid,
         // and the second one will cause an exception when trying to save it
         List<SemesterPlanDto> semesterPlanDtoList = new ArrayList<>();
-        semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 1", "Notes for Plan 1", "Fall 2023", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList(), new ArrayList()));
-        semesterPlanDtoList.add(new SemesterPlanDto(null, "Invalid Plan", "Invalid Notes", "Invalid Semester", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList(), new ArrayList()));
+        semesterPlanDtoList.add(new SemesterPlanDto(null, "Plan 1", "Notes for Plan 1", "Fall 2023", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+        semesterPlanDtoList.add(new SemesterPlanDto(null, "Invalid Plan", "Invalid Notes", "Invalid Semester", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
     
         // Perform the request and verify the response
         mockMvc.perform(post("/api/semester-plans")
@@ -247,7 +247,7 @@ public class SemesterPlanControllerTest {
     @Test
     public void testUpdateOneByIdExceptionCase() throws Exception {
         int semesterPlanId = 1;
-        SemesterPlanDto semesterPlanDto = new SemesterPlanDto(2, "Plan 1", "Notes for Plan 1", "Fall 2023", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),  new ArrayList(), new ArrayList());
+        SemesterPlanDto semesterPlanDto = new SemesterPlanDto(2, "Plan 1", "Notes for Plan 1", "Fall 2023", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),  new ArrayList<>(), new ArrayList<>());
 
         // Perform the request and verify the response
         mockMvc.perform(put("/api/semester-plans/{id}", semesterPlanId)
