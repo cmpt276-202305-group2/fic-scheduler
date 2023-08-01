@@ -1,126 +1,218 @@
-import axios from 'axios';
+import axios from "axios";
 import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-import styles from "../../pages/Common.module.css";
-
-import { tokenConfig } from "../../utils"
+import { boxStyles, headerStyles, formStyles } from "./DebugStyles";
+import { tokenConfig } from "../../utils";
 
 export function DebugSchedule() {
   const [allSchedules, setAllSchedules] = useState(null);
   const [updateResponse, setUpdateResponse] = useState(null);
-  const [formId, setFormId] = useState('');
-  const [formName, setFormName] = useState('');
-  const [formNotes, setFormNotes] = useState('');
-  const [formCourses, setFormCourses] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [formId, setFormId] = useState("");
+  const [formName, setFormName] = useState("");
+  const [formNotes, setFormNotes] = useState("");
+  const [formCourses, setFormCourses] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const clearForm = () => {
-    setFormId('');
-    setFormName('');
-    setFormNotes('');
-    setFormCourses('');
-  }
+    setFormId("");
+    setFormName("");
+    setFormNotes("");
+    setFormCourses("");
+  };
 
   useEffect(() => {
     clearForm();
     axios.get("api/schedules", tokenConfig()).then(
-      (response) => { setAllSchedules(response.data); },
-      (_) => { setAllSchedules(null); });
-  }, [updateResponse, setAllSchedules]);
+      (response) => {
+        setAllSchedules(response.data);
+      },
+      (_) => {
+        setAllSchedules(null);
+      }
+    );
+  }, [updateResponse]);
 
-  var data = (<div>No schedules</div>);
-  if (((allSchedules ?? null) !== null) && (allSchedules instanceof Array)) {
+  var data = <div>No schedules</div>;
+  if (allSchedules && allSchedules instanceof Array) {
     data = (
-      <table className={styles.DebugDataTable}>
-        <thead>
-          <tr>
-            <th key="0">id</th>
-            <th key="1">name</th>
-            <th key="2">notes</th>
-            <th key="3">assignments</th>
-          </tr>
-        </thead>
-        <tbody>
-          {allSchedules.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              <td key="0">{row.id}</td>
-              <td key="1">{row.name}</td>
-              <td key="2"><pre>{row.notes}</pre></td>
-              <td key="3"><pre>{JSON.stringify(row.courses, null, 2)}</pre></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>);
+      <Paper sx={{ width: "100%", overflow: "hidden" }}>
+        <TableContainer sx={{ width: "100%", maxHeight: 300 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                <TableCell key="0">ID</TableCell>
+                <TableCell key="1">Name</TableCell>
+                <TableCell key="2">Notes</TableCell>
+                <TableCell key="3">Courses</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {allSchedules.map((row, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  <TableCell key="0">{row.id}</TableCell>
+                  <TableCell key="1">{row.name}</TableCell>
+                  <TableCell key="2">{row.notes}</TableCell>
+                  <TableCell key="3">
+                    <pre>{JSON.stringify(row.courses, null, 2)}</pre>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    );
   }
-  return (
-    <div className={styles.DebugComponent} data-testid="debug-schedule">
-      <h1>Schedules</h1>
-      {data}
-      <form onSubmit={(event) => {
-        event.preventDefault();
-        //const scheduleIdStr = (formId !== '') ? ('/' + formId) : '';
-        const scheduleObj = {}
-        try {
-          if (formId) scheduleObj.id = formId;
-          if (formName) scheduleObj.name = formName;
-          if (formNotes) scheduleObj.notes = formNotes;
-        }
-        catch (error) {
-          setErrorMessage("Couldn't make query: " + error.message);
-          return;
-        }
 
-        axios.post("api/schedules", [scheduleObj], tokenConfig()).then(
-          (response) => { setUpdateResponse(response); setErrorMessage(''); },
-          (error) => {
-            setErrorMessage(error.response ?
-              error.response.status + ' ' + error.response.data : error.message);
-          });
-      }}>
-        <h2>Create/Update</h2>
-        <p style={{ color: 'red' }}>{errorMessage}</p>
-        <table className={styles.DebugFormTable}>
-          <tbody>
-            <tr>
-              <td><label htmlFor="form-id">ID</label></td>
-              <td><input id="form-id" type="text" name="formId" value={formId}
-                onChange={(event) => setFormId(event.target.value)}
-                placeholder="Create new" /></td>
-            </tr>
-            <tr>
-              <td><label htmlFor="form-name">Name</label></td>
-              <td><input id="form-name" type="text" name="formName" value={formName}
-                onChange={(event) => setFormName(event.target.value)}
-                placeholder="Don't update" autoFocus /></td>
-            </tr>
-            <tr>
-              <td><label htmlFor="form-notes">Notes</label></td>
-              <td><input id="form-notes" type="text" name="formNotes" value={formNotes}
-                onChange={(event) => setFormNotes(event.target.value)}
-                placeholder="Don't update" size="50" /></td>
-            </tr>
-            <tr>
-              <td><label htmlFor="form-courses">Courses</label></td>
-              <td><textarea id="form-courses" name="formCourses" value={formCourses}
-                onChange={(event) => setFormCourses(event.target.value)}
-                placeholder="Don't update" rows="10" cols="50" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <button type="submit">Create/Update</button>
-        <button onClick={(event) => {
-          event.preventDefault();
-          if ((formId ?? '') !== '') {
-            axios.delete("api/schedules/" + formId, tokenConfig()).then(
-              (response) => { setUpdateResponse(response); setErrorMessage(''); },
-              (error) => {
-                setErrorMessage(error.response ?
-                  error.response.status + ' ' + error.response.data : error.message);
-              });
-          }
-        }}>Delete</button>
-      </form>
-    </div>);
-};
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: "#0a5e28",
+      },
+    },
+  });
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Box {...boxStyles} data-testid="debug-schedule">
+        <Container maxWidth="lg">
+          <Box {...headerStyles}>
+            <Typography component="h1" variant="h4" color="white">
+              Schedules
+            </Typography>
+          </Box>
+
+          {data}
+
+          <Box
+            {...formStyles}
+            onSubmit={(event) => {
+              event.preventDefault();
+              const scheduleObj = {};
+              try {
+                if (formId) scheduleObj.id = formId;
+                if (formName) scheduleObj.name = formName;
+                if (formNotes) scheduleObj.notes = formNotes;
+              } catch (error) {
+                setErrorMessage("Couldn't make query: " + error.message);
+                return;
+              }
+
+              axios.post("api/schedules", [scheduleObj], tokenConfig()).then(
+                (response) => {
+                  setUpdateResponse(response);
+                  setErrorMessage("");
+                },
+                (error) => {
+                  setErrorMessage(
+                    error.response
+                      ? error.response.status + " " + error.response.data
+                      : error.message
+                  );
+                }
+              );
+            }}
+          >
+            <Typography component="h2" variant="h5">
+              Create/Update
+            </Typography>
+
+            <Typography component="p" variant="body1" color="error">
+              {errorMessage}
+            </Typography>
+
+            <TextField
+              id="form-id"
+              label="ID"
+              value={formId}
+              onChange={(event) => setFormId(event.target.value)}
+              margin="normal"
+              fullWidth
+              placeholder="Create new"
+            />
+
+            <TextField
+              id="form-name"
+              label="Name"
+              value={formName}
+              onChange={(event) => setFormName(event.target.value)}
+              margin="normal"
+              fullWidth
+              placeholder="Don't update"
+              autoFocus
+            />
+
+            <TextField
+              id="form-notes"
+              label="Notes"
+              value={formNotes}
+              onChange={(event) => setFormNotes(event.target.value)}
+              margin="normal"
+              fullWidth
+              placeholder="Don't update"
+            />
+
+            <TextField
+              id="form-courses"
+              label="Courses"
+              value={formCourses}
+              onChange={(event) => setFormCourses(event.target.value)}
+              margin="normal"
+              fullWidth
+              placeholder="Don't update"
+              multiline
+              rows={4}
+            />
+
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Create/Update
+            </Button>
+
+            <Button
+              onClick={(event) => {
+                event.preventDefault();
+                if (formId) {
+                  axios.delete("api/schedules/" + formId, tokenConfig()).then(
+                    (response) => {
+                      setUpdateResponse(response);
+                      setErrorMessage("");
+                    },
+                    (error) => {
+                      setErrorMessage(
+                        error.response
+                          ? error.response.status + " " + error.response.data
+                          : error.message
+                      );
+                    }
+                  );
+                }
+              }}
+              variant="outlined"
+              color="error"
+              fullWidth
+            >
+              Delete
+            </Button>
+          </Box>
+        </Container>
+      </Box>
+    </ThemeProvider>
+  );
+}
 
 export default DebugSchedule;

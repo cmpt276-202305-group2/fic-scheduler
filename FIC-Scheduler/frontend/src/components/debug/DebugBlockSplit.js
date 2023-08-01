@@ -191,6 +191,7 @@ export function DebugBlockSplit() {
               }}
               color="error"
               fullWidth
+              variant="outlined"
             >
               Delete
             </Button>

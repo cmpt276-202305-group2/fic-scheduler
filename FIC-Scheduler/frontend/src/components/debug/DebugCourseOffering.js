@@ -119,7 +119,7 @@ export function DebugCourseOffering() {
                 if (formName) courseOfferingObj.name = formName;
                 if (formCourseNumber)
                   courseOfferingObj.courseNumber = formCourseNumber;
-                if (formNotes) courseOfferingObj.notes = formNotes;
+                courseOfferingObj.notes = formNotes;
                 if (formApprovedInstructors)
                   courseOfferingObj.approvedInstructors = JSON.parse(
                     formApprovedInstructors
@@ -205,7 +205,7 @@ export function DebugCourseOffering() {
 
             <TextField
               id="form-approved-instructors"
-              label="Approved Instructors"
+              label="Approved Instructors (JSON)"
               value={formApprovedInstructors}
               onChange={(event) =>
                 setFormApprovedInstructors(event.target.value)
@@ -217,7 +217,7 @@ export function DebugCourseOffering() {
 
             <TextField
               id="form-allowed-block-splits"
-              label="Allowed Block Splits"
+              label="Allowed Block Splits (JSON)"
               value={formAllowedBlockSplits}
               onChange={(event) =>
                 setFormAllowedBlockSplits(event.target.value)
@@ -227,13 +227,36 @@ export function DebugCourseOffering() {
               placeholder="Don't update"
             />
 
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Create/Update
+            </Button>
+
             <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              sx={{ mt: 3, mb: 2 }}
+              onClick={(event) => {
+                event.preventDefault();
+                if (formId) {
+                  axios
+                    .delete("api/course-offerings/" + formId, tokenConfig())
+                    .then(
+                      (response) => {
+                        setUpdateResponse(response);
+                        setErrorMessage("");
+                      },
+                      (error) => {
+                        setErrorMessage(
+                          error.response
+                            ? error.response.status + " " + error.response.data
+                            : error.message
+                        );
+                      }
+                    );
+                }
+              }}
+              color="error"
+              variant="outlined"
+              fullWidth
             >
-              Submit
+              Delete
             </Button>
           </Box>
         </Container>

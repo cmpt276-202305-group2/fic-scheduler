@@ -201,6 +201,7 @@ export function DebugClassroom() {
               }}
               color="error"
               fullWidth
+              variant="outlined"
             >
               Delete
             </Button>
