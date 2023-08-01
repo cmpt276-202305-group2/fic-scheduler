@@ -17,6 +17,7 @@ export const headerStyles = {
     borderRadius: 1,
     backgroundColor: "#a09e9e",
     marginBottom: 2,
+    marginTop: 20,
   },
 };
 
