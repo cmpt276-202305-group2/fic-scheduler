@@ -1,149 +1,268 @@
-import axios from 'axios';
+import axios from "axios";
 import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-import styles from "../../pages/Common.module.css";
-
-import { tokenConfig } from "../../utils"
+import { boxStyles, headerStyles, formStyles } from "./DebugStyles";
+import { tokenConfig } from "../../utils";
 
 export function DebugCourseOffering() {
   const [allCourseOfferings, setAllCourseOfferings] = useState(null);
   const [updateResponse, setUpdateResponse] = useState(null);
-  const [formId, setFormId] = useState('');
-  const [formName, setFormName] = useState('');
-  const [formCourseNumber, setFormCourseNumber] = useState('');
-  const [formNotes, setFormNotes] = useState('');
-  const [formApprovedInstructors, setFormApprovedInstructors] = useState('');
-  const [formAllowedBlockSplits, setFormAllowedBlockSplits] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [formId, setFormId] = useState("");
+  const [formName, setFormName] = useState("");
+  const [formCourseNumber, setFormCourseNumber] = useState("");
+  const [formNotes, setFormNotes] = useState("");
+  const [formApprovedInstructors, setFormApprovedInstructors] = useState("");
+  const [formAllowedBlockSplits, setFormAllowedBlockSplits] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const clearForm = () => {
-    setFormId('');
-    setFormName('');
-    setFormCourseNumber('');
-    setFormNotes('');
-    setFormApprovedInstructors('');
-    setFormAllowedBlockSplits('');
-  }
+    setFormId("");
+    setFormName("");
+    setFormCourseNumber("");
+    setFormNotes("");
+    setFormApprovedInstructors("");
+    setFormAllowedBlockSplits("");
+  };
 
   useEffect(() => {
     clearForm();
     axios.get("api/course-offerings", tokenConfig()).then(
-      (response) => { setAllCourseOfferings(response.data); },
-      (_) => { setAllCourseOfferings(null); });
-  }, [updateResponse, setAllCourseOfferings]);
+      (response) => {
+        setAllCourseOfferings(response.data);
+      },
+      (_) => {
+        setAllCourseOfferings(null);
+      }
+    );
+  }, [updateResponse]);
 
-  var data = (<div>No course offerings</div>);
-  if (((allCourseOfferings ?? null) !== null) && (allCourseOfferings instanceof Array)) {
+  let data = <div>No course offerings</div>;
+  if (allCourseOfferings && allCourseOfferings instanceof Array) {
     data = (
-      <table>
-        <thead>
-          <tr>
-            <th key="0">id</th>
-            <th key="1">name</th>
-            <th key="2">course number</th>
-            <th key="3">notes</th>
-            <th key="4">approved instructors</th>
-            <th key="5">allowed block splits</th>
-          </tr>
-        </thead>
-        <tbody>
-          {allCourseOfferings.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              <td key="0">{row.id}</td>
-              <td key="1">{row.name}</td>
-              <td key="2">{row.courseNumber}</td>
-              <td key="3">{row.notes}</td>
-              <td key="4">{JSON.stringify(row.approvedInstructors)}</td>
-              <td key="5">{JSON.stringify(row.allowedBlockSplits)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>);
+      <Paper sx={{ width: "100%", overflow: "hidden" }}>
+        <TableContainer sx={{ width: "100%", maxHeight: 300 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                <TableCell key="0">ID</TableCell>
+                <TableCell key="1">Name</TableCell>
+                <TableCell key="2">Course Number</TableCell>
+                <TableCell key="3">Notes</TableCell>
+                <TableCell key="4">Approved Instructors</TableCell>
+                <TableCell key="5">Allowed Block Splits</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {allCourseOfferings.map((row, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  <TableCell key="0">{row.id}</TableCell>
+                  <TableCell key="1">{row.name}</TableCell>
+                  <TableCell key="2">{row.courseNumber}</TableCell>
+                  <TableCell key="3">{row.notes}</TableCell>
+                  <TableCell key="4">
+                    {JSON.stringify(row.approvedInstructors)}
+                  </TableCell>
+                  <TableCell key="5">
+                    {JSON.stringify(row.allowedBlockSplits)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    );
   }
-  return (
-    <div className={styles.DebugComponent} data-testid="debug-course-offering">
-      <h1>Course Offerings</h1>
-      {data}
-      <form onSubmit={(event) => {
-        event.preventDefault();
-        //const courseOfferingIdStr = (formId !== '') ? ('/' + formId) : '';
-        const courseOfferingObj = {}
-        try {
-          if (formId) courseOfferingObj.id = formId;
-          if (formName) courseOfferingObj.name = formCourseNumber;
-          if (formCourseNumber) courseOfferingObj.courseNumber = formCourseNumber;
-          if (formNotes) courseOfferingObj.notes = formNotes;
-          if (formApprovedInstructors) courseOfferingObj.approvedInstructors = JSON.parse(formApprovedInstructors);
-          if (formAllowedBlockSplits) courseOfferingObj.allowedBlockSplits = JSON.parse(formAllowedBlockSplits);
-        }
-        catch (error) {
-          setErrorMessage("Couldn't make query: " + error.message);
-          return;
-        }
 
-        axios.post("api/course-offerings", [courseOfferingObj], tokenConfig()).then(
-          (response) => { setUpdateResponse(response); setErrorMessage(''); },
-          (error) => {
-            setErrorMessage(error.response ?
-              error.response.status + ' ' + error.response.data : error.message);
-          });
-      }}>
-        <h2>Create/Update</h2>
-        <p style={{ color: 'red' }}>{errorMessage}</p>
-        <table className={styles.DebugFormTable}>
-          <tbody>
-            <tr>
-              <td><label htmlFor="form-id">ID</label></td>
-              <td><input id="form-id" type="text" name="formId" value={formId}
-                onChange={(event) => setFormId(event.target.value)}
-                placeholder="Create new" /></td>
-            </tr>
-            <tr>
-              <td><label htmlFor="form-name">Name</label></td>
-              <td><input id="form-name" type="text" name="formName" value={formName}
-                onChange={(event) => setFormName(event.target.value)}
-                placeholder="Don't update" autoFocus /></td>
-            </tr>
-            <tr>
-              <td><label htmlFor="form-course-number">Course Number</label></td>
-              <td><input id="form-course-number" type="text" name="formCourseNumber" value={formCourseNumber}
-                onChange={(event) => setFormCourseNumber(event.target.value)}
-                placeholder="Don't update" autoFocus /></td>
-            </tr>
-            <tr>
-              <td><label htmlFor="form-notes">Notes</label></td>
-              <td><input id="form-notes" type="text" name="formNotes" value={formNotes}
-                onChange={(event) => setFormNotes(event.target.value)}
-                placeholder="Don't update" size="50" /></td>
-            </tr>
-            <tr>
-              <td><label htmlFor="form-approved-instructors">Approved Instructors</label></td>
-              <td><textarea id="form-approved-instructors" name="formApprovedInstructors" value={formApprovedInstructors}
-                onChange={(event) => setFormApprovedInstructors(event.target.value)}
-                placeholder="Don't update" rows="10" cols="50" /></td>
-            </tr>
-            <tr>
-              <td><label htmlFor="form-allowed-block-splits">Allowed Block Splits</label></td>
-              <td><textarea id="form-allowed-block-splits" name="formAllowedBlockSplits" value={formAllowedBlockSplits}
-                onChange={(event) => setFormAllowedBlockSplits(event.target.value)}
-                placeholder="Don't update" rows="10" cols="50" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <button type="submit">Create/Update</button>
-        <button onClick={(event) => {
-          event.preventDefault();
-          if ((formId ?? '') !== '') {
-            axios.delete("api/course-offerings/" + formId, tokenConfig()).then(
-              (response) => { setUpdateResponse(response); setErrorMessage(''); },
-              (error) => {
-                setErrorMessage(error.response ?
-                  error.response.status + ' ' + error.response.data : error.message);
-              });
-          }
-        }}>Delete</button>
-      </form>
-    </div>);
-};
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: "#0a5e28",
+      },
+    },
+  });
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Box {...boxStyles} data-testid="debug-course-offering">
+        <Container maxWidth="lg">
+          <Box {...headerStyles}>
+            <Typography component="h1" variant="h4" color="white">
+              Course Offerings
+            </Typography>
+          </Box>
+
+          {data}
+
+          <Box
+            {...formStyles}
+            onSubmit={(event) => {
+              event.preventDefault();
+              const courseOfferingObj = {};
+              try {
+                if (formId) courseOfferingObj.id = formId;
+                if (formName) courseOfferingObj.name = formName;
+                if (formCourseNumber)
+                  courseOfferingObj.courseNumber = formCourseNumber;
+                courseOfferingObj.notes = formNotes;
+                if (formApprovedInstructors)
+                  courseOfferingObj.approvedInstructors = JSON.parse(
+                    formApprovedInstructors
+                  );
+                if (formAllowedBlockSplits)
+                  courseOfferingObj.allowedBlockSplits = JSON.parse(
+                    formAllowedBlockSplits
+                  );
+              } catch (error) {
+                setErrorMessage("Couldn't make query: " + error.message);
+                return;
+              }
+
+              axios
+                .post(
+                  "api/course-offerings",
+                  [courseOfferingObj],
+                  tokenConfig()
+                )
+                .then(
+                  (response) => {
+                    setUpdateResponse(response);
+                    setErrorMessage("");
+                  },
+                  (error) => {
+                    setErrorMessage(
+                      error.response
+                        ? error.response.status + " " + error.response.data
+                        : error.message
+                    );
+                  }
+                );
+            }}
+          >
+            <Typography component="h2" variant="h5">
+              Create/Update
+            </Typography>
+
+            <Typography component="p" variant="body1" color="error">
+              {errorMessage}
+            </Typography>
+
+            <TextField
+              id="form-id"
+              label="ID"
+              value={formId}
+              onChange={(event) => setFormId(event.target.value)}
+              margin="normal"
+              fullWidth
+              placeholder="Create new"
+            />
+
+            <TextField
+              id="form-name"
+              label="Name"
+              value={formName}
+              onChange={(event) => setFormName(event.target.value)}
+              margin="normal"
+              fullWidth
+              placeholder="Don't update"
+              autoFocus
+            />
+
+            <TextField
+              id="form-course-number"
+              label="Course Number"
+              value={formCourseNumber}
+              onChange={(event) => setFormCourseNumber(event.target.value)}
+              margin="normal"
+              fullWidth
+              placeholder="Don't update"
+            />
+
+            <TextField
+              id="form-notes"
+              label="Notes"
+              value={formNotes}
+              onChange={(event) => setFormNotes(event.target.value)}
+              margin="normal"
+              fullWidth
+              placeholder="Don't update"
+            />
+
+            <TextField
+              id="form-approved-instructors"
+              label="Approved Instructors (JSON)"
+              value={formApprovedInstructors}
+              onChange={(event) =>
+                setFormApprovedInstructors(event.target.value)
+              }
+              margin="normal"
+              fullWidth
+              placeholder="Don't update"
+            />
+
+            <TextField
+              id="form-allowed-block-splits"
+              label="Allowed Block Splits (JSON)"
+              value={formAllowedBlockSplits}
+              onChange={(event) =>
+                setFormAllowedBlockSplits(event.target.value)
+              }
+              margin="normal"
+              fullWidth
+              placeholder="Don't update"
+            />
+
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Create/Update
+            </Button>
+
+            <Button
+              onClick={(event) => {
+                event.preventDefault();
+                if (formId) {
+                  axios
+                    .delete("api/course-offerings/" + formId, tokenConfig())
+                    .then(
+                      (response) => {
+                        setUpdateResponse(response);
+                        setErrorMessage("");
+                      },
+                      (error) => {
+                        setErrorMessage(
+                          error.response
+                            ? error.response.status + " " + error.response.data
+                            : error.message
+                        );
+                      }
+                    );
+                }
+              }}
+              color="error"
+              variant="outlined"
+              fullWidth
+            >
+              Delete
+            </Button>
+          </Box>
+        </Container>
+      </Box>
+    </ThemeProvider>
+  );
+}
 
 export default DebugCourseOffering;
