@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.google.ortools.Loader;
 import com.google.ortools.sat.*;
-import com.google.ortools.util.Domain;
 import com.group2.server.dto.*;
 import com.group2.server.model.*;
 import com.group2.server.repository.*;
@@ -237,7 +236,7 @@ public class GenerateScheduleController {
                                 // full block will never be allocated!
                                 for (Slot fullSlot : fullBlockSlots) {
                                     if (fullSlot.partOfDay().conflict(time)) {
-                                        model.addImplication(slot.modelVar(), modelVar);
+                                        model.addImplication(fullSlot.modelVar(), modelVar);
                                     }
                                 }
                             }
@@ -311,16 +310,8 @@ public class GenerateScheduleController {
                                         nextVarId, entry.getKey().duration(), entry.getKey().roomType(),
                                         modelVars.length, entry.getValue());
                             }
-                            Literal[] modelVars = slots.stream()
-                                    .filter((slot) -> (!requirements.containsKey(
-                                            new DurationRoomType(slot.partOfDay().getDuration(), slot.roomType()))))
-                                    .map(Slot::modelVar).toArray(Literal[]::new);
-                            if (modelVars.length > 0) {
-                                logger.info("For course {}/{}: sum([{}]) = 0", course.getCourseNumber(), nextVarId,
-                                        modelVars.length);
-                                model.addEquality(LinearExpr.sum(modelVars), 0);
-                            }
                         }
+
                         logger.info("For course {}/{}: sum([{}]) = 1", course.getCourseNumber(), nextVarId,
                                 splitVars.size());
                         model.addExactlyOne(splitVars.toArray(Literal[]::new));
@@ -329,7 +320,8 @@ public class GenerateScheduleController {
             // For constraints: "at most one" by instructor-block -- don't double-book
             // instructors.
             groupSlotsBy(
-                    (slot) -> new Slot(null, slot.dayOfWeek(), slot.partOfDay(), null, null, slot.instructor()),
+                    (slot) -> new Slot(null, slot.dayOfWeek(), slot.partOfDay(), null, null,
+                            slot.instructor()),
                     (instructorBlock, slots) -> {
                         if (instructorBlock.partOfDay().getDuration() == Duration.HALF) {
                             model.addAtMostOne(modelVarsOf(slots));
@@ -341,7 +333,8 @@ public class GenerateScheduleController {
             groupSlotsBy(
                     // (slotId) -> new ClassroomBlock(slotIdClassroom(slotId), slotIdDay(slotId),
                     // slotIdTime(slotId)),
-                    (slot) -> new Slot(null, slot.dayOfWeek(), slot.partOfDay(), slot.roomType(), null, null),
+                    (slot) -> new Slot(null, slot.dayOfWeek(), slot.partOfDay(), slot.roomType(),
+                            null, null),
                     (blockRoomType, slots) -> {
                         if (blockRoomType.partOfDay().getDuration() == Duration.HALF) {
                             // Allocated rooms for this roomType must not exceed the number of available
