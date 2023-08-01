@@ -1,126 +1,214 @@
-import axios from 'axios';
+import axios from "axios";
 import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-import styles from "../../pages/Common.module.css";
-
-import { tokenConfig } from "../../utils"
+import { boxStyles, headerStyles, formStyles } from "./DebugStyles";
+import { tokenConfig } from "../../utils";
 
 export function DebugClassroom() {
   const [allClassrooms, setAllClassrooms] = useState(null);
   const [updateResponse, setUpdateResponse] = useState(null);
-  const [formId, setFormId] = useState('');
-  const [formRoomNumber, setFormRoomNumber] = useState('');
-  const [formRoomType, setFormRoomType] = useState('');
-  const [formNotes, setFormNotes] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [formId, setFormId] = useState("");
+  const [formRoomNumber, setFormRoomNumber] = useState("");
+  const [formRoomType, setFormRoomType] = useState("");
+  const [formNotes, setFormNotes] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const clearForm = () => {
-    setFormId('');
-    setFormRoomNumber('');
-    setFormRoomType('');
-  }
+    setFormId("");
+    setFormRoomNumber("");
+    setFormRoomType("");
+    setFormNotes("");
+  };
 
   useEffect(() => {
     clearForm();
     axios.get("api/classrooms", tokenConfig()).then(
-      (response) => { setAllClassrooms(response.data); },
-      (_) => { setAllClassrooms(null); });
-  }, [updateResponse, setAllClassrooms]);
+      (response) => {
+        setAllClassrooms(response.data);
+      },
+      (_) => {
+        setAllClassrooms(null);
+      }
+    );
+  }, [updateResponse]);
 
-  var data = (<div>No classrooms</div>);
-  if (((allClassrooms ?? null) !== null) && (allClassrooms instanceof Array)) {
+  let data = <div>No classrooms</div>;
+  if (allClassrooms && allClassrooms instanceof Array) {
     data = (
-      <table>
-        <thead>
-          <tr>
-            <th key="0">id</th>
-            <th key="1">roomNumber</th>
-            <th key="2">roomType</th>
-            <th key="3">notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          {allClassrooms.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              <td key="0">{row.id}</td>
-              <td key="1">{row.roomNumber}</td>
-              <td key="2">{row.roomType}</td>
-              <td key="3">{row.notes}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>);
+      <Paper sx={{ width: "100%", overflow: "hidden" }}>
+        <TableContainer sx={{ width: "100%", maxHeight: 500 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                <TableCell key="0">ID</TableCell>
+                <TableCell key="1">Room Number</TableCell>
+                <TableCell key="2">Room Type</TableCell>
+                <TableCell key="3">Notes</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {allClassrooms.map((row, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  <TableCell key="0">{row.id}</TableCell>
+                  <TableCell key="1">{row.roomNumber}</TableCell>
+                  <TableCell key="2">{row.roomType}</TableCell>
+                  <TableCell key="3">{row.notes}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    );
   }
-  return (
-    <div className={styles.DebugComponent} data-testid="debug-classroom">
-      <h1>Classrooms</h1>
-      {data}
-      <form onSubmit={(event) => {
-        event.preventDefault();
-        //const classroomIdStr = (formId !== '') ? ('/' + formId) : '';
-        const classroomObj = {}
-        try {
-          if (formId) classroomObj.id = formId;
-          if (formRoomNumber) classroomObj.roomNumber = formRoomNumber;
-          if (formRoomType) classroomObj.roomType = formRoomType;
-          classroomObj.notes = formNotes;
-        }
-        catch (error) {
-          setErrorMessage("Couldn't make query: " + error.message);
-          return;
-        }
 
-        axios.post("api/classrooms", [classroomObj], tokenConfig()).then(
-          (response) => { setUpdateResponse(response); setErrorMessage(''); },
-          (error) => {
-            setErrorMessage(error.response ?
-              error.response.status + ' ' + error.response.data : error.message);
-          });
-      }}>
-        <h2>Create/Update</h2>
-        <p style={{ color: 'red' }}>{errorMessage}</p>
-        <table className={styles.DebugFormTable}>
-          <tbody>
-            <tr>
-              <td><label htmlFor="form-id">ID</label></td>
-              <td><input id="form-id" type="text" name="formId" value={formId}
-                onChange={(event) => setFormId(event.target.value)}
-                placeholder="Create new" /></td>
-            </tr>
-            <tr>
-              <td><label htmlFor="form-room-number">Room Number</label></td>
-              <td><input id="form-room-number" type="text" name="formRoomNumber" value={formRoomNumber}
-                onChange={(event) => setFormRoomNumber(event.target.value)}
-                placeholder="Don't update" autoFocus /></td>
-            </tr>
-            <tr>
-              <td><label htmlFor="form-room-type">Room Type</label></td>
-              <td><input id="form-room-type" type="text" name="formRoomType" value={formRoomType}
-                onChange={(event) => setFormRoomType(event.target.value)}
-                placeholder="Don't update" /></td>
-            </tr>
-            <tr>
-              <td><label htmlFor="form-notes">Notes</label></td>
-              <td><input id="form-notes" type="text" name="formNotes" value={formNotes}
-                onChange={(event) => setFormNotes(event.target.value)}
-                placeholder="Don't update" size="50" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <button type="submit">Create/Update</button>
-        <button onClick={(event) => {
-          event.preventDefault();
-          if ((formId ?? '') !== '') {
-            axios.delete("api/classrooms/" + formId, tokenConfig()).then(
-              (response) => { setUpdateResponse(response); setErrorMessage(''); },
-              (error) => {
-                setErrorMessage(error.response ?
-                  error.response.status + ' ' + error.response.data : error.message);
-              });
-          }
-        }}>Delete</button>
-      </form>
-    </div>);
-};
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: "#0a5e28",
+      },
+    },
+  });
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Box {...boxStyles} data-testid="debug-classroom">
+        <Container maxWidth="lg">
+          <Box {...headerStyles}>
+            <Typography component="h1" variant="h4" color="white">
+              Classrooms
+            </Typography>
+          </Box>
+
+          {data}
+
+          <Box
+            {...formStyles}
+            onSubmit={(event) => {
+              event.preventDefault();
+              const classroomObj = {};
+              try {
+                if (formId) classroomObj.id = formId;
+                if (formRoomNumber) classroomObj.roomNumber = formRoomNumber;
+                if (formRoomType) classroomObj.roomType = formRoomType;
+                classroomObj.notes = formNotes;
+              } catch (error) {
+                setErrorMessage("Couldn't make query: " + error.message);
+                return;
+              }
+
+              axios.post("api/classrooms", [classroomObj], tokenConfig()).then(
+                (response) => {
+                  setUpdateResponse(response);
+                  setErrorMessage("");
+                },
+                (error) => {
+                  setErrorMessage(
+                    error.response
+                      ? error.response.status + " " + error.response.data
+                      : error.message
+                  );
+                }
+              );
+            }}
+          >
+            <Typography component="h2" variant="h5">
+              Create/Update
+            </Typography>
+
+            <Typography component="p" variant="body1" color="error">
+              {errorMessage}
+            </Typography>
+
+            <TextField
+              id="form-id"
+              label="ID"
+              value={formId}
+              onChange={(event) => setFormId(event.target.value)}
+              margin="normal"
+              fullWidth
+              placeholder="Create new"
+            />
+
+            <TextField
+              id="form-room-number"
+              label="Room Number"
+              value={formRoomNumber}
+              onChange={(event) => setFormRoomNumber(event.target.value)}
+              margin="normal"
+              fullWidth
+              placeholder="Don't update"
+              autoFocus
+            />
+
+            <TextField
+              id="form-room-type"
+              label="Room Type"
+              value={formRoomType}
+              onChange={(event) => setFormRoomType(event.target.value)}
+              margin="normal"
+              fullWidth
+              placeholder="Don't update"
+            />
+
+            <TextField
+              id="form-notes"
+              label="Notes"
+              value={formNotes}
+              onChange={(event) => setFormNotes(event.target.value)}
+              margin="normal"
+              fullWidth
+              placeholder="Don't update"
+            />
+
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Create/Update
+            </Button>
+
+            <Button
+              onClick={(event) => {
+                event.preventDefault();
+                if (formId) {
+                  axios.delete("api/classrooms/" + formId, tokenConfig()).then(
+                    (response) => {
+                      setUpdateResponse(response);
+                      setErrorMessage("");
+                    },
+                    (error) => {
+                      setErrorMessage(
+                        error.response
+                          ? error.response.status + " " + error.response.data
+                          : error.message
+                      );
+                    }
+                  );
+                }
+              }}
+              color="error"
+              fullWidth
+            >
+              Delete
+            </Button>
+          </Box>
+        </Container>
+      </Box>
+    </ThemeProvider>
+  );
+}
 
 export default DebugClassroom;
