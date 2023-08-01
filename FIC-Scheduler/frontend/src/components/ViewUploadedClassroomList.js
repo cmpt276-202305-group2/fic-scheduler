@@ -18,6 +18,7 @@ export function ViewUploadedClassroomList() {
   useEffect(() => {
     axios.get("api/classrooms", tokenConfig()).then(
       (response) => {
+        // console.log(JSON.stringify(response.data));
         setAllClassrooms(response.data);
       },
       (_) => {

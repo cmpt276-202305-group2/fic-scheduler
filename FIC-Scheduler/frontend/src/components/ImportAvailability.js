@@ -95,6 +95,7 @@ const ImportAvailabity = ({
       for (const v of response.data) {
         instructors.set(v.name, v);
       }
+      console.log("Instructors NOW: ", instructors);
       const staleInstructors = new Map(instructors);
       const instructorsToUpdate = [];
       for (const ia of instructorAvailabilities) {
