@@ -1,11 +1,11 @@
 fic-scheduler:
   default-users:
     - username: "coordinator"
-      password: "password"
+      password: "coordinatorpassword"
       roles: ["COORDINATOR"]
       full-name: "Coordinator"
-    - username: "debug"
-      password: "Cuzaif1v"
+    - username: "admin"
+      password: "adminpassword"
       roles: ["DEBUG", "ADMIN", "COORDINATOR", "INSTRUCTOR"]
       full-name: "Debug User"
 
