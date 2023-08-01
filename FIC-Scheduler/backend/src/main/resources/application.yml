@@ -7,7 +7,7 @@ fic-scheduler:
     - username: "admin"
       password: "adminpassword"
       roles: ["DEBUG", "ADMIN", "COORDINATOR", "INSTRUCTOR"]
-      full-name: "Debug User"
+      full-name: "Admin User"
 
 server:
   tomcat:
