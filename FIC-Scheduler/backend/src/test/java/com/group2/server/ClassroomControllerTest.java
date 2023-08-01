@@ -167,7 +167,7 @@ public class ClassroomControllerTest {
     }
 
     @Test
-    public void testCreateOrUpdateListExceptionCase() throws Exception {
+    public void testCreateOrUpdateListExceptionCase_WithNull() throws Exception {
         // Create a list of classroom DTOs with null values for required fields
         List<ClassroomDto> classroomDtoList = new ArrayList<>();
         classroomDtoList.add(new ClassroomDto(null, null, "Lecture Hall", "First floor"));
@@ -181,6 +181,27 @@ public class ClassroomControllerTest {
 
         // Verify that classroomRepository.save() was not called
         verify(classroomRepository, times(0)).save(any());
+        verifyNoMoreInteractions(classroomRepository);
+    }
+
+    @Test
+    public void testCreateOrUpdateListExceptionCase() throws Exception {
+        // Create a list of classroom DTOs with null values for required fields
+        List<ClassroomDto> classroomDtoList = new ArrayList<>();
+        classroomDtoList.add(new ClassroomDto(null, "101", "Lecture Hall", "First floor"));
+        classroomDtoList.add(new ClassroomDto(null, "202", "Lab", "Second floor"));
+
+        when(classroomRepository.save(any(Classroom.class))).thenThrow(new RuntimeException(""));
+
+        // Perform the request and verify the response
+        mockMvc.perform(post("/api/classrooms")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(classroomDtoList)))
+                .andExpect(status().isBadRequest());
+
+        // Verify that classroomRepository.save() was called once but then the exception was thrown
+        verify(classroomRepository, times(1)).save(any());
+        verifyNoMoreInteractions(classroomRepository);
     }
 
     @Test

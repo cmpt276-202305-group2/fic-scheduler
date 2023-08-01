@@ -178,19 +178,19 @@ public class CourseOfferingControllerTest {
 
         // Verify that courseOfferingRepository.save() was called twice with the correct
         // data
-        ArgumentCaptor<CourseOffering> courseOfferingArgumentCaptor = ArgumentCaptor.forClass(CourseOffering.class);
-        verify(courseOfferingRepository, times(2)).save(courseOfferingArgumentCaptor.capture());
+        ArgumentCaptor<CourseOffering> courseOfferingCaptor = ArgumentCaptor.forClass(CourseOffering.class);
+        verify(courseOfferingRepository, times(2)).save(courseOfferingCaptor.capture());
         verifyNoMoreInteractions(courseOfferingRepository);
 
         // Verify the data passed to the repository
-        List<CourseOffering> savedCourseOfferings = courseOfferingArgumentCaptor.getAllValues();
-        assertEquals("Course 1", savedCourseOfferings.get(0).getName());
-        assertEquals("COURSE101", savedCourseOfferings.get(0).getCourseNumber());
-        assertEquals("Notes 1", savedCourseOfferings.get(0).getNotes());
+        List<CourseOffering> capturedCourse = courseOfferingCaptor.getAllValues();
+        assertEquals("Course 1", capturedCourse.get(0).getName());
+        assertEquals("COURSE101", capturedCourse.get(0).getCourseNumber());
+        assertEquals("Notes 1", capturedCourse.get(0).getNotes());
 
-        assertEquals("Course 2", savedCourseOfferings.get(1).getName());
-        assertEquals("COURSE202", savedCourseOfferings.get(1).getCourseNumber());
-        assertEquals("Notes 2", savedCourseOfferings.get(1).getNotes());
+        assertEquals("Course 2", capturedCourse.get(1).getName());
+        assertEquals("COURSE202", capturedCourse.get(1).getCourseNumber());
+        assertEquals("Notes 2", capturedCourse.get(1).getNotes());
     }
 
     @Test
@@ -215,19 +215,19 @@ public class CourseOfferingControllerTest {
     @Test
     public void testUpdateOneById() throws Exception {
         // Mock the data to be sent in the request
-        CourseOfferingDto courseOfferingDto = new CourseOfferingDto(1, "Updated Course", "COURSE303",
+        CourseOfferingDto updatedCourseOfferingDto = new CourseOfferingDto(1, "Updated Course", "COURSE303",
                 "Updated Notes", new ArrayList<>(), new ArrayList<>());
 
         // Mock the data returned by the repository after updating
-        CourseOffering updatedCourseOffering = new CourseOffering(1, "Updated Course", "COURSE303",
-                "Updated Notes", new HashSet<>(), new HashSet<>());
-        when(courseOfferingRepository.findById(1)).thenReturn(Optional.of(updatedCourseOffering));
-        when(courseOfferingRepository.save(any(CourseOffering.class))).thenReturn(updatedCourseOffering);
+        CourseOffering existingCourseOffering = new CourseOffering(1, "To Be Updated Course", "COURSE303",
+                "To Be Updated Notes", new HashSet<>(), new HashSet<>());
+        when(courseOfferingRepository.findById(1)).thenReturn(Optional.of(existingCourseOffering));
+        when(courseOfferingRepository.save(any(CourseOffering.class))).thenReturn(existingCourseOffering);
 
         // Perform the request and verify the response
         mockMvc.perform(put("/api/course-offerings/{id}", 1)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(courseOfferingDto)))
+                .content(asJsonString(updatedCourseOfferingDto)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
@@ -239,7 +239,18 @@ public class CourseOfferingControllerTest {
         // courseOfferingRepository.save() were called once with the correct data
         verify(courseOfferingRepository, times(1)).findById(1);
         verify(courseOfferingRepository, times(1)).save(any(CourseOffering.class));
+
+        ArgumentCaptor<CourseOffering> courseOfferingCaptor = ArgumentCaptor.forClass(CourseOffering.class);
+        verify(courseOfferingRepository, times(1)).save(courseOfferingCaptor.capture());
         verifyNoMoreInteractions(courseOfferingRepository);
+
+        // Verify the updated classroom data
+        CourseOffering capturedCourse = courseOfferingCaptor.getValue();
+        assertEquals(1, capturedCourse.getId());
+        assertEquals("Updated Course", capturedCourse.getName());
+        assertEquals("COURSE303", capturedCourse.getCourseNumber());
+        assertEquals("Updated Notes", capturedCourse.getNotes());
+
     }
 
     @Test
@@ -249,7 +260,7 @@ public class CourseOfferingControllerTest {
         CourseOffering existingCourseOffering = new CourseOffering(1, "Course 1", "CS101", "Intro", null, null);
         when(courseOfferingRepository.findById(1)).thenReturn(Optional.of(existingCourseOffering));
 
-        // Create a courseOffering DTO with a different id than the one in the path
+        // Create a courseOffering DTO with a different id
         CourseOfferingDto courseOfferingDto = new CourseOfferingDto(2, "Updated Course 1", "CS101", "Intro", null,
                 null);
 
