@@ -34,9 +34,6 @@ public class GenerateScheduleController {
     @Autowired
     private SemesterPlanRepository semesterPlanRepository;
 
-    @Autowired
-    private BlockRequirementSplitRepository blockRequirementSplitRepository;
-
     private final Pattern baseNamePattern = Pattern.compile("^(.*?)(?>\\s*-\\s*[0-9]+)?$");
 
     @PostMapping("/generate-schedule")
@@ -255,8 +252,9 @@ public class GenerateScheduleController {
             // Validate the schedule!!!
             // Half blocks
             // + Add "full block implies 2 half blocks" constraints
-            // - Make "at most 1" by course-block only check half blocks
-            // - Split "exactly 1" by course constraint into "exactly N" by course-blocktype
+            // + Make "at most 1" by instructor-block only check half blocks
+            // - Split "exactly 1" by course constraint into "exactly N" by
+            // course-blocktype-roomtype
             // Multiple block layouts
             // - Switch "exactly N" by course-blocktype constraints to logical expressions:
             // -- "M of this and N of that, OR O of this and P of that"
@@ -277,20 +275,29 @@ public class GenerateScheduleController {
             // being taught, and is only taught once.
             // To make multiple block splits work, we would have to make this more complex:
             // instead of "exactly one" slot, we'd be choosing "exactly one pattern".
-            record BlockDurationCourse(Duration duration, CourseOffering course) {
+            record DurationRoomType(Duration duration, String roomType) {
             }
             ;
             groupSlotsBy(
-                    (slot) -> new BlockDurationCourse(slot.partOfDay().getDuration(), slot.course()),
-                    (blockDurationCourse, slots) -> {
-                        if (blockDurationCourse.duration() == Duration.FULL) {
-                            model.addExactlyOne(modelVarsOf(slots));
+                    (slot) -> slot.course(),
+                    (course, slots) -> {
+                        LinearExprBuilder roomAllocationsOfType = LinearExpr.newBuilder();
+                        for (LinearArgument la : modelVarsOf(slots)) {
+                            roomAllocationsOfType.add(la);
                         }
-                        // for (BlockRequirementSplit split : course.getAllowedBlockSplits()) {
-                        // for (BlockRequirement blockReq : split.getBlocks()) {
-                        // model.addExactlyOne(modelVars);
-                        // }
-                        // }
+                        for (BlockRequirementSplit split : course.getAllowedBlockSplits()) {
+                            HashMap<DurationRoomType, Integer> requirements = new HashMap<>();
+                            for (BlockRequirement blockReq : split.getBlocks()) {
+                                requirements.compute(
+                                        new DurationRoomType(blockReq.getDuration(), blockReq.getRoomType()),
+                                        (a, b) -> b);
+                                // if ((blockReq.getDuration() == blockDurationRoomTypeCourse.duration()) &&
+                                // (blockReq
+                                // .getAllowedRoomTypes().contains(blockDurationRoomTypeCourse.roomType()))) {
+                                // model.addExactlyOne(modelVars);
+                                // }
+                            }
+                        }
                     });
 
             // For constraints: "at most one" by instructor-block -- don't double-book
