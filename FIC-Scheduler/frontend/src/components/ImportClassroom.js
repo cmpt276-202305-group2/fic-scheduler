@@ -91,7 +91,11 @@ const ImportClassroom = ({
         jsonData.slice(1).forEach((newClassroom) => {
           let exists = false;
           currentClassrooms.forEach((classroom) => {
-            if (newClassroom.roomNumber === classroom.roomNumber) {
+            if (
+              newClassroom.roomNumber === classroom.roomNumber &&
+              newClassroom.roomType === classroom.roomType &&
+              newClassroom.notes === classroom.notes
+            ) {
               exists = true;
             }
           });
