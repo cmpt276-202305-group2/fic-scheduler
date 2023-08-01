@@ -13,7 +13,7 @@ function ViewFullSchedulePage() {
                     <Sidebar item="viewFullSchedule" />
                 </div>
                 <div className={styles.PageContent} data-testid="schedule">
-                    <ScheduleTable />
+                    <GenerateSchedule />
                 </div>
             </div>
         </CheckAuth>
