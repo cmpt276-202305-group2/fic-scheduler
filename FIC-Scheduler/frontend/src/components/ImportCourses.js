@@ -25,25 +25,25 @@ const ImportCourses = ({
 
   const createFileUploadHandler =
     (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
-    async (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-      const allowedFormats = ["xlsx", "csv"];
-      const fileExtension = file.name.split(".").pop().toLowerCase();
-      if (!allowedFormats.includes(fileExtension)) {
-        setErrorMessage(true);
-        return;
-      }
-      setErrorMessage(false);
-      try {
-        const data = await readExcelFile(file);
-        setData(data);
-        setFile(file.name);
-        setIsPreviewVisible(true);
-      } catch (error) {
-        console.error("Error reading Excel file:", error);
-      }
-    };
+      async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const allowedFormats = ["xlsx", "csv"];
+        const fileExtension = file.name.split(".").pop().toLowerCase();
+        if (!allowedFormats.includes(fileExtension)) {
+          setErrorMessage(true);
+          return;
+        }
+        setErrorMessage(false);
+        try {
+          const data = await readExcelFile(file);
+          setData(data);
+          setFile(file.name);
+          setIsPreviewVisible(true);
+        } catch (error) {
+          console.error("Error reading Excel file:", error);
+        }
+      };
 
   const handleFileUpload = createFileUploadHandler(
     setSelectedFile,
@@ -68,7 +68,7 @@ const ImportCourses = ({
       try {
         // Instead of sending the formData, we send jsonData as the request data
         const response = await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/api/courseOffering`,
+          "api/courseOffering",
           jsonData,
           tokenConfig(),
           {
