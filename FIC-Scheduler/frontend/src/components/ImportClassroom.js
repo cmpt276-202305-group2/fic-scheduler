@@ -24,25 +24,25 @@ const ImportClassroom = ({
 
   const createFileUploadHandler =
     (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
-      async (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const allowedFormats = ["xlsx", "csv"];
-        const fileExtension = file.name.split(".").pop().toLowerCase();
-        if (!allowedFormats.includes(fileExtension)) {
-          setErrorMessage(true);
-          return;
-        }
-        setErrorMessage(false);
-        try {
-          const data = await readExcelFile(file);
-          setData(data);
-          setFile(file.name);
-          setIsPreviewVisible(true);
-        } catch (error) {
-          console.error("Error reading Excel file:", error);
-        }
-      };
+    async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const allowedFormats = ["xlsx", "csv"];
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+      if (!allowedFormats.includes(fileExtension)) {
+        setErrorMessage(true);
+        return;
+      }
+      setErrorMessage(false);
+      try {
+        const data = await readExcelFile(file);
+        setData(data);
+        setFile(file.name);
+        setIsPreviewVisible(true);
+      } catch (error) {
+        console.error("Error reading Excel file:", error);
+      }
+    };
 
   const handleFileUpload = createFileUploadHandler(
     setSelectedFile,
@@ -65,7 +65,11 @@ const ImportClassroom = ({
       });
 
       try {
-        const response = await axios.post("api/classrooms", jsonData, tokenConfig());
+        const response = await axios.post(
+          "api/classrooms",
+          jsonData,
+          tokenConfig()
+        );
 
         if (response.status === 200) {
           const result = response.json();
@@ -88,7 +92,7 @@ const ImportClassroom = ({
         showErrorMessage={showErrorMessage}
         isPreviewVisible={isPreviewVisible}
         handleSendToBackend={handleSendToBackEnd}
-        id={3}
+        id={"3"}
         styles={styles}
       />
       <SpreadsheetTable

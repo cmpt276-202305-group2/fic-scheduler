@@ -63,7 +63,11 @@ export function ViewUploadedCourseOfferingList() {
     return blocksMap[blockId]?.name || "N/A";
   };
 
-  var data = <h3>There is no current data please insert course offering</h3>;
+  var data = (
+    <div className={styles.displayNullData}>
+      No current list of course offerings, please upload a course offering file.
+    </div>
+  );
   if (
     (allCourseOfferings ?? null) !== null &&
     allCourseOfferings instanceof Array &&
