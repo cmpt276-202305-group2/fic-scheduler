@@ -77,7 +77,7 @@ public class BlockSplitController {
     public BlockRequirementSplitDto toDto(BlockRequirementSplit blockRequirementSplit) {
         return new BlockRequirementSplitDto(blockRequirementSplit.getId(), blockRequirementSplit.getName(),
                 blockRequirementSplit.getBlocks().stream()
-                        .map(b -> new BlockRequirementDto(List.copyOf(b.getAllowedRoomTypes()), b.getDuration()))
+                        .map(b -> new BlockRequirementDto(b.getRoomType(), b.getDuration()))
                         .toList());
     }
 
@@ -87,13 +87,7 @@ public class BlockSplitController {
 
         if (blockRequirementSplitDto.getBlocks() != null) {
             blockRequirements = blockRequirementSplitDto.getBlocks().stream()
-                    .map(b -> {
-                        Set<String> allowedRoomTypes = null;
-                        if (b.getAllowedRoomTypes() != null) {
-                            allowedRoomTypes = Set.copyOf(b.getAllowedRoomTypes());
-                        }
-                        return new BlockRequirement(null, allowedRoomTypes, b.getDuration());
-                    }).toList();
+                    .map(b -> new BlockRequirement(null, b.getRoomType(), b.getDuration())).toList();
         }
 
         if (blockRequirementSplitDto.getId() != null) {
