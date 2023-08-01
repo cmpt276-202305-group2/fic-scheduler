@@ -19,6 +19,23 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { boxStyles, headerStyles, formStyles } from "./DebugStyles";
 import { tokenConfig } from "../../utils";
 
+const theme = createTheme({
+  components: {
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          verticalAlign: "top",
+        },
+      },
+    },
+  },
+  palette: {
+    primary: {
+      main: "#0a5e28",
+    },
+  },
+});
+
 export function DebugSchedule() {
   const [allSchedules, setAllSchedules] = useState(null);
   const [updateResponse, setUpdateResponse] = useState(null);
@@ -78,14 +95,6 @@ export function DebugSchedule() {
       </Paper>
     );
   }
-
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: "#0a5e28",
-      },
-    },
-  });
 
   return (
     <ThemeProvider theme={theme}>
