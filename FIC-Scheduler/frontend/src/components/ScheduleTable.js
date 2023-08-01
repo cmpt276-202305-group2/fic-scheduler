@@ -13,18 +13,19 @@ import { tokenConfig } from "../utils";
 
 export function ScheduleTable() {
     const [scheduleData, setScheduleData] = useState(null);
-    const [blockSplitDataMap, setBlockSplitDataMap] = useState({});
     const [instructorsMap, setInstructorsMap] = useState({});
+    const [classroomMap, setClassroomMap] = useState({});
+    const [courseOfferingMap, setCourseOfferingMap] = useState({});
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [scheduleResponse, instructorsResponse, blockSplitResponse] = await Promise.all([
+                const [scheduleResponse, instructorsResponse, classroomResponse, courseOfferingResponse] = await Promise.all([
                     axios.get("api/schedules", tokenConfig()),
                     axios.get("api/instructors", tokenConfig()),
-                    axios.get("api/block-splits", tokenConfig()),
+                    axios.get("api/classrooms", tokenConfig()),
+                    axios.get("api/course-offerings", tokenConfig()),
                 ]);
                 setScheduleData(scheduleResponse.data);
-
                 const instructorsData = instructorsResponse.data;
                 const instructorsById = instructorsData.reduce((acc, instructor) => {
                     acc[instructor.id] = instructor;
@@ -32,61 +33,43 @@ export function ScheduleTable() {
                 }, {});
                 setInstructorsMap(instructorsById);
 
-                const blockSplitData = blockSplitResponse.data;
-                const blockSplitDataById = blockSplitData.reduce((acc, blockSplit) => {
-                    acc[blockSplit.id] = blockSplit;
+                const classroomData = classroomResponse.data;
+                const classroomById = classroomData.reduce((acc, classroom) => {
+                    acc[classroom.id] = classroom;
                     return acc;
                 }, {});
-                setBlockSplitDataMap(blockSplitDataById);
+                setClassroomMap(classroomById);
+
+                const courseOfferingData = courseOfferingResponse.data;
+                const courseOfferingById = courseOfferingData.reduce((acc, courseOffering) => {
+                    acc[courseOffering.id] = courseOffering;
+                    return acc;
+                }, {});
+                setCourseOfferingMap(courseOfferingById);
+
             } catch (error) {
                 console.error("Error fetching schedule data:", error);
                 setScheduleData(null);
                 setInstructorsMap({});
-                setBlockSplitDataMap({});
+                setClassroomMap({});
+                setCourseOfferingMap({});
             }
         };
 
         fetchData();
     }, []);
 
-    // useEffect(() => {
-    //     const fetchBlockSplitData = async (blockSplitIds) => {
-    //         const requests = blockSplitIds.map((id) =>
-    //             axios.get(`api/block-splits/${id.id}`, tokenConfig())
-    //         );
-
-    //         try {
-    //             const responses = await axios.all(requests);
-    //             const blockSplitData = responses.map((response) => response.data);
-
-    //             // Create a map of block split IDs to their corresponding data
-    //             const blockSplitDataMap = {};
-    //             blockSplitData.forEach((blockSplit, index) => {
-    //                 blockSplitDataMap[blockSplitIds[index].id] = blockSplit;
-    //             });
-
-    //             setBlockSplitDataMap(blockSplitDataMap);
-    //         } catch (error) {
-    //             console.error("Error fetching block split data:", error);
-    //             setBlockSplitDataMap({});
-    //         }
-    //     };
-
-    //     if (scheduleData) {
-    //         const blockSplitIds = scheduleData.flatMap((row) =>
-    //             row.courses.flatMap((courseObj) => courseObj.course.allowedBlockSplits)
-    //         );
-
-    //         fetchBlockSplitData(blockSplitIds);
-    //     }
-    // }, [scheduleData]);
 
     const getInstructorName = (instructorId) => {
         return instructorsMap[instructorId]?.name || "N/A";
     };
 
-    const getBlockSplitName = (blockSplitId) => {
-        return blockSplitDataMap[blockSplitId]?.name || "N/A";
+    const getClassroomNumber = (classroomId) => {
+        return classroomMap[classroomId]?.roomNumber || "N/A";
+    };
+
+    const getCourseOfferingName = (courseOfferingId) => {
+        return courseOfferingMap[courseOfferingId]?.name || "N/A";
     };
 
     if (!scheduleData) {
@@ -99,43 +82,25 @@ export function ScheduleTable() {
 
     const combinedData = scheduleData.flatMap((row) => {
         return row.courses.flatMap((courseObj) => {
-            // const allowedBlockSplits = courseObj.course.allowedBlockSplits.map(
-            //     (blockId) => {
-            //         // Check if blockId exists in blockSplitDataMap
-            //         const blockSplit = blockSplitDataMap[blockId.id];
-
-            //         return blockSplit ? blockSplit.name : "";
-            //     }
-            // );
-
-            return {
-                id: row.id,
-                name: row.name,
-                notes: row.notes,
-                semester: row.semester,
-                courseId: courseObj.course.id,
-                courseName: courseObj.course.name,
-                courseNumber: courseObj.course.courseNumber,
-                courseNotes: courseObj.course.notes,
-                approvedInstructors: courseObj.course.approvedInstructors,
-                allowedBlockSplits: courseObj.course.allowedBlockSplits,
-                blocks: courseObj.blocks,
-            };
+            return courseObj.blocks.map((blockObj) => {
+                return {
+                    courses: courseObj.course,
+                    instructor: blockObj.instructor,
+                    classroom: blockObj.classroom,
+                    day: blockObj.day,
+                    time: blockObj.time,
+                };
+            });
         });
     });
+    console.log("combinedData: ", combinedData);
     const transformDataForCSV = () => {
         return combinedData.map((row) => ({
-            id: row.id,
-            name: row.name,
-            semester: row.semester,
-            courseId: row.courseId,
-            courseName: row.courseName,
-            courseNumber: row.courseNumber,
-            courseNotes: row.courseNotes,
-            approvedInstructors: row.approvedInstructors.map((instructor) => getInstructorName(instructor.id)).join(", "),
-            allowedBlockSplits: row.allowedBlockSplits.map((blockSplit) => getBlockSplitName(blockSplit.id)).join(", "),
-            blocks: JSON.stringify(row.blocks),
-            notes: row.notes,
+            courses: getCourseOfferingName(row.courses.id),
+            instructor: getInstructorName(row.instructor.id),
+            classroom: getClassroomNumber(row.classroom.id),
+            day: row.day,
+            time: row.time,
         }));
     };
     return (
@@ -150,41 +115,67 @@ export function ScheduleTable() {
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
-                                <TableCell key="0">ID</TableCell>
-                                <TableCell key="1">Name</TableCell>
-                                <TableCell key="3">Semester</TableCell>
-                                <TableCell key="5">Course Name</TableCell>
-                                <TableCell key="7">Course Notes</TableCell>
-                                <TableCell key="8">Approved Instructors</TableCell>
-                                <TableCell key="9">Allowed Block Splits</TableCell>
-                                <TableCell key="10">Blocks</TableCell>
-                                <TableCell key="2">Notes</TableCell>
+                                <TableCell
+                                    key="0"
+                                    sx={{
+                                        fontWeight: "bold",
+                                        backgroundColor: "#f0f0f0",
+                                    }}
+                                >
+                                    Course
+                                </TableCell>
+                                <TableCell
+                                    key="1"
+                                    sx={{
+                                        fontWeight: "bold",
+                                        backgroundColor: "#f0f0f0",
+                                    }}
+                                >
+                                    Instructor
+                                </TableCell>
+                                <TableCell
+                                    key="2"
+                                    sx={{
+                                        fontWeight: "bold",
+                                        backgroundColor: "#f0f0f0",
+                                    }}
+                                >
+                                    Classroom
+                                </TableCell>
+                                <TableCell
+                                    key="3"
+                                    sx={{
+                                        fontWeight: "bold",
+                                        backgroundColor: "#f0f0f0",
+                                    }}
+                                >
+                                    Day
+                                </TableCell>
+                                <TableCell
+                                    key="4"
+                                    sx={{
+                                        fontWeight: "bold",
+                                        backgroundColor: "#f0f0f0",
+                                    }}
+                                >
+                                    Time
+                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {combinedData.map((row, index) => (
                                 <TableRow key={index}>
-                                    <TableCell key="0">{row.id}</TableCell>
-                                    <TableCell key="1">{row.name}</TableCell>
-                                    <TableCell key="3">{row.semester}</TableCell>
-                                    <TableCell key="5">{row.courseName}</TableCell>
-                                    <TableCell key="7">{row.courseNotes}</TableCell>
-                                    <TableCell key="8">
-                                        {row.approvedInstructors.map((instructor) => (
-                                            <div key={instructor.id}>
-                                                {getInstructorName(instructor.id)}
-                                            </div>
-                                        ))}
+                                    <TableCell key="0">
+                                        {getCourseOfferingName(row.courses.id)}
                                     </TableCell>
-                                    <TableCell key="9">
-                                        {row.allowedBlockSplits.map((blockSplit) => (
-                                            <div key={blockSplit.id}>
-                                                {getBlockSplitName(blockSplit.id)}
-                                            </div>
-                                        ))}
+                                    <TableCell key="1">
+                                        {getInstructorName(row.instructor.id)}
                                     </TableCell>
-                                    <TableCell key="10">{JSON.stringify(row.blocks)}</TableCell>
-                                    <TableCell key="2">{row.notes}</TableCell>
+                                    <TableCell key="2">
+                                        {getClassroomNumber(row.classroom.id)}
+                                    </TableCell>
+                                    <TableCell key="3">{row.day}</TableCell>
+                                    <TableCell key="4">{row.time}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
