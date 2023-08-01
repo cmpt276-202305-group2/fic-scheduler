@@ -8,13 +8,12 @@ import Paper from "@mui/material/Paper";
 import axios from "axios";
 import { CSVLink } from "react-csv";
 import Button from "@mui/material/Button";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { tokenConfig } from "../utils";
 
 export function ScheduleTable() {
     const [scheduleData, setScheduleData] = useState(null);
     const [blockSplitDataMap, setBlockSplitDataMap] = useState({});
-    const currentBlockSplitIndexRef = useRef(0);
     const [instructorsMap, setInstructorsMap] = useState({});
     useEffect(() => {
         const fetchData = async () => {
