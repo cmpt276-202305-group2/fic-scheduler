@@ -25,25 +25,25 @@ const ImportCourses = ({
 
   const createFileUploadHandler =
     (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
-      async (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const allowedFormats = ["xlsx", "csv"];
-        const fileExtension = file.name.split(".").pop().toLowerCase();
-        if (!allowedFormats.includes(fileExtension)) {
-          setErrorMessage(true);
-          return;
-        }
-        setErrorMessage(false);
-        try {
-          const data = await readExcelFile(file);
-          setData(data);
-          setFile(file.name);
-          setIsPreviewVisible(true);
-        } catch (error) {
-          console.error("Error reading Excel file:", error);
-        }
-      };
+    async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const allowedFormats = ["xlsx", "csv"];
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+      if (!allowedFormats.includes(fileExtension)) {
+        setErrorMessage(true);
+        return;
+      }
+      setErrorMessage(false);
+      try {
+        const data = await readExcelFile(file);
+        setData(data);
+        setFile(file.name);
+        setIsPreviewVisible(true);
+      } catch (error) {
+        console.error("Error reading Excel file:", error);
+      }
+    };
 
   const handleFileUpload = createFileUploadHandler(
     setSelectedFile,
@@ -99,7 +99,7 @@ const ImportCourses = ({
         showErrorMessage={showErrorMessage}
         isPreviewVisible={isPreviewVisible}
         handleSendToBackend={handleSendToBackEnd}
-        id={4}
+        id={"4"}
         styles={styles}
       />
       <SpreadsheetTable

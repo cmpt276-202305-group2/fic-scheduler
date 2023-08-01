@@ -26,7 +26,11 @@ export function ViewUploadedClassroomList() {
     );
   }, [setAllClassrooms]);
 
-  var data = <h3>There is no classroom in the system please insert one</h3>;
+  var data = (
+    <div className={styles.displayNullData}>
+      No current classrooms, please upload a classrooms file.
+    </div>
+  );
   if (
     (allClassrooms ?? null) !== null &&
     allClassrooms instanceof Array &&

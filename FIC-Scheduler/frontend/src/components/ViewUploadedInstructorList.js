@@ -26,7 +26,11 @@ export function ViewUploadedInstructorList() {
     );
   }, [setAllInstructors]);
 
-  var data = <div>No instructors</div>;
+  var data = (
+    <div className={styles.displayNullData}>
+      No current instructors, please upload an availabilities file.
+    </div>
+  );
   if (
     (allInstructors ?? null) !== null &&
     allInstructors instanceof Array &&
