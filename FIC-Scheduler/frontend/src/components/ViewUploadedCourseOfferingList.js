@@ -63,10 +63,11 @@ export function ViewUploadedCourseOfferingList() {
     return blocksMap[blockId]?.name || "N/A";
   };
 
-  var data = <h3>No Data</h3>;
+  var data = <h3>There is no current data please insert course offering</h3>;
   if (
     (allCourseOfferings ?? null) !== null &&
-    allCourseOfferings instanceof Array
+    allCourseOfferings instanceof Array &&
+    allCourseOfferings.length > 0
   ) {
     data = (
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
