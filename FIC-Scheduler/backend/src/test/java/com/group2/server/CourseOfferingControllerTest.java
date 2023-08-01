@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -52,7 +51,6 @@ public class CourseOfferingControllerTest {
 
     private MockMvc mockMvc;
 
-
     @BeforeEach
     public void setup() {
 
@@ -72,10 +70,10 @@ public class CourseOfferingControllerTest {
     public void testReadListByQuery() throws Exception {
         // Mock the data returned by the repository
         List<CourseOffering> mockCourseOfferings = new ArrayList<>();
-        mockCourseOfferings.add(new CourseOffering(1, "Course 1", "COURSE101", "Notes 1", 
-                                                    new HashSet<>(), new HashSet<>()));
-        mockCourseOfferings.add(new CourseOffering(2, "Course 2", "COURSE202", "Notes 2", 
-                                                    new HashSet<>(), new HashSet<>()));
+        mockCourseOfferings.add(new CourseOffering(1, "Course 1", "COURSE101", "Notes 1",
+                new HashSet<>(), new HashSet<>()));
+        mockCourseOfferings.add(new CourseOffering(2, "Course 2", "COURSE202", "Notes 2",
+                new HashSet<>(), new HashSet<>()));
         when(courseOfferingRepository.findAll()).thenReturn(mockCourseOfferings);
 
         // Perform the request and verify the response
@@ -113,8 +111,8 @@ public class CourseOfferingControllerTest {
     @Test
     public void testReadOneById() throws Exception {
         // Mock the data returned by the repository
-        CourseOffering mockCourseOffering = new CourseOffering(1, "Course 1", "COURSE101", "Notes 1", 
-                                                                new HashSet<>(), new HashSet<>());
+        CourseOffering mockCourseOffering = new CourseOffering(1, "Course 1", "COURSE101", "Notes 1",
+                new HashSet<>(), new HashSet<>());
         when(courseOfferingRepository.findById(1)).thenReturn(Optional.of(mockCourseOffering));
 
         // Perform the request and verify the response
@@ -126,7 +124,8 @@ public class CourseOfferingControllerTest {
                 .andExpect(jsonPath("$.courseNumber").value("COURSE101"))
                 .andExpect(jsonPath("$.notes").value("Notes 1"));
 
-        // Verify that courseOfferingRepository.findById() was called once with the correct ID
+        // Verify that courseOfferingRepository.findById() was called once with the
+        // correct ID
         verify(courseOfferingRepository, times(1)).findById(1);
         verifyNoMoreInteractions(courseOfferingRepository);
     }
@@ -154,8 +153,10 @@ public class CourseOfferingControllerTest {
         courseOfferingDtoList.add(new CourseOfferingDto(null, "Course 2", "COURSE202", "Notes 2", new ArrayList<>(), new ArrayList<>()));
 
         // Mock the data returned by the repository after saving
-        CourseOffering savedCourseOffering1 = new CourseOffering(1, "Course 1", "COURSE101", "Notes 1", new HashSet<>(), new HashSet<>());
-        CourseOffering savedCourseOffering2 = new CourseOffering(2, "Course 2", "COURSE202", "Notes 2", new HashSet<>(), new HashSet<>());
+        CourseOffering savedCourseOffering1 = new CourseOffering(1, "Course 1", "COURSE101", "Notes 1", new HashSet<>(),
+                new HashSet<>());
+        CourseOffering savedCourseOffering2 = new CourseOffering(2, "Course 2", "COURSE202", "Notes 2", new HashSet<>(),
+                new HashSet<>());
         when(courseOfferingRepository.save(any(CourseOffering.class)))
                 .thenReturn(savedCourseOffering1)
                 .thenReturn(savedCourseOffering2);
@@ -175,7 +176,8 @@ public class CourseOfferingControllerTest {
                 .andExpect(jsonPath("$[1].courseNumber").value("COURSE202"))
                 .andExpect(jsonPath("$[1].notes").value("Notes 2"));
 
-        // Verify that courseOfferingRepository.save() was called twice with the correct data
+        // Verify that courseOfferingRepository.save() was called twice with the correct
+        // data
         ArgumentCaptor<CourseOffering> courseOfferingArgumentCaptor = ArgumentCaptor.forClass(CourseOffering.class);
         verify(courseOfferingRepository, times(2)).save(courseOfferingArgumentCaptor.capture());
         verifyNoMoreInteractions(courseOfferingRepository);
@@ -191,22 +193,24 @@ public class CourseOfferingControllerTest {
         assertEquals("Notes 2", savedCourseOfferings.get(1).getNotes());
     }
 
-    // @Test
-    // public void testCreateOrUpdateListExceptionCase() throws Exception {
-    //     // Create a list of courseOffering DTOs with null values for required fields
-    //     List<CourseOfferingDto> courseOfferingDtoList = new ArrayList<>();
-    //     courseOfferingDtoList.add(new CourseOfferingDto(null, null, "CS101", "Introduction to Computer Science", null, null));
-    //     courseOfferingDtoList.add(new CourseOfferingDto(null, "Java Programming", null, "Java course", null, null));
-    
-    //     // Perform the request and verify the response
-    //     mockMvc.perform(post("/api/course-offerings")
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .content(asJsonString(courseOfferingDtoList)))
-    //             .andExpect(status().isBadRequest());
-    
-    //     // Verify that courseOfferingRepository.save() was not called
-    //     verify(courseOfferingRepository, times(0)).save(any());
-    // }
+    @Test
+    public void testCreateOrUpdateListExceptionCase() throws Exception {
+        // Create a list of courseOffering DTOs with null values for required fields
+        List<CourseOfferingDto> courseOfferingDtoList = new ArrayList<>();
+        courseOfferingDtoList.add(new CourseOfferingDto(null, "Course 1", "COURSE101", "Notes 1", new ArrayList<>(), new ArrayList<>()));
+        courseOfferingDtoList.add(new CourseOfferingDto(null, "Course 2", "COURSE202", "Notes 2", new ArrayList<>(), new ArrayList<>()));
+
+        when(courseOfferingRepository.save(any(CourseOffering.class))).thenThrow(new RuntimeException(""));
+
+        // Perform the request and verify the response
+        mockMvc.perform(post("/api/course-offerings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(courseOfferingDtoList)))
+                .andExpect(status().isBadRequest());
+
+        // Verify that courseOfferingRepository.save() was not called
+        verify(courseOfferingRepository, times(1)).save(any());
+    }
 
     @Test
     public void testUpdateOneById() throws Exception {
@@ -216,7 +220,7 @@ public class CourseOfferingControllerTest {
 
         // Mock the data returned by the repository after updating
         CourseOffering updatedCourseOffering = new CourseOffering(1, "Updated Course", "COURSE303",
-                "Updated Notes", new HashSet<>(),new HashSet<>());
+                "Updated Notes", new HashSet<>(), new HashSet<>());
         when(courseOfferingRepository.findById(1)).thenReturn(Optional.of(updatedCourseOffering));
         when(courseOfferingRepository.save(any(CourseOffering.class))).thenReturn(updatedCourseOffering);
 
@@ -231,7 +235,8 @@ public class CourseOfferingControllerTest {
                 .andExpect(jsonPath("$.courseNumber").value("COURSE303"))
                 .andExpect(jsonPath("$.notes").value("Updated Notes"));
 
-        // Verify that courseOfferingRepository.findById() and courseOfferingRepository.save() were called once with the correct data
+        // Verify that courseOfferingRepository.findById() and
+        // courseOfferingRepository.save() were called once with the correct data
         verify(courseOfferingRepository, times(1)).findById(1);
         verify(courseOfferingRepository, times(1)).save(any(CourseOffering.class));
         verifyNoMoreInteractions(courseOfferingRepository);
@@ -239,12 +244,14 @@ public class CourseOfferingControllerTest {
 
     @Test
     public void testUpdateOneByIdExceptionCase() throws Exception {
-        // Mock the courseOfferingRepository.findById() to return a course offering with id=1
+        // Mock the courseOfferingRepository.findById() to return a course offering with
+        // id=1
         CourseOffering existingCourseOffering = new CourseOffering(1, "Course 1", "CS101", "Intro", null, null);
         when(courseOfferingRepository.findById(1)).thenReturn(Optional.of(existingCourseOffering));
 
         // Create a courseOffering DTO with a different id than the one in the path
-        CourseOfferingDto courseOfferingDto = new CourseOfferingDto(2, "Updated Course 1", "CS101", "Intro", null, null);
+        CourseOfferingDto courseOfferingDto = new CourseOfferingDto(2, "Updated Course 1", "CS101", "Intro", null,
+                null);
 
         // Perform the request and verify the response
         mockMvc.perform(put("/api/course-offerings/1")
@@ -252,8 +259,8 @@ public class CourseOfferingControllerTest {
                 .content(asJsonString(courseOfferingDto)))
                 .andExpect(status().isBadRequest());
 
-            verify(courseOfferingRepository, times(0)).findById(1);
-            verifyNoMoreInteractions(courseOfferingRepository);
+        verify(courseOfferingRepository, times(0)).findById(1);
+        verifyNoMoreInteractions(courseOfferingRepository);
     }
 
     @Test
@@ -262,7 +269,8 @@ public class CourseOfferingControllerTest {
         mockMvc.perform(delete("/api/course-offerings/{id}", 1))
                 .andExpect(status().isOk());
 
-        // Verify that courseOfferingRepository.deleteById() was called once with the correct ID
+        // Verify that courseOfferingRepository.deleteById() was called once with the
+        // correct ID
         verify(courseOfferingRepository, times(1)).deleteById(1);
         verifyNoMoreInteractions(courseOfferingRepository);
     }
