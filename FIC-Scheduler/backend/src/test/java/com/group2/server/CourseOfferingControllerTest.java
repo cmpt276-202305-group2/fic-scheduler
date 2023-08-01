@@ -208,7 +208,7 @@ public class CourseOfferingControllerTest {
                 .content(asJsonString(courseOfferingDtoList)))
                 .andExpect(status().isBadRequest());
 
-        // Verify that courseOfferingRepository.save() was not called
+        // Verify that courseOfferingRepository.save() was called once
         verify(courseOfferingRepository, times(1)).save(any());
     }
 

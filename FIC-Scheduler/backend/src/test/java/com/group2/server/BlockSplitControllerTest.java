@@ -95,7 +95,8 @@ public class BlockSplitControllerTest {
     @Test
     public void testReadOneById() throws Exception {
         // Mock the data returned by the repository
-        BlockRequirementSplit mockBlockSplit = new BlockRequirementSplit(1, "Block 1", new ArrayList<BlockRequirement>());
+        BlockRequirementSplit mockBlockSplit = new BlockRequirementSplit(1, "Block 1",
+                new ArrayList<BlockRequirement>());
         when(blockRequirementSplitRepository.findById(1)).thenReturn(Optional.of(mockBlockSplit));
 
         // Perform the request and verify the response
@@ -105,7 +106,8 @@ public class BlockSplitControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Block 1"));
 
-        // Verify that blockRequirementSplitRepository.findById() was called once with the correct ID
+        // Verify that blockRequirementSplitRepository.findById() was called once with
+        // the correct ID
         verify(blockRequirementSplitRepository, times(1)).findById(1);
         verifyNoMoreInteractions(blockRequirementSplitRepository);
     }
@@ -132,8 +134,10 @@ public class BlockSplitControllerTest {
                 new BlockRequirementSplitDto(null, "Block 1", new ArrayList<>()),
                 new BlockRequirementSplitDto(null, "Block 2", new ArrayList<>()));
 
-        BlockRequirementSplit savedBlockSplit1 = new BlockRequirementSplit(1, "Block 1", new ArrayList<BlockRequirement>());
-        BlockRequirementSplit savedBlockSplit2 = new BlockRequirementSplit(2, "Block 2", new ArrayList<BlockRequirement>());
+        BlockRequirementSplit savedBlockSplit1 = new BlockRequirementSplit(1, "Block 1",
+                new ArrayList<BlockRequirement>());
+        BlockRequirementSplit savedBlockSplit2 = new BlockRequirementSplit(2, "Block 2",
+                new ArrayList<BlockRequirement>());
 
         when(blockRequirementSplitRepository.save(any(BlockRequirementSplit.class)))
                 .thenReturn(savedBlockSplit1)
@@ -150,13 +154,14 @@ public class BlockSplitControllerTest {
                 .andExpect(jsonPath("$[1].id").value(2))
                 .andExpect(jsonPath("$[1].name").value("Block 2"));
 
-        // Verify that blockRequirementSplitRepository.save() was called twice with the correct block splits
+        // Verify that blockRequirementSplitRepository.save() was called twice with the
+        // correct block splits
         verify(blockRequirementSplitRepository, times(2)).save(any(BlockRequirementSplit.class));
         verifyNoMoreInteractions(blockRequirementSplitRepository);
     }
 
     @Test
-    public void testCreateOrUpdateListExceptionCase() throws Exception {
+    public void testCreateOrUpdateListExceptionCase_WithNull() throws Exception {
         // Create a list of block split DTOs with null values for required fields
         List<BlockRequirementSplitDto> blockRequirementSplitDtoList = Arrays.asList(
                 new BlockRequirementSplitDto(null, null, null),
@@ -173,16 +178,37 @@ public class BlockSplitControllerTest {
     }
 
     @Test
+    public void testCreateOrUpdateListExceptionCase() throws Exception {
+        // Create a list of block split DTOs with null values for required fields
+        List<BlockRequirementSplitDto> blockRequirementSplitDtoList = Arrays.asList(
+                new BlockRequirementSplitDto(null, "Block 1", new ArrayList<>()),
+                new BlockRequirementSplitDto(null, "Block 2", new ArrayList<>()));
+
+        when(blockRequirementSplitRepository.save(any())).thenThrow(new RuntimeException(""));
+
+        // Perform the request and verify the response
+        mockMvc.perform(post("/api/block-splits")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(blockRequirementSplitDtoList)))
+                .andExpect(status().isBadRequest());
+
+        // Verify that blockRequirementSplitRepository.save() was not called
+        verify(blockRequirementSplitRepository, times(1)).save(any());
+    }
+
+    @Test
     public void testUpdateOneById() throws Exception {
         // Mock the updated data
         BlockRequirementSplitDto updatedDto = new BlockRequirementSplitDto(1, "Updated Block 1", new ArrayList<>());
 
         // Mock the block split data in the repository before updating
-        BlockRequirementSplit existingBlockSplit = new BlockRequirementSplit(1, "Block 1", new ArrayList<BlockRequirement>());
+        BlockRequirementSplit existingBlockSplit = new BlockRequirementSplit(1, "Block 1",
+                new ArrayList<BlockRequirement>());
         when(blockRequirementSplitRepository.findById(1)).thenReturn(Optional.of(existingBlockSplit));
 
         // Mock the data returned by the repository after updating
-        BlockRequirementSplit updatedBlockSplit = new BlockRequirementSplit(1, "Updated Block 1", new ArrayList<BlockRequirement>());
+        BlockRequirementSplit updatedBlockSplit = new BlockRequirementSplit(1, "Updated Block 1",
+                new ArrayList<BlockRequirement>());
         when(blockRequirementSplitRepository.save(any(BlockRequirementSplit.class))).thenReturn(updatedBlockSplit);
 
         // Perform the request and verify the response
