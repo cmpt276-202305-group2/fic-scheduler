@@ -8,8 +8,8 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "block_requirement")
-public class BlockRequirement {
+@jakarta.persistence.Entity(name = "block_requirement")
+public class BlockRequirement implements Entity {
     @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

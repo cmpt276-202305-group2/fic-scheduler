@@ -106,22 +106,42 @@ public class ScheduleController {
         var courses = new HashMap<CourseOffering, CourseAssignmentDto>();
         if (schedule.getAssignments() != null) {
             for (var assignment : schedule.getAssignments()) {
-                courses.computeIfAbsent(assignment.getCourse(),
-                        (course) -> {
-                            var dto = new CourseAssignmentDto();
-                            dto.setCourse(new CourseOfferingDto(course.getId(), course.getName(),
-                                    course.getCourseNumber(),
-                                    course.getNotes(),
-                                    course.getApprovedInstructors().stream()
-                                            .map(i -> (EntityDto) new EntityReferenceDto(i.getId())).toList(),
-                                    course.getAllowedBlockSplits().stream()
-                                            .map(bd -> (EntityDto) new EntityReferenceDto(bd.getId())).toList()));
-                            return dto;
+                courses.compute(assignment.getCourse(),
+                        (courseOffering, courseDto) -> {
+                            if (courseDto == null) {
+                                courseDto = new CourseAssignmentDto();
+                                courseDto.setCourse(toDto(courseOffering));
+                                courseDto.setBlocks(new ArrayList<>());
+                            }
+                            courseDto.getBlocks().add(new BlockAssignmentDto(toDto(assignment.getInstructor()),
+                                    toDto(assignment.getClassroom()), assignment.getDayOfWeek(),
+                                    assignment.getPartOfDay()));
+                            return courseDto;
                         });
             }
         }
         return new ScheduleDto(schedule.getId(), schedule.getName(), schedule.getNotes(), schedule.getSemester(),
                 List.copyOf(courses.values()));
+    }
+
+    public EntityDto toDto(CourseOffering courseOffering) {
+        // return new CourseOfferingDto(courseOffering.getId(),
+        // courseOffering.getName(),
+        // courseOffering.getCourseNumber(),
+        // courseOffering.getNotes(),
+        // courseOffering.getApprovedInstructors().stream()
+        // .map(i -> (EntityDto) new EntityReferenceDto(i.getId())).toList(),
+        // courseOffering.getAllowedBlockSplits().stream()
+        // .map(bd -> (EntityDto) new EntityReferenceDto(bd.getId())).toList());
+        return new EntityReferenceDto(courseOffering.getId());
+    }
+
+    public EntityDto toDto(Instructor instructor) {
+        return new EntityReferenceDto(instructor.getId());
+    }
+
+    public EntityDto toDto(Classroom classroom) {
+        return new EntityReferenceDto(classroom.getId());
     }
 
     public Schedule createOrUpdateFromDto(ScheduleDto scheduleDto) {

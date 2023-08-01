@@ -15,7 +15,7 @@ const ImportSemesterPlan = () => {
   useEffect(() => {
     // Fetch data from the backend
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/courses`)
+      .get("api/courses")
       .then((response) => {
         const filteredCourseData = response.data.map((course) => course.id);
         setCoursesData(filteredCourseData);
@@ -25,7 +25,7 @@ const ImportSemesterPlan = () => {
       });
 
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/instructors`)
+      .get("api/instructors")
       .then((response) => {
         const filteredInstructorData = response.data;
         setInstructorsData(filteredInstructorData);
@@ -35,7 +35,7 @@ const ImportSemesterPlan = () => {
       });
 
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/classrooms`)
+      .get("api/classrooms")
       .then((response) => {
         const filteredClassData = response.data.map((cls) => cls.id);
         setClassroomsData(filteredClassData);
@@ -76,7 +76,7 @@ const ImportSemesterPlan = () => {
       }));
       try {
         const response = await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
+          "api/semester-plans",
           jsonData,
           tokenConfig(),
           {

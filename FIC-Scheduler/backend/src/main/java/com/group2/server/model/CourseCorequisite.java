@@ -6,8 +6,8 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "course_corequisite")
-public class CourseCorequisite {
+@jakarta.persistence.Entity(name = "course_corequisite")
+public class CourseCorequisite implements Entity {
     @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

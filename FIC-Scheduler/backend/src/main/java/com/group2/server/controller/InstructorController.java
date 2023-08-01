@@ -1,5 +1,6 @@
 package com.group2.server.controller;
 
+import com.group2.server.dto.EntityReferenceDto;
 import com.group2.server.dto.InstructorDto;
 import com.group2.server.model.*;
 import com.group2.server.repository.*;
@@ -24,6 +25,18 @@ public class InstructorController {
         try {
             return new ResponseEntity<>(instructorRepository.findAll().stream().map(this::toDto).toList(),
                     HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/instructors")
+    public ResponseEntity<Void> deleteList(@PathVariable List<EntityReferenceDto> instructorDtos) {
+        try {
+            for (EntityReferenceDto instructorDto : instructorDtos) {
+                instructorRepository.deleteById(instructorDto.getId());
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

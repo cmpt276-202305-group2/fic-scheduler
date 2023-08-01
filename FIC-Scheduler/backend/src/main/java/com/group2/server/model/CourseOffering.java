@@ -8,8 +8,8 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "course_offering")
-public class CourseOffering {
+@jakarta.persistence.Entity(name = "course_offering")
+public class CourseOffering implements Entity {
     @Setter(AccessLevel.PROTECTED)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

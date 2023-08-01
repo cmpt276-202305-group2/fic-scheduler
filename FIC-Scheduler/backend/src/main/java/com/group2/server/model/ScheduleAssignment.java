@@ -6,7 +6,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "schedule_assignment")
+@jakarta.persistence.Entity(name = "schedule_assignment")
 public class ScheduleAssignment {
     @Setter(AccessLevel.PROTECTED)
     @Id
