@@ -57,28 +57,69 @@ const ImportClassroom = ({
         const data = {
           id: null,
           roomNumber: row[0],
-          facilitesAvaliableNames: row[1],
+          roomType: row[1],
           notes: row[2],
         };
 
         return data;
       });
 
-      try {
-        const response = await axios.post(
-          "api/classrooms",
-          jsonData,
-          tokenConfig()
-        );
+      console.log("jsonData", jsonData);
 
-        if (response.status === 200) {
-          const result = response.json();
-          console.log("File upload successful:", result);
-        } else {
-          console.error("Error uploading Excel file:", response.statusText);
+      try {
+        let response = null;
+        response = await axios.get("api/classrooms", tokenConfig());
+        console.log("response", response);
+
+        const classroomsToUpdate = [];
+        const classroomsToDelete = [];
+
+        const currentClassrooms = response.data;
+        currentClassrooms.forEach((classroom) => {
+          let found = false;
+          jsonData.forEach((newClassroom) => {
+            if (classroom.roomNumber === newClassroom.roomNumber) {
+              found = true;
+            }
+          });
+
+          if (!found) {
+            classroomsToDelete.push({ id: classroom.id });
+          }
+        });
+
+        jsonData.slice(1).forEach((newClassroom) => {
+          let exists = false;
+          currentClassrooms.forEach((classroom) => {
+            if (newClassroom.roomNumber === classroom.roomNumber) {
+              exists = true;
+            }
+          });
+
+          if (!exists) {
+            classroomsToUpdate.push(newClassroom);
+          }
+        });
+
+        console.log("Classrooms to delete:", classroomsToDelete);
+        if (classroomsToDelete.length > 0) {
+          classroomsToDelete.forEach(async (classroom) => {
+            await axios.delete(`api/classrooms/${classroom.id}`, tokenConfig());
+            console.log(`Deleted classroom with ID: ${classroom.id}`);
+          });
+        }
+
+        console.log("Classrooms to create/update:", classroomsToUpdate);
+        if (classroomsToUpdate.length > 0) {
+          response = await axios.post(
+            "api/classrooms",
+            classroomsToUpdate,
+            tokenConfig()
+          );
+          console.log("response from create", response);
         }
       } catch (error) {
-        console.error("Error reading Excel file:", error);
+        console.error("Error processing classrooms:", error);
       }
     }
   };
