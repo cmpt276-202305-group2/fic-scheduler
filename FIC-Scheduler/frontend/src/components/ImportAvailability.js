@@ -53,48 +53,52 @@ const ImportAvailabity = ({
             const instructorDataMap = {};
             const duplicateNames = [];
 
-            for (const row of availabilitySpreadsheetData) {
+            for (const row of availabilitySpreadsheetData.slice(1)) {
                 const instructorName = row[0];
                 console.log("Instructor Name:", instructorName);
                 console.log("Row:", row);
-                const instructorData = {
-                    id: null,
-                    name: instructorName,
-                    availability: [], // Add an empty array for availability data
-                };
 
                 // Define the days of the week and parts of the day
-                // Define the days of the week and parts of the day
-                const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday'];
-                const partsOfDay = ['AM', 'PM', 'EVE'];
+                const daysOfWeek = [
+                    "MONDAY",
+                    "TUESDAY",
+                    "WEDNESDAY",
+                    "THURSDAY",
+                    "FRIDAY",
+                ];
+                const partsOfDay = ["MORNING", "AFTERNOON", "EVENING"];
 
                 // Get the availability data for the instructor
                 const availabilityData = row.slice(1); // Assuming the first element is the instructor's name
 
                 for (let dayIndex = 0; dayIndex < daysOfWeek.length; dayIndex++) {
                     for (let partIndex = 0; partIndex < partsOfDay.length; partIndex++) {
-                        const isAvailable = availabilityData[dayIndex * partsOfDay.length + partIndex] === 1;
+                        const isAvailable =
+                            availabilityData[dayIndex * partsOfDay.length + partIndex] === 1;
 
                         if (isAvailable) {
-                            instructorData.availability.push({
-                                dayOfWeek: daysOfWeek[dayIndex],
+                            const availabilityEntry = {
+                                instructor: instructorName,
                                 partOfDay: partsOfDay[partIndex],
-                            });
+                                dayOfWeek: daysOfWeek[dayIndex],
+                            };
+
+                            // Check for duplicate names
+                            if (instructorDataMap[instructorName]) {
+                                instructorDataMap[instructorName].push(availabilityEntry);
+                            } else {
+                                instructorDataMap[instructorName] = [availabilityEntry];
+                            }
                         }
                     }
                 }
-
-                // Check for duplicate names
-                if (instructorDataMap[instructorName]) {
-                    duplicateNames.push(instructorName);
-                } else {
-                    instructorDataMap[instructorName] = instructorData;
-                    jsonData.push(instructorData);
-                }
             }
 
+            // Flatten the instructorDataMap into jsonData array
+            jsonData.push(Object.values(instructorDataMap).flat());
+
             // use these to set data for the instructor and JSONdata
-            setInstructors(Object.values(instructorDataMap));
+            setInstructors(jsonData);
             setJsonData(jsonData);
 
             // Check if duplicate names are found and handle the error
@@ -108,35 +112,59 @@ const ImportAvailabity = ({
                 console.log("Sending data to backend:", jsonData);
 
                 let response = await axios.get(
-                    `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans/latest`,
+                    `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
                     tokenConfig()
                 );
 
+                console.log("this is get response Response:", response);
+                console.log(
+                    "this is get response Data.data.latest:",
+                    response.data[response.data.length - 1]
+                );
+                console.log("this is response.data.length:", response.data.length);
+
                 // If the latest semester plan doesn't exist, create a new one
-                if (!response.data) {
+                if (response.data && response.data.length === 0) {
                     const semesterPlan = {
-                        name: "SomeName",
-                        semester: "SomeSemester",
-                        notes: "",
+                        id: "",
+                        name: "semesterPlan",
+                        notes: "some notes",
+                        semester: "semesterPlanTest",
                         coursesOffered: [],
                         instructorsAvailable: [],
                         classroomsAvailable: [],
-                        courseCorequisites: [],
-                        instructorSchedulingRequests: [],
                     };
+
+                    console.log("there was no semesterPlan creating ...");
 
                     response = await axios.post(
                         `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
-                        semesterPlan,
+                        [semesterPlan],
                         tokenConfig()
                     );
                 }
 
+                const thisId = response.data[response.data.length - 1].id;
+
                 // Then update the semester plan with the new instructor availability data
                 if (response.status === 200 || response.status === 201) {
-                    response = await axios.put(
+                    console.log("we are in the update part ...");
+                    const unwrappedData = jsonData[0];
+                    console.log("stringified object:", JSON.stringify(unwrappedData));
+                    const semesterPlan = {
+                        id: thisId.toString(),
+                        name: "semesterPlan",
+                        notes: "some notes",
+                        semester: "semesterPlanTest",
+                        coursesOffered: [],
+                        instructorsAvailable: unwrappedData,
+                        classroomsAvailable: [],
+                    };
+
+                    console.log("this is semesterPlan id for update:", semesterPlan.id);
+                    response = await axios.post(
                         `${process.env.REACT_APP_BACKEND_URL}/api/semester-plans`,
-                        jsonData,
+                        [semesterPlan],
                         tokenConfig()
                     );
 
