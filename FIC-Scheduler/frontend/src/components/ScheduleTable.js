@@ -93,7 +93,7 @@ export function ScheduleTable() {
             });
         });
     });
-    console.log("combinedData: ", combinedData);
+
     const transformDataForCSV = () => {
         return combinedData.map((row) => ({
             courses: getCourseOfferingName(row.courses.id),
