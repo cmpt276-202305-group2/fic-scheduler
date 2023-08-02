@@ -60,8 +60,8 @@ const ImportAvailabity = ({
 
     for (const row of availabilitySpreadsheetData.slice(1)) {
       const instructorName = row[0];
-      console.log("Instructor Name:", instructorName);
-      console.log("Row:", row);
+      //   console.log("Instructor Name:", instructorName);
+      //   console.log("Row:", row);
 
       // Get the availability data for the instructor
       const availabilityData = row.slice(1); // Assuming the first element is the instructor's name
@@ -83,7 +83,7 @@ const ImportAvailabity = ({
     }
 
     try {
-      console.log("Sending data to backend:", instructorAvailabilities);
+      //   console.log("Sending data to backend:", instructorAvailabilities);
 
       let response = null;
 
@@ -95,7 +95,7 @@ const ImportAvailabity = ({
       for (const v of response.data) {
         instructors.set(v.name, v);
       }
-      console.log("Instructors NOW: ", instructors);
+      //   console.log("Instructors NOW: ", instructors);
       const staleInstructors = new Map(instructors);
       const instructorsToUpdate = [];
       for (const ia of instructorAvailabilities) {
@@ -115,7 +115,7 @@ const ImportAvailabity = ({
       }
       // "instructors" now contains the new, minimized list of instructors, mapped by name
 
-      console.log("Instructors to delete:", instructorsToDelete);
+      //   console.log("Instructors to delete:", instructorsToDelete);
       // Send the instructor delete list
       if (instructorsToDelete.length > 0) {
         response = await axios.delete(
@@ -125,7 +125,7 @@ const ImportAvailabity = ({
         );
       }
 
-      console.log("Instructors to create/update:", instructorsToUpdate);
+      //   console.log("Instructors to create/update:", instructorsToUpdate);
       // Send the instructor update/create list
       if (instructorsToUpdate.length > 0) {
         response = await axios.post(
@@ -134,7 +134,7 @@ const ImportAvailabity = ({
           tokenConfig()
         );
         for (let instructor of response.data) {
-          console.log("Replacing " + instructor.name + " with:", instructor);
+          //   console.log("Replacing " + instructor.name + " with:", instructor);
           instructors.set(instructor.name, instructor);
         }
       }
@@ -145,12 +145,12 @@ const ImportAvailabity = ({
       // GET the existing semester plan if there is one
       response = await axios.get("api/semester-plans", tokenConfig());
 
-      console.log("this is get response Response:", response);
-      console.log(
-        "this is get response Data.data.latest:",
-        response.data[response.data.length - 1]
-      );
-      console.log("this is response.data.length:", response.data.length);
+      //   console.log("this is get response Response:", response);
+      //   console.log(
+      //     "this is get response Data.data.latest:",
+      //     response.data[response.data.length - 1]
+      //   );
+      //   console.log("this is response.data.length:", response.data.length);
 
       // If the latest semester plan doesn't exist, create a new one
       if (response.data && response.data.length === 0) {
@@ -166,7 +166,7 @@ const ImportAvailabity = ({
           instructorSchedulingRequests: [],
         };
 
-        console.log("there was no semesterPlan creating ...");
+        // console.log("there was no semesterPlan creating ...");
 
         response = await axios.post(
           "api/semester-plans",
@@ -198,7 +198,7 @@ const ImportAvailabity = ({
         instructorSchedulingRequests: [],
       };
 
-      console.log("this is semesterPlan for update:", semesterPlan);
+      //   console.log("this is semesterPlan for update:", semesterPlan);
       response = await axios.post(
         "api/semester-plans",
         [semesterPlan],

@@ -30,7 +30,7 @@ export function ViewUploadedAvailabilityList() {
         ]);
 
         const instructorsData = instructorsResponse.data;
-        console.log("instructorsData: ", instructorsData);
+        // console.log("instructorsData: ", instructorsData);
         const instructorsById = instructorsData.reduce((acc, instructor) => {
           acc[instructor.id] = instructor;
           return acc;
@@ -39,7 +39,7 @@ export function ViewUploadedAvailabilityList() {
         const instructorsAvailable =
           semesterPlanResponse.data.instructorsAvailable;
         instructorsAvailable.sort((a, b) => a.instructor.id - b.instructor.id);
-        console.log("instructorsAvailable: ", instructorsAvailable);
+        // console.log("instructorsAvailable: ", instructorsAvailable);
         let idCounter = 0;
         const grouped = instructorsAvailable.reduce((acc, item) => {
           const existing = acc.find(
@@ -64,7 +64,7 @@ export function ViewUploadedAvailabilityList() {
           return acc;
         }, []);
 
-        console.log("grouped: ", grouped);
+        // console.log("grouped: ", grouped);
         setBackendData(grouped);
       } catch (error) {
         console.error("Error fetching data:", error);
