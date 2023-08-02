@@ -79,7 +79,7 @@ public class InstructorControllerTest {
     }
 
     @Test
-    public void testReadListByQueryWithBadRequest() throws Exception {
+    public void testReadListByQueryExceptionCase() throws Exception {
         // Mock the instructorRepository to throw a custom exception when findAll() is called
         when(instructorRepository.findAll()).thenThrow(new RuntimeException("Something went wrong"));
 
@@ -112,17 +112,19 @@ public class InstructorControllerTest {
     }
 
     @Test
-    public void testReadOneByIdNotFound() throws Exception {
+    public void testReadOneByIdExceptionCase() throws Exception {
         int instructorId = 1;
 
-        // Mock the instructorRepository to return an empty optional when findById() is called
+        // Mock the instructorRepository to return an empty optional when findById() is
+        // called
         when(instructorRepository.findById(instructorId)).thenThrow(new RuntimeException("Instructor Not found"));
 
         // Perform the request and verify the response
         mockMvc.perform(get("/api/instructors/{id}", instructorId))
                 .andExpect(status().isBadRequest());
 
-        // Verify that instructorRepository.findById() was called once with the correct ID
+        // Verify that instructorRepository.findById() was called once with the correct
+        // ID
         verify(instructorRepository, times(1)).findById(instructorId);
         verifyNoMoreInteractions(instructorRepository);
     }
@@ -159,11 +161,13 @@ public class InstructorControllerTest {
     }
 
     @Test
-    public void testCreateOrUpdateListBadRequest() throws Exception {
+    public void testCreateOrUpdateListExceptionCase() throws Exception {
         // Mock the data to be sent in the request
         List<InstructorDto> instructorDtoList = new ArrayList<>();
-        instructorDtoList.add(new InstructorDto(null, null, "Notes"));
-        instructorDtoList.add(new InstructorDto(null, "Jane Smith", null));
+        instructorDtoList.add(new InstructorDto(null, "John Doe", "Mathematics"));
+        instructorDtoList.add(new InstructorDto(null, "Jane Smith", "Physics"));
+
+        when(instructorRepository.save(any())).thenThrow(new RuntimeException(""));
 
         // Perform the request and verify the response
         mockMvc.perform(post("/api/instructors")
@@ -171,7 +175,8 @@ public class InstructorControllerTest {
                 .content(asJsonString(instructorDtoList)))
                 .andExpect(status().isBadRequest());
 
-        // Verify that instructorRepository.saveAll() was called once with the correct list of instructors
+        // Verify that instructorRepository.saveAll() was called once with the correct
+        // list of instructors
         verify(instructorRepository, times(1)).save(any());
         verifyNoMoreInteractions(instructorRepository);
     }
@@ -199,7 +204,8 @@ public class InstructorControllerTest {
                 .andExpect(jsonPath("$.name").value("Jane Smith"))
                 .andExpect(jsonPath("$.notes").value("Chemistry"));
 
-        // Verify that instructorRepository.findById() and instructorRepository.save() were called once
+        // Verify that instructorRepository.findById() and instructorRepository.save()
+        // were called once
         verify(instructorRepository, times(1)).findById(1);
 
         ArgumentCaptor<Instructor> InstructorCaptor = ArgumentCaptor.forClass(Instructor.class);
@@ -214,7 +220,7 @@ public class InstructorControllerTest {
     }
 
     @Test
-    public void testUpdateOneByIdBadRequest() throws Exception {
+    public void testUpdateOneByIdExceptionCase() throws Exception {
         int instructorId = 1;
         InstructorDto instructorDto = new InstructorDto(2, "John Doe", "Notes");
 
@@ -224,7 +230,8 @@ public class InstructorControllerTest {
                 .content(asJsonString(instructorDto)))
                 .andExpect(status().isBadRequest());
 
-        // Verify that instructorRepository.findById() was not called because of the mismatch in the ID
+        // Verify that instructorRepository.findById() was not called because of the
+        // mismatch in the ID
         verify(instructorRepository, times(0)).findById(instructorId);
         verifyNoMoreInteractions(instructorRepository);
     }
