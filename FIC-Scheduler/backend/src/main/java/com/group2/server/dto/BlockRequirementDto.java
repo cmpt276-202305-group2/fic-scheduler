@@ -6,13 +6,11 @@ import com.group2.server.model.*;
 
 import lombok.*;
 
-import java.util.*;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonDeserialize
 public class BlockRequirementDto {
-    private List<String> allowedRoomTypes;
+    private String roomType;
     private Duration duration;
 }

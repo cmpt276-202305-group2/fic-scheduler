@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.google.ortools.Loader;
 import com.google.ortools.sat.*;
-
 import com.group2.server.dto.*;
 import com.group2.server.model.*;
 import com.group2.server.repository.*;
@@ -33,9 +32,6 @@ public class GenerateScheduleController {
 
     @Autowired
     private SemesterPlanRepository semesterPlanRepository;
-
-    @Autowired
-    private BlockRequirementSplitRepository blockRequirementSplitRepository;
 
     private final Pattern baseNamePattern = Pattern.compile("^(.*?)(?>\\s*-\\s*[0-9]+)?$");
 
@@ -99,12 +95,11 @@ public class GenerateScheduleController {
         private static final DayOfWeek[] days = new DayOfWeek[] {
                 DayOfWeek.MONDAY, DayOfWeek.TUESDAY,
                 DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY };
-        // private static final PartOfDay[] times = new PartOfDay[] {
-        // PartOfDay.MORNING_EARLY, PartOfDay.MORNING_LATE,
-        // PartOfDay.AFTERNOON_EARLY, PartOfDay.AFTERNOON_LATE, PartOfDay.EVENING_EARLY,
-        // PartOfDay.EVENING_LATE };
-        private static final PartOfDay[] times = new PartOfDay[] {
+        private static final PartOfDay[] fullBlockTimes = new PartOfDay[] {
                 PartOfDay.MORNING, PartOfDay.AFTERNOON, PartOfDay.EVENING };
+        private static final PartOfDay[] halfBlockTimes = new PartOfDay[] {
+                PartOfDay.MORNING_EARLY, PartOfDay.MORNING_LATE, PartOfDay.AFTERNOON_EARLY, PartOfDay.AFTERNOON_LATE,
+                PartOfDay.EVENING_EARLY, PartOfDay.EVENING_LATE };
 
         private CourseOffering[] coursesOffered;
         private Classroom[] classrooms;
@@ -121,7 +116,7 @@ public class GenerateScheduleController {
                 BoolVar modelVar,
                 DayOfWeek dayOfWeek,
                 PartOfDay partOfDay,
-                Classroom classroom,
+                String roomType,
                 CourseOffering course,
                 Instructor instructor) {
         }
@@ -156,7 +151,11 @@ public class GenerateScheduleController {
             return classroomsByType;
         }
 
+        private int nextVarId = Integer.MIN_VALUE;
+
         private void prepareModel() {
+            nextVarId = 1;
+
             // For the basic assignment task:
             //
             // There's one variable for each possible assignment of:
@@ -179,105 +178,10 @@ public class GenerateScheduleController {
 
             logger.info("Generating slots");
             // First, enumerate all our variables
-            allSlots = new HashSet<>();
-            int nextSlotId = 1;
-            for (CourseOffering course : coursesOffered) {
-                for (Instructor instructor : course.getApprovedInstructors()) {
-                    for (DayOfWeek day : days) {
-                        for (PartOfDay time : times) {
-                            // TODO add "if time is full block, add full block implies related half block"
-                            for (Classroom classroom : classrooms) {// classroomsByType.get(roomType)) {
-                                int slotId = nextSlotId++;
-                                BoolVar lit = model.newBoolVar(String.format("s%d", slotId));
-                                allSlots.add(new Slot(lit, day, time, classroom, course, instructor));
-                            }
-                        }
-                    }
-                }
-            }
+            enumerateAllSlots();
 
-            BiConsumer<Function<Slot, Object>, Consumer<ArrayList<Literal>>> addGroupingConstraint = (
-                    groupKeyFn, constraintFn) -> {
-                HashMap<Object, ArrayList<Literal>> groupedVars = new HashMap<>();
-                for (Slot slot : allSlots) {
-                    Object groupKey = groupKeyFn.apply(slot);
-
-                    groupedVars.compute(groupKey, (k, v) -> {
-                        if (v == null)
-                            v = new ArrayList<>();
-                        v.add(slot.modelVar());
-                        return v;
-                    });
-                }
-                for (ArrayList<Literal> modelVars : groupedVars.values()) {
-                    constraintFn.accept(modelVars);
-                }
-            };
-
-            long denseSize = (long) days.length * times.length * classrooms.length * instructors.length
-                    * coursesOffered.length;
-            logger.info("Total slots: {} (dense size {}: {}% reduction from culling)", allSlots.size(), denseSize,
-                    (1.0d - ((double) allSlots.size() / (double) denseSize)) * 100d);
             logger.info("Generating constraints");
-            // For constraints: "exactly one" by course-block -- make sure every course is
-            // being taught, and is only taught once
-            // To make multiple block splits work, we would have to make this more complex:
-            // instead of "exactly one" slot, we'd be choosing "exactly one pattern"
-            addGroupingConstraint.accept(
-                    (slot) -> slot.course(),
-                    (modelVars) -> model.addExactlyOne(modelVars));
-
-            // For constraints: "at most one" by instructor-block -- don't double-book
-            // instructors
-            record InstructorBlock(Instructor instructor, DayOfWeek day, PartOfDay time) {
-            }
-            ;
-            addGroupingConstraint.accept(
-                    (slot) -> new InstructorBlock(slot.instructor(), slot.dayOfWeek(), slot.partOfDay()),
-                    (modelVars) -> model.addAtMostOne(modelVars));
-
-            // For constraints: "at most one" by room-block -- don't double-book rooms
-            record ClassroomBlock(Classroom classroom, DayOfWeek day, PartOfDay time) {
-            }
-            ;
-            addGroupingConstraint.accept(
-                    // (slotId) -> new ClassroomBlock(slotIdClassroom(slotId), slotIdDay(slotId),
-                    // slotIdTime(slotId)),
-                    (slot) -> new ClassroomBlock(slot.classroom(), slot.dayOfWeek(), slot.partOfDay()),
-                    (modelVars) -> model.addAtMostOne(modelVars));
-
-            // TODO implementation steps
-            // Validate the schedule!!!
-            // Half blocks
-            // - Add "full block implies 2 half blocks" constraints
-            // - Make "at most 1" by course-block only check half blocks
-            // - Split "exactly 1" by course constraint into "exactly N" by course-blocktype
-            // Multiple block layouts
-            // - Switch "exactly N" by course-blocktype constraints to logical expressions:
-            // -- "M of this and N of that, OR O of this and P of that"
-            // Room types
-            // - Count rooms by type
-            // - Change "at most 1" by course-block constraints to roomtype-block
-            // - Change "exactly N" course-blocktype constraints to
-            // -- course-blocktype-roomtype
-            // - Change room constraint to "at most N" by roomtype-block
-            // Optimize
-            // - Add variables for instructor allocation by course
-            // - Add "any instructor slot occupied equals instructor-course allocation var"
-            // . constraint
-            // - Add expression for quality (sum of instructor-course allocation times
-            // . preference)
-
-            // for (int n : allNurses) {
-            // LinearExprBuilder shiftsWorked = LinearExpr.newBuilder();
-            // for (int d : allDays) {
-            // for (int s : allShifts) {
-            // shiftsWorked.add(shifts[n][d][s]);
-            // }
-            // }
-            // model.addLinearConstraint(shiftsWorked, minShiftsPerNurse,
-            // maxShiftsPerNurse);
-            // }
+            addAllGroupingConstraints();
 
             solver.getParameters().setLinearizationLevel(0);
             // Tell the solver to enumerate all solutions.
@@ -286,40 +190,232 @@ public class GenerateScheduleController {
 
         public List<Schedule> generate() {
             logger.info("Solving");
-            ArrayList<Schedule> schedules = new ArrayList<>();
-            CpSolverSolutionCallback solutionCallback = new CpSolverSolutionCallback() {
-                static final int maxSolutions = 1;
-                int solutionsFound = 0;
 
-                @Override
-                public void onSolutionCallback() {
-                    // TODO assert that the solution is a real solution!
-                    logger.info("Found solution");
-                    var assignments = new HashSet<ScheduleAssignment>(coursesOffered.length);
-                    for (Slot slot : allSlots) {
-                        if (booleanValue(slot.modelVar())) {
-                            logger.info("ALLOCATED: {} {} {} {} {}", slot.classroom().getRoomNumber(), slot.dayOfWeek(),
-                                    slot.partOfDay(), slot.course().getName(), slot.instructor().getName());
-                            assignments.add(new ScheduleAssignment(null, slot.dayOfWeek(),
-                                    slot.partOfDay(), slot.classroom(), slot.course(), slot.instructor()));
-                        }
-                    }
-                    ++solutionsFound;
-                    if (solutionsFound >= maxSolutions) {
-                        stopSearch();
-                    }
-                    var schedule = new Schedule(null,
-                            String.format("Schedule #%d - %s", solutionsFound + 1, semesterPlan.getSemester()),
-                            "", semesterPlan.getSemester(), assignments);
-                    schedules.add(schedule);
-                }
-            };
-
+            var solutionCallback = new ScheduleSolutionCallback();
             CpSolverStatus status = solver.solve(model, solutionCallback);
             logger.info("CP Solver status: {}", status);
 
-            return schedules;
+            if (status == CpSolverStatus.FEASIBLE || status == CpSolverStatus.OPTIMAL) {
+                var schedule = solutionCallback.getSchedules().get(0);
+                for (ScheduleAssignment assignment : schedule.getAssignments()) {
+                    logger.info("ALLOCATED: {} {} {} {} {}", assignment.getClassroom().getRoomNumber(),
+                            assignment.getDayOfWeek(), assignment.getPartOfDay(), assignment.getCourse().getName(),
+                            assignment.getInstructor().getName());
+                }
+            }
+
+            return solutionCallback.getSchedules();
         }
+
+        private void enumerateAllSlots() {
+            allSlots = new HashSet<>();
+            ArrayList<Slot> fullBlockSlots = new ArrayList<>(fullBlockTimes.length);
+            for (CourseOffering course : coursesOffered) {
+                for (Instructor instructor : course.getApprovedInstructors()) {
+                    for (DayOfWeek day : days) {
+                        for (String roomType : classroomsByType.keySet()) {// classroomsByType.get(roomType)) {
+                            fullBlockSlots.clear();
+                            // In the absence of other constraints, modelVar could reasonably be an IntVar
+                            // with bounds [0, classroomsByType.get(roomType).size()]; but we know for sure
+                            // that classes won't be scheduled in two rooms at once for any particular
+                            // course, because then the students would have to be in two places at once, so
+                            // this might as well be a BoolVar.
+                            for (PartOfDay time : fullBlockTimes) {
+                                BoolVar modelVar = model.newBoolVar(String.format("sf%d", nextVarId++));
+                                Slot slot = new Slot(modelVar, day, time, roomType, course, instructor);
+                                allSlots.add(slot);
+                                fullBlockSlots.add(slot);
+                            }
+                            for (PartOfDay time : halfBlockTimes) {
+                                BoolVar modelVar = model.newBoolVar(String.format("sh%d", nextVarId++));
+                                Slot slot = new Slot(modelVar, day, time, roomType, course, instructor);
+                                allSlots.add(slot);
+                                // If the full-block slot is allocated, that implies the half-block is
+                                // allocated. Because of this, when checking one-of constraints, we must check
+                                // either the full block or the half block for allocation, but not both, or the
+                                // full block will never be allocated!
+                                for (Slot fullSlot : fullBlockSlots) {
+                                    if (fullSlot.partOfDay().conflict(time)) {
+                                        model.addImplication(fullSlot.modelVar(), modelVar);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            long denseSize = (long) days.length * halfBlockTimes.length * classrooms.length * instructors.length
+                    * coursesOffered.length;
+            logger.info("Total slots: {} (dense size {}: {}% reduction from culling)", allSlots.size(), denseSize,
+                    (1.0d - ((double) allSlots.size() / (double) denseSize)) * 100d);
+        }
+
+        private void addAllGroupingConstraints() {
+            // TODO implementation steps
+            // Validate the schedule!!!
+            // Half blocks
+            // + Add "full block implies 2 half blocks" constraints
+            // + Make "at most 1" by instructor-block only check half blocks
+            // - Split "exactly 1" by course constraint into "exactly N" by
+            // .. course-blocktype-roomtype
+            // Multiple block layouts
+            // - Switch "exactly N" by course-blocktype constraints to logical expressions:
+            // -- "M of this and N of that, OR O of this and P of that"
+            // Room types
+            // + Count rooms by type
+            // - Change "at most 1" by course-block constraints to roomtype-block
+            // - Change "exactly N" course-blocktype constraints to
+            // .. course-blocktype-roomtype
+            // + Change room constraint to "at most N" by roomtype-block
+            // Optimize
+            // - Add variables for instructor allocation by course
+            // - Add "any instructor slot occupied equals instructor-course allocation var"
+            // .. constraint
+            // - Add expression for quality (sum of instructor-course allocation times
+            // .. preference)
+
+            // For constraints: "exactly one" by course-block -- make sure every course is
+            // being taught, and is only taught once.
+            // To make multiple block splits work, we would have to make this more complex:
+            // instead of "exactly one" slot, we'd be choosing "exactly one pattern".
+            record DurationRoomType(Duration duration, String roomType) {
+            }
+            ;
+            groupSlotsBy(
+                    (slot) -> slot.course(),
+                    (course, slots) -> {
+                        ArrayList<Literal> splitVars = new ArrayList<>();
+                        for (BlockRequirementSplit split : course.getAllowedBlockSplits()) {
+                            HashMap<DurationRoomType, Integer> requirements = new HashMap<>();
+                            for (BlockRequirement blockReq : split.getBlocks()) {
+                                requirements.compute(
+                                        new DurationRoomType(blockReq.getDuration(), blockReq.getRoomType()),
+                                        (k, count) -> count == null ? 1 : count + 1);
+                            }
+
+                            Literal splitVar = model.newBoolVar(String.format("split%d", nextVarId++));
+                            splitVars.add(splitVar);
+                            for (Map.Entry<DurationRoomType, Integer> entry : requirements.entrySet()) {
+                                int count = entry.getValue();
+                                entry.getKey().duration();
+                                entry.getKey().roomType();
+                                Literal[] modelVars = slots.stream()
+                                        .filter((slot) -> (entry.getKey().equals(
+                                                new DurationRoomType(slot.partOfDay().getDuration(), slot.roomType()))))
+                                        .map(Slot::modelVar).toArray(Literal[]::new);
+                                assert (modelVars.length > 0);
+                                model.addEquality(LinearExpr.term(splitVar, count), LinearExpr.sum(modelVars));
+                                logger.info("For course {}/{}[{},{}]: sum([{}]) = {}", course.getCourseNumber(),
+                                        nextVarId, entry.getKey().duration(), entry.getKey().roomType(),
+                                        modelVars.length, entry.getValue());
+                            }
+                        }
+
+                        logger.info("For course {}/{}: sum([{}]) = 1", course.getCourseNumber(), nextVarId,
+                                splitVars.size());
+                        model.addExactlyOne(splitVars.toArray(Literal[]::new));
+                    });
+
+            // For constraints: "at most one" by instructor-block -- don't double-book
+            // instructors.
+            groupSlotsBy(
+                    (slot) -> new Slot(null, slot.dayOfWeek(), slot.partOfDay(), null, null,
+                            slot.instructor()),
+                    (instructorBlock, slots) -> {
+                        if (instructorBlock.partOfDay().getDuration() == Duration.HALF) {
+                            model.addAtMostOne(modelVarsOf(slots));
+                        }
+                    });
+
+            // For constraints: "at most N" (where N is the number of rooms of that
+            // particular type) by roomtype-block -- don't allocate more rooms than we have.
+            groupSlotsBy(
+                    // (slotId) -> new ClassroomBlock(slotIdClassroom(slotId), slotIdDay(slotId),
+                    // slotIdTime(slotId)),
+                    (slot) -> new Slot(null, slot.dayOfWeek(), slot.partOfDay(), slot.roomType(),
+                            null, null),
+                    (blockRoomType, slots) -> {
+                        if (blockRoomType.partOfDay().getDuration() == Duration.HALF) {
+                            // Allocated rooms for this roomType must not exceed the number of available
+                            // rooms
+                            int numRoomsOfType = classroomsByType.get(blockRoomType.roomType()).size();
+                            model.addLessOrEqual(LinearExpr.sum(modelVarsOf(slots)), numRoomsOfType);
+                        }
+                    });
+        }
+
+        private Literal[] modelVarsOf(List<Slot> slots) {
+            return slots.stream().map(Slot::modelVar).toArray(Literal[]::new);
+        }
+
+        private class ScheduleSolutionCallback extends CpSolverSolutionCallback {
+            private static final int maxSolutions = 1;
+            private int solutionsFound = 0;
+            private ArrayList<Schedule> schedules = new ArrayList<>();
+
+            public List<Schedule> getSchedules() {
+                return schedules;
+            }
+
+            @Override
+            public void onSolutionCallback() {
+                // TODO assert that the solution is a real solution!
+                logger.info("Found solution");
+                HashSet<ScheduleAssignment> assignments = assignSpecificRooms();
+                var schedule = new Schedule(null,
+                        String.format("Schedule #%d - %s", solutionsFound + 1, semesterPlan.getSemester()),
+                        "", semesterPlan.getSemester(), assignments);
+                schedules.add(schedule);
+                if (schedules.size() >= maxSolutions) {
+                    stopSearch();
+                }
+            }
+
+            private HashSet<ScheduleAssignment> assignSpecificRooms() {
+                var assignments = new HashSet<ScheduleAssignment>(coursesOffered.length);
+                groupSlotsBy(
+                        (slot) -> new Slot(null, slot.dayOfWeek(), slot.partOfDay(), slot.roomType(), null, null),
+                        (key, slots) -> {
+                            // TODO try to make the allocation stable -- i.e. if a class has multiple blocks
+                            // with the same room type try to allocate them to the same actual room
+                            var roomsOfType = classroomsByType.get(key.roomType());
+                            int i = 0;
+                            for (Slot slot : slots) {
+                                if (booleanValue(slot.modelVar())) {
+                                    if (i < roomsOfType.size()) {
+                                        // constraints should have ensured this
+                                        Classroom classroom = roomsOfType.get(i++);
+                                        assignments.add(new ScheduleAssignment(null, slot.dayOfWeek(),
+                                                slot.partOfDay(), classroom, slot.course(), slot.instructor()));
+                                    } else {
+                                        logger.info("For course {}: ran out of classrooms for {} {}",
+                                                slot.course().getCourseNumber(), slot.dayOfWeek(), slot.partOfDay());
+                                    }
+                                }
+                            }
+                        });
+                return assignments;
+            }
+        };
+
+        private <T> void groupSlotsBy(Function<Slot, T> groupKeyFn,
+                BiConsumer<T, ArrayList<Slot>> constraintFn) {
+            HashMap<T, ArrayList<Slot>> groupedVars = new HashMap<>();
+            for (Slot slot : allSlots) {
+                T groupKey = groupKeyFn.apply(slot);
+
+                groupedVars.compute(groupKey, (k, v) -> {
+                    if (v == null)
+                        v = new ArrayList<>();
+                    v.add(slot);
+                    return v;
+                });
+            }
+            for (Map.Entry<T, ArrayList<Slot>> entry : groupedVars.entrySet()) {
+                constraintFn.accept(entry.getKey(), entry.getValue());
+            }
+        };
 
     }
 
