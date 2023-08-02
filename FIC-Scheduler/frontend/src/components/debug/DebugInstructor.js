@@ -45,7 +45,9 @@ export function DebugInstructor() {
     );
   }, [updateResponse]);
 
-  var data = <div>No instructors</div>;
+  var data = (
+    <div>No current instructors, please upload an availabilities file.</div>
+  );
   if (allInstructors && allInstructors instanceof Array) {
     data = (
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -168,6 +170,7 @@ export function DebugInstructor() {
             </Button>
 
             <Button
+              sx={{ mb: 3, mt: 1 }}
               onClick={(event) => {
                 event.preventDefault();
                 if (formId) {

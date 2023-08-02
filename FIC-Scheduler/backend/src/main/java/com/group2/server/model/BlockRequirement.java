@@ -1,7 +1,5 @@
 package com.group2.server.model;
 
-import java.util.*;
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +14,7 @@ public class BlockRequirement implements Entity {
     private Integer id;
 
     @NonNull
-    private Set<String> allowedRoomTypes;
+    private String roomType;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

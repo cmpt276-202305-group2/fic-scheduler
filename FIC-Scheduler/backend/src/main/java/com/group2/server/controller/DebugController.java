@@ -18,7 +18,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/debug")
@@ -42,8 +41,7 @@ public class DebugController {
     @Autowired
     private SemesterPlanRepository semesterPlanRepository;
 
-    private static final String roomTypeSmall = "Small";
-    private static final String roomTypeLarge = "Large";
+    private static final String roomTypeClassroom = "Classroom";
     private static final String roomTypeScienceLab = "Science Lab";
     private static final String roomTypeComputerLab = "Computer Lab";
     // private static final String[] roomTypes = { roomTypeSmall, roomTypeLarge,
@@ -67,46 +65,43 @@ public class DebugController {
     @Data
     @AllArgsConstructor
     private static class BlockRequirementTemplate {
-        private Set<String> allowedRoomTypes;
+        private String roomType;
         private Duration duration;
     }
 
-    private static final String halfPeriodSmallRoom = "Half period/small room";
-    private static final String fullPeriodSmallRoom = "Full period/small room";
-    private static final String fullPeriodLargeRoom = "Full period/large room";
-    private static final String fullPeriodSmallRoomAndHalfPeriodComputerLab = "Full period/small room + half period/computer lab";
-    private static final String fullPeriodSmallRoomAndFullPeriodScienceLab = "Full period/small room + full period/science lab";
+    private static final String halfPeriodClassroom = "Half period/classroom";
+    private static final String fullPeriodClassroom = "Full period/classroom";
+    private static final String fullPeriodClassroomAndHalfPeriodComputerLab = "Full period/classroom + half period/computer lab";
+    private static final String fullPeriodClassroomAndFullPeriodScienceLab = "Full period/classroom + full period/science lab";
     private static final Map<String, List<BlockRequirementTemplate>> blockRequirements = Map.ofEntries(
-            Map.entry(halfPeriodSmallRoom,
-                    List.of(new BlockRequirementTemplate(Set.of(roomTypeSmall), Duration.HALF))),
-            Map.entry(fullPeriodSmallRoom,
-                    List.of(new BlockRequirementTemplate(Set.of(roomTypeSmall, roomTypeLarge), Duration.FULL))),
-            Map.entry(fullPeriodLargeRoom,
-                    List.of(new BlockRequirementTemplate(Set.of(roomTypeLarge), Duration.FULL))),
-            Map.entry(fullPeriodSmallRoomAndHalfPeriodComputerLab,
-                    List.of(new BlockRequirementTemplate(Set.of(roomTypeSmall, roomTypeLarge), Duration.FULL),
-                            new BlockRequirementTemplate(Set.of(roomTypeComputerLab), Duration.HALF))),
-            Map.entry(fullPeriodSmallRoomAndFullPeriodScienceLab,
-                    List.of(new BlockRequirementTemplate(Set.of(roomTypeSmall, roomTypeLarge), Duration.FULL),
-                            new BlockRequirementTemplate(Set.of(roomTypeScienceLab), Duration.FULL))));
+            Map.entry(halfPeriodClassroom,
+                    List.of(new BlockRequirementTemplate(roomTypeClassroom, Duration.HALF))),
+            Map.entry(fullPeriodClassroom,
+                    List.of(new BlockRequirementTemplate(roomTypeClassroom, Duration.FULL))),
+            Map.entry(fullPeriodClassroomAndHalfPeriodComputerLab,
+                    List.of(new BlockRequirementTemplate(roomTypeClassroom, Duration.FULL),
+                            new BlockRequirementTemplate(roomTypeComputerLab, Duration.HALF))),
+            Map.entry(fullPeriodClassroomAndFullPeriodScienceLab,
+                    List.of(new BlockRequirementTemplate(roomTypeClassroom, Duration.FULL),
+                            new BlockRequirementTemplate(roomTypeScienceLab, Duration.FULL))));
     private static final Map<String, String> classrooms = Map.ofEntries(
-            Map.entry("DISC1 2400 (L)", roomTypeLarge),
-            Map.entry("DISC1 2420", roomTypeSmall),
-            Map.entry("DISC1 2440", roomTypeSmall),
+            Map.entry("DISC1 2400", roomTypeClassroom),
+            Map.entry("DISC1 2420", roomTypeClassroom),
+            Map.entry("DISC1 2440", roomTypeClassroom),
             Map.entry("DISC1 2460 (C)", roomTypeComputerLab),
             Map.entry("DISC1 2480 (C)", roomTypeComputerLab),
-            Map.entry("DISC1 2500 (L)", roomTypeLarge),
-            Map.entry("DISC1 2520", roomTypeSmall),
-            Map.entry("DISC1 2540", roomTypeSmall),
-            Map.entry("DISC1 2560", roomTypeSmall),
+            Map.entry("DISC1 2500", roomTypeClassroom),
+            Map.entry("DISC1 2520", roomTypeClassroom),
+            Map.entry("DISC1 2540", roomTypeClassroom),
+            Map.entry("DISC1 2560", roomTypeClassroom),
             Map.entry("DISC1 2580 (S)", roomTypeScienceLab),
-            Map.entry("DISC1 3420", roomTypeSmall),
-            Map.entry("DISC1 3440", roomTypeSmall),
-            Map.entry("DISC1 3460", roomTypeSmall),
-            Map.entry("DISC1 3480", roomTypeSmall),
-            Map.entry("DISC1 3520", roomTypeSmall),
-            Map.entry("DISC1 3540", roomTypeSmall),
-            Map.entry("DISC1 3560", roomTypeSmall));
+            Map.entry("DISC1 3420", roomTypeClassroom),
+            Map.entry("DISC1 3440", roomTypeClassroom),
+            Map.entry("DISC1 3460", roomTypeClassroom),
+            Map.entry("DISC1 3480", roomTypeClassroom),
+            Map.entry("DISC1 3520", roomTypeClassroom),
+            Map.entry("DISC1 3540", roomTypeClassroom),
+            Map.entry("DISC1 3560", roomTypeClassroom));
     private static final String[] subjects = { "CMPT", "PHYS", "ENGL", "BUS", "POL", "ECON", "ILS", "ALC" };
 
     static {
@@ -133,7 +128,7 @@ public class DebugController {
                 if (blockRequirementSplitRepository.findByName(e.getKey()).size() == 0) {
                     blockRequirementSplitRepository.save(new BlockRequirementSplit(null, e.getKey(),
                             e.getValue().stream().map(
-                                    brt -> new BlockRequirement(null, brt.getAllowedRoomTypes(), brt.getDuration()))
+                                    brt -> new BlockRequirement(null, brt.getRoomType(), brt.getDuration()))
                                     .toList()));
                 }
             }
@@ -171,14 +166,12 @@ public class DebugController {
         try {
             var r = new Random(40);
             ArrayList<Instructor> instructors = new ArrayList<>(instructorRepository.findAll().stream().toList());
-            var ilsAllowedBlockSplits = blockRequirementSplitRepository.findByName(halfPeriodSmallRoom);
+            var ilsAllowedBlockSplits = blockRequirementSplitRepository.findByName(halfPeriodClassroom);
             var cmptLabAllowedBlockSplits = blockRequirementSplitRepository
-                    .findByName(fullPeriodSmallRoomAndHalfPeriodComputerLab);
+                    .findByName(fullPeriodClassroomAndHalfPeriodComputerLab);
             var physLabAllowedBlockSplits = blockRequirementSplitRepository
-                    .findByName(fullPeriodSmallRoomAndFullPeriodScienceLab);
-            var genericAllowedBlockSplits = Set
-                    .copyOf(Stream.concat(blockRequirementSplitRepository.findByName(fullPeriodSmallRoom).stream(),
-                            blockRequirementSplitRepository.findByName(fullPeriodLargeRoom).stream()).toList());
+                    .findByName(fullPeriodClassroomAndFullPeriodScienceLab);
+            var genericAllowedBlockSplits = blockRequirementSplitRepository.findByName(fullPeriodClassroom);
 
             for (var subject : subjects) {
                 // Shuffle instructor priorities for the subject
@@ -208,7 +201,7 @@ public class DebugController {
                     Set<BlockRequirementSplit> allowedBlockSplits = null;
                     if (subject.equals("ILS")) {
                         allowedBlockSplits = ilsAllowedBlockSplits;
-                        // ALC099 halfPeriodSmallRoom
+                        // ALC099 halfPeriodClassroom
                     } else if (subject.equals("CMPT") && ((i == 1) || (i == 2))) {
                         allowedBlockSplits = cmptLabAllowedBlockSplits;
                     } else if (subject.equals("PHYS") && ((i == 1) || (i == 2))) {

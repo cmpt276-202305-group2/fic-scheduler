@@ -17,8 +17,8 @@ export function ViewUploadedAvailabilityList() {
   const partOfDayOptions = ["AM", "EVE", "PM"];
   const partOfDayMap = {
     MORNING: "AM",
-    AFTERNOON: "EVE",
-    EVENING: "PM",
+    AFTERNOON: "PM",
+    EVENING: "EVE",
   };
 
   useEffect(() => {
@@ -75,7 +75,11 @@ export function ViewUploadedAvailabilityList() {
     fetchData();
   }, []);
 
-  var data = <div>No Availability added please add one</div>;
+  var data = (
+    <div className={styles.displayNullData}>
+      No current availability, please upload an availabilities file.
+    </div>
+  );
   if ((backendData ?? null) !== null && backendData instanceof Array) {
     data = (
       <Paper sx={{ width: "100%", overflow: "hidden" }}>

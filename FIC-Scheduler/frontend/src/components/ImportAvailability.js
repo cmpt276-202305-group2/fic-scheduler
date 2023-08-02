@@ -14,30 +14,31 @@ const ImportAvailabity = ({
   const [selectedFile, setSelectedFile] = useState(null);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isInstructorAvailabilityVisible, setisInstructorAvailabilityVisible] =
     useState(false);
 
   const createFileUploadHandler =
     (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
-      async (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const allowedFormats = ["xlsx", "csv"];
-        const fileExtension = file.name.split(".").pop().toLowerCase();
-        if (!allowedFormats.includes(fileExtension)) {
-          setErrorMessage(true);
-          return;
-        }
-        setErrorMessage(false);
-        try {
-          const data = await readExcelFile(file);
-          setData(data);
-          setFile(file.name);
-          setIsPreviewVisible(true);
-        } catch (error) {
-          console.error("Error reading Excel file:", error);
-        }
-      };
+    async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const allowedFormats = ["xlsx", "csv"];
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+      if (!allowedFormats.includes(fileExtension)) {
+        setErrorMessage(true);
+        return;
+      }
+      setErrorMessage(false);
+      try {
+        const data = await readExcelFile(file);
+        setData(data);
+        setFile(file.name);
+        setIsPreviewVisible(true);
+      } catch (error) {
+        console.error("Error reading Excel file:", error);
+      }
+    };
 
   const handleFileUpload = createFileUploadHandler(
     setSelectedFile,
@@ -52,13 +53,7 @@ const ImportAvailabity = ({
     }
 
     // Define the days of the week and parts of the day
-    const daysOfWeek = [
-      "MONDAY",
-      "TUESDAY",
-      "WEDNESDAY",
-      "THURSDAY",
-      "FRIDAY",
-    ];
+    const daysOfWeek = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
     const partsOfDay = ["MORNING", "AFTERNOON", "EVENING"];
 
     const instructorAvailabilities = [];
@@ -78,9 +73,9 @@ const ImportAvailabity = ({
 
           if (isAvailable) {
             instructorAvailabilities.push({
-              name: instructorName,
-              partOfDay: partsOfDay[partIndex],
-              dayOfWeek: daysOfWeek[dayIndex],
+              name: instructorName.trim(),
+              partOfDay: partsOfDay[partIndex].trim(),
+              dayOfWeek: daysOfWeek[dayIndex].trim(),
             });
           }
         }
@@ -100,11 +95,12 @@ const ImportAvailabity = ({
       for (const v of response.data) {
         instructors.set(v.name, v);
       }
+      console.log("Instructors NOW: ", instructors);
       const staleInstructors = new Map(instructors);
       const instructorsToUpdate = [];
       for (const ia of instructorAvailabilities) {
         if (!instructors.has(ia.name)) {
-          let newInstructor = { id: null, name: ia.name, notes: '' };
+          let newInstructor = { id: null, name: ia.name, notes: "" };
           instructors.set(ia.name, newInstructor);
           instructorsToUpdate.push(newInstructor);
         }
@@ -122,20 +118,28 @@ const ImportAvailabity = ({
       console.log("Instructors to delete:", instructorsToDelete);
       // Send the instructor delete list
       if (instructorsToDelete.length > 0) {
-        response = await axios.delete("api/instructors", instructorsToDelete, tokenConfig());
+        response = await axios.delete(
+          "api/instructors",
+          instructorsToDelete,
+          tokenConfig()
+        );
       }
 
       console.log("Instructors to create/update:", instructorsToUpdate);
       // Send the instructor update/create list
       if (instructorsToUpdate.length > 0) {
-        response = await axios.post("api/instructors", instructorsToUpdate, tokenConfig());
+        response = await axios.post(
+          "api/instructors",
+          instructorsToUpdate,
+          tokenConfig()
+        );
         for (let instructor of response.data) {
           console.log("Replacing " + instructor.name + " with:", instructor);
           instructors.set(instructor.name, instructor);
         }
       }
 
-      let delayPromise = new Promise(resolve => setTimeout(resolve, 100));
+      let delayPromise = new Promise((resolve) => setTimeout(resolve, 100));
       await delayPromise;
 
       // GET the existing semester plan if there is one
@@ -164,13 +168,16 @@ const ImportAvailabity = ({
 
         console.log("there was no semesterPlan creating ...");
 
-        response = await axios.post("api/semester-plans", [semesterPlan], tokenConfig());
+        response = await axios.post(
+          "api/semester-plans",
+          [semesterPlan],
+          tokenConfig()
+        );
       }
 
       const thisId = response.data[response.data.length - 1].id;
 
       // Then update the semester plan with the new instructor availability data
-      console.log("we are in the update part ...");
       const semesterPlan = {
         id: thisId,
         name: "semesterPlan",
@@ -180,10 +187,10 @@ const ImportAvailabity = ({
         instructorsAvailable: instructorAvailabilities.map((ia) => {
           return {
             instructor: {
-              id: instructors.get(ia.name).id
+              id: instructors.get(ia.name).id,
             },
             dayOfWeek: ia.dayOfWeek,
-            partOfDay: ia.partOfDay
+            partOfDay: ia.partOfDay,
           };
         }),
         classroomsAvailable: [],
@@ -192,10 +199,15 @@ const ImportAvailabity = ({
       };
 
       console.log("this is semesterPlan for update:", semesterPlan);
-      response = await axios.post("api/semester-plans", [semesterPlan], tokenConfig());
+      response = await axios.post(
+        "api/semester-plans",
+        [semesterPlan],
+        tokenConfig()
+      );
 
       if (response.status === 200 || response.status === 201) {
         console.log("Instructor data upload successful:", response.data);
+        setShowSuccessMessage(true);
       }
     } catch (error) {
       console.error("Error sending data to backend:", error);
@@ -218,13 +230,19 @@ const ImportAvailabity = ({
         showErrorMessage={showErrorMessage}
         isPreviewVisible={isPreviewVisible}
         handleSendToBackend={handleSendToBackEnd}
-        id={2}
+        id={"2"}
         styles={styles}
       />
+      {showSuccessMessage && (
+        <h2 className={styles.successMessage}>
+          List of instructors, and thier availability, successfully uploaded!
+        </h2>
+      )}
       <SpreadsheetTable
         spreadsheetData={availabilitySpreadsheetData}
         styles={styles}
       />
+
       <Button
         onClick={handleShowAvailabilityList}
         variant="contained"
