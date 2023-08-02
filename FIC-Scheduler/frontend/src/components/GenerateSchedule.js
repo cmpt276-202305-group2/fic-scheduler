@@ -58,20 +58,43 @@ function GenerateSchedule() {
 
         const postData = { semesterPlan: { id: latestSemesterPlanId } };
         console.log("this is postData:", postData);
-        axios
-            .post("api/generate-schedule", postData, tokenConfig())
-            .then(
-                (response) => {
-                    setShowScheduleTable(true);
-                    setScheduleExists(true);
-                },
-                (error) => {
-                    console.log(error);
-                }
-            );
+        axios.post("api/generate-schedule", postData, tokenConfig()).then(
+            (response) => {
+                setShowScheduleTable(true);
+                setScheduleExists(true);
+            },
+            (error) => {
+                console.log(error);
+            }
+        );
+    };
+    const handleClearData = () => {
+        axios.post("debug/clear-data", "", tokenConfig()).then(
+            (response) => {
+                console.log("Data cleared successfully");
+                setShowScheduleTable(false)
+                setScheduleExists(false)
+            },
+            (error) => {
+                console.log(error);
+            }
+        );
     };
     return (
         <div>
+            <Button
+                onClick={handleClearData}
+                variant="contained"
+                color="primary"
+                sx={{
+                    color: "white",
+                    backgroundColor: "#417A1A",
+                    "&:hover": { backgroundColor: "#417A1A" },
+                }}
+                style={{ marginBottom: 15, marginRight: 15 }}
+            >
+                Clear Data
+            </Button>
             <Button
                 onClick={handleGenerateSchedule}
                 variant="contained"
