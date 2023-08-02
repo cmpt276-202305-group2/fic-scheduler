@@ -195,6 +195,10 @@ public class GenerateScheduleController {
             CpSolverStatus status = solver.solve(model, solutionCallback);
             logger.info("CP Solver status: {}", status);
 
+            if (solutionCallback.getCallbackException() != null) {
+                throw new Error(solutionCallback.getCallbackException());
+            }
+
             if (status == CpSolverStatus.FEASIBLE || status == CpSolverStatus.OPTIMAL) {
                 var schedule = solutionCallback.getSchedules().get(0);
                 for (ScheduleAssignment assignment : schedule.getAssignments()) {
@@ -257,15 +261,15 @@ public class GenerateScheduleController {
             // Half blocks
             // + Add "full block implies 2 half blocks" constraints
             // + Make "at most 1" by instructor-block only check half blocks
-            // - Split "exactly 1" by course constraint into "exactly N" by
+            // + Split "exactly 1" by course constraint into "exactly N" by
             // .. course-blocktype-roomtype
             // Multiple block layouts
-            // - Switch "exactly N" by course-blocktype constraints to logical expressions:
+            // + Switch "exactly N" by course-blocktype constraints to logical expressions:
             // -- "M of this and N of that, OR O of this and P of that"
             // Room types
             // + Count rooms by type
-            // - Change "at most 1" by course-block constraints to roomtype-block
-            // - Change "exactly N" course-blocktype constraints to
+            // + Change "at most 1" by course-block constraints to roomtype-block
+            // + Change "exactly N" course-blocktype constraints to
             // .. course-blocktype-roomtype
             // + Change room constraint to "at most N" by roomtype-block
             // Optimize
@@ -354,21 +358,165 @@ public class GenerateScheduleController {
             private int solutionsFound = 0;
             private ArrayList<Schedule> schedules = new ArrayList<>();
 
+            @Getter
+            private Exception callbackException = null;
+
             public List<Schedule> getSchedules() {
                 return schedules;
             }
 
             @Override
             public void onSolutionCallback() {
-                // TODO assert that the solution is a real solution!
-                logger.info("Found solution");
-                HashSet<ScheduleAssignment> assignments = assignSpecificRooms();
-                var schedule = new Schedule(null,
-                        String.format("Schedule #%d - %s", solutionsFound + 1, semesterPlan.getSemester()),
-                        "", semesterPlan.getSemester(), assignments);
-                schedules.add(schedule);
-                if (schedules.size() >= maxSolutions) {
+                try {
+                    callbackException = null;
+                    // TODO assert that the solution is a real solution!
+                    logger.info("Found solution");
+                    HashSet<ScheduleAssignment> assignments = assignSpecificRooms();
+                    checkForFullCourseAllocation(semesterPlan, assignments);
+                    checkForNoExtraCourseAllocation(semesterPlan, assignments);
+                    checkForBlockAndRoomConflicts(semesterPlan, assignments);
+                    checkForBlockAndRoomTypeSatisfiedExactly(semesterPlan, assignments);
+                    checkForBlockAndInstructorConflicts(semesterPlan, assignments);
+                    checkForApprovedInstructorSatisfaction(semesterPlan, assignments);
+                    checkForNoExtraInstructorAllocation(semesterPlan, assignments);
+                    // checkForBlockAndCorequisiteConflicts(semesterPlan, assignments);
+                    var schedule = new Schedule(null,
+                            String.format("Schedule #%d - %s", solutionsFound + 1, semesterPlan.getSemester()),
+                            "", semesterPlan.getSemester(), assignments);
+                    schedules.add(schedule);
+                    if (schedules.size() >= maxSolutions) {
+                        stopSearch();
+                    }
+                } catch (Exception e) {
+                    callbackException = e;
                     stopSearch();
+                }
+            }
+
+            private void checkForFullCourseAllocation(SemesterPlan semesterPlan, Set<ScheduleAssignment> assignments) {
+                nextCourse: for (CourseOffering course : semesterPlan.getCoursesOffered()) {
+                    for (ScheduleAssignment sa : assignments) {
+                        if (sa.getCourse().equals(course)) {
+                            continue nextCourse;
+                        }
+                    }
+                    throw new IllegalArgumentException(
+                            String.format("Course %s (%s) not allocated", course.getName(), course.getCourseNumber()));
+                }
+            }
+
+            private void checkForNoExtraCourseAllocation(SemesterPlan semesterPlan,
+                    Set<ScheduleAssignment> assignments) {
+                for (ScheduleAssignment sa : assignments) {
+                    if (!semesterPlan.getCoursesOffered().contains(sa.getCourse())) {
+                        throw new IllegalArgumentException(
+                                String.format("Course %s (%s) allocated without being offered",
+                                        sa.getCourse().getName(), sa.getCourse().getCourseNumber()));
+                    }
+                }
+            }
+
+            private void checkForBlockAndRoomConflicts(SemesterPlan semesterPlan, Set<ScheduleAssignment> assignments) {
+                record BlockClassroom(DayOfWeek dayOfWeek, PartOfDay partOfDay, Classroom classroom) {
+                }
+                ;
+
+                HashMap<BlockClassroom, ScheduleAssignment> saSlices = new HashMap<>();
+
+                for (ScheduleAssignment sa : assignments) {
+                    for (PartOfDay pod : PartOfDay.values()) {
+                        if ((pod.getDuration() == Duration.HALF) && pod.conflict(sa.getPartOfDay())) {
+                            var saSlice = new BlockClassroom(sa.getDayOfWeek(), pod, sa.getClassroom());
+                            if (saSlices.containsKey(saSlice)) {
+                                var conflict = saSlices.get(saSlice);
+                                throw new IllegalArgumentException(
+                                        String.format("Room conflict for %s on %s: %s %s vs. %s %s",
+                                                sa.getClassroom().getRoomNumber(), sa.getDayOfWeek(),
+                                                sa.getCourse().getName(), sa.getPartOfDay(),
+                                                conflict.getCourse().getName(), conflict.getPartOfDay()));
+                            }
+                            saSlices.put(saSlice, sa);
+                        }
+                    }
+                }
+            }
+
+            private void checkForBlockAndRoomTypeSatisfiedExactly(SemesterPlan semesterPlan,
+                    Set<ScheduleAssignment> assignments) {
+                nextCourse: for (CourseOffering course : semesterPlan.getCoursesOffered()) {
+                    for (BlockRequirementSplit split : course.getAllowedBlockSplits()) {
+                        List<BlockRequirement> reqs = List.copyOf(split.getBlocks());
+                        boolean oversatisfied = false;
+                        nextSa: for (ScheduleAssignment sa : assignments) {
+                            if (sa.getCourse().equals(course)) {
+                                for (int i = 0; i < reqs.size(); ++i) {
+                                    BlockRequirement req = reqs.get(i);
+                                    if ((req.getDuration() == sa.getPartOfDay().getDuration())
+                                            && req.getRoomType().equals(sa.getClassroom().getRoomType())) {
+                                        reqs.remove(i);
+                                        continue nextSa;
+                                    }
+                                }
+                                oversatisfied = true;
+                            }
+                        }
+                        if ((reqs.size() == 0) && !oversatisfied) {
+                            // perfectly satisfied
+                            continue nextCourse;
+                        }
+                    }
+                    throw new IllegalArgumentException(
+                            String.format("Course %s (%s) block requirements not properly satisfied", course.getName(),
+                                    course.getCourseNumber()));
+                }
+            }
+
+            private void checkForBlockAndInstructorConflicts(SemesterPlan semesterPlan,
+                    Set<ScheduleAssignment> assignments) {
+                record BlockInstructor(DayOfWeek dayOfWeek, PartOfDay partOfDay, Instructor instructor) {
+                }
+                ;
+
+                HashSet<BlockInstructor> saSlices = new HashSet<>();
+
+                for (ScheduleAssignment sa : assignments) {
+                    for (PartOfDay pod : PartOfDay.values()) {
+                        if ((pod.getDuration() == Duration.HALF) && pod.conflict(sa.getPartOfDay())) {
+                            var saSlice = new BlockInstructor(sa.getDayOfWeek(), pod, sa.getInstructor());
+                            if (saSlices.contains(saSlice)) {
+                                throw new IllegalArgumentException(
+                                        String.format("Instructor conflict for %s: %s %s", sa.getInstructor().getName(),
+                                                sa.getDayOfWeek(), sa.getPartOfDay()));
+                            }
+                            saSlices.add(saSlice);
+                        }
+                    }
+                }
+
+            }
+
+            private void checkForNoExtraInstructorAllocation(SemesterPlan semesterPlan,
+                    Set<ScheduleAssignment> assignments) {
+                Set<Instructor> instructors = Set.copyOf(semesterPlan.getInstructorsAvailable().stream()
+                        .map(InstructorAvailability::getInstructor).distinct().toList());
+                for (ScheduleAssignment sa : assignments) {
+                    if (!instructors.contains(sa.getInstructor())) {
+                        throw new IllegalArgumentException(
+                                String.format("Intructor %s allocated without being listed as available",
+                                        sa.getInstructor().getName()));
+                    }
+                }
+            }
+
+            private void checkForApprovedInstructorSatisfaction(SemesterPlan semesterPlan,
+                    Set<ScheduleAssignment> assignments) {
+                for (ScheduleAssignment sa : assignments) {
+                    if (!sa.getCourse().getApprovedInstructors().contains(sa.getInstructor())) {
+                        throw new IllegalArgumentException(
+                                String.format("Intructor %s allocated to %s (%s) without being approved",
+                                        sa.getInstructor().getName(), sa.getCourse().getName(),
+                                        sa.getCourse().getCourseNumber()));
+                    }
                 }
             }
 
