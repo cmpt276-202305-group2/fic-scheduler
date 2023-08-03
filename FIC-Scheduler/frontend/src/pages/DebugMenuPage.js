@@ -22,14 +22,14 @@ function GenerateSchedulePage({ subpage }) {
           <Sidebar item="debugMenu" subitem={subpage} />
         </div>
         <div className={styles.PageContent} data-testid="debug-menu">
-          {subpage === 'actions' ? <DebugActions /> : ''}
-          {subpage === 'blockSplit' ? <DebugBlockSplit /> : ''}
-          {subpage === 'classroom' ? <DebugClassroom /> : ''}
-          {subpage === 'courseOffering' ? <DebugCourseOffering /> : ''}
-          {subpage === 'instructor' ? <DebugInstructor /> : ''}
-          {subpage === 'semesterPlan' ? <DebugSemesterPlan /> : ''}
-          {subpage === 'schedule' ? <DebugSchedule /> : ''}
-          {subpage === 'user' ? <DebugUser /> : ''}
+          {subpage === "actions" ? <DebugActions /> : ""}
+          {subpage === "blockSplit" ? <DebugBlockSplit /> : ""}
+          {subpage === "classroom" ? <DebugClassroom /> : ""}
+          {subpage === "courseOffering" ? <DebugCourseOffering /> : ""}
+          {subpage === "instructor" ? <DebugInstructor /> : ""}
+          {subpage === "semesterPlan" ? <DebugSemesterPlan /> : ""}
+          {subpage === "schedule" ? <DebugSchedule /> : ""}
+          {subpage === "user" ? <DebugUser /> : ""}
         </div>
       </div>
     </CheckAuth>

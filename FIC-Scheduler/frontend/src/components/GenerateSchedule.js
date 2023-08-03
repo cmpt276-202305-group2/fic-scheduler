@@ -10,6 +10,7 @@ function GenerateSchedule() {
   const [showScheduleTable, setShowScheduleTable] = useState(false);
   const [scheduleExists, setScheduleExists] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const deleteAllTables = async () => {
     let response = null;
@@ -46,6 +47,7 @@ function GenerateSchedule() {
       for (const blockSplit of response.data) {
         await axios.delete(`api/block-splits/${blockSplit.id}`, tokenConfig());
       }
+      setShowScheduleTable(false);
 
       alert("All tables have been deleted successfully");
     } catch (error) {
@@ -91,10 +93,12 @@ function GenerateSchedule() {
 
   const handleGenerateSchedule = (event) => {
     event.preventDefault();
+    setLoading(true);
 
     if (scheduleExists) {
       console.log("A schedule already exists.");
       setShowScheduleTable(true);
+      setLoading(false);
       return;
     }
 
@@ -107,11 +111,13 @@ function GenerateSchedule() {
             "Generation failed. Please check your data, clear all the fields and try again."
           );
         }
+        setLoading(false);
         setShowScheduleTable(true);
         setScheduleExists(true);
       },
       (error) => {
         console.log(error);
+        setLoading(false);
         alert(
           "Error generating schedule either the tables are missing or a system problem has occurred."
         );
@@ -120,36 +126,46 @@ function GenerateSchedule() {
   };
   return (
     <div>
-      <Button
-        onClick={handleGenerateSchedule}
-        variant="contained"
-        color="primary"
-        sx={{
-          color: "white",
-          backgroundColor: "#417A1A",
-          "&:hover": { backgroundColor: "#417A1A" },
-        }}
-        style={{ marginBottom: 15 }}
-      >
-        Generate Schedule
-      </Button>
-      <br></br>
-      <Button
-        sx={{
-          color: "white",
-          backgroundColor: "#9f4141",
-          "&:hover": { backgroundColor: "#742e2e" },
-          marginBottom: 2,
-        }}
-        onClick={deleteAllTables}
-      >
-        Delete all Tables and Schedule
-      </Button>
+      {loading ? (
+        <h1 style={{ textAlign: "center" }}>
+          Generating schedule, please wait...
+        </h1>
+      ) : (
+        <>
+          <Button
+            onClick={handleGenerateSchedule}
+            variant="contained"
+            color="primary"
+            sx={{
+              color: "white",
+              backgroundColor: "#417A1A",
+              "&:hover": { backgroundColor: "#417A1A" },
+            }}
+            style={{ marginBottom: 15 }}
+          >
+            Generate Schedule / View Current Schedule
+          </Button>
+          <br></br>
+          <Button
+            sx={{
+              color: "white",
+              backgroundColor: "#9f4141",
+              "&:hover": { backgroundColor: "#742e2e" },
+              marginBottom: 2,
+            }}
+            onClick={deleteAllTables}
+          >
+            Delete all Tables and Schedules
+          </Button>
 
-      {showErrorMessage && (
-        <div style={{ fontSize: 20 }}>Please Import all the Files Properly</div>
+          {showErrorMessage && (
+            <div style={{ fontSize: 20 }}>
+              Please Import all the Files Properly
+            </div>
+          )}
+          {showScheduleTable && <ScheduleTable />}
+        </>
       )}
-      {showScheduleTable && <ScheduleTable />}
     </div>
   );
 }

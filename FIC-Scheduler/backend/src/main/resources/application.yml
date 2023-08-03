@@ -4,10 +4,10 @@ fic-scheduler:
       password: "password"
       roles: ["COORDINATOR"]
       full-name: "Coordinator"
-    - username: "debug"
-      password: "Cuzaif1v"
+    - username: "admin"
+      password: "adm1n"
       roles: ["DEBUG", "ADMIN", "COORDINATOR", "INSTRUCTOR"]
-      full-name: "Debug User"
+      full-name: "Admin User"
 
 server:
   tomcat:
@@ -18,7 +18,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
+    show-sql: false
     database-platform: org.hibernate.dialect.H2Dialect
   datasource:
     url: jdbc:h2:mem:testdb

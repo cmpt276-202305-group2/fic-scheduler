@@ -24,6 +24,8 @@ import lombok.*;
 @CrossOrigin(origins = "*")
 public class GenerateScheduleController {
 
+    private static final Logger logger2 = LoggerFactory.getLogger(GenerateScheduleController.class);
+
     @Autowired
     private ScheduleRepository scheduleRepository;
 
@@ -37,11 +39,15 @@ public class GenerateScheduleController {
 
     @PostMapping("/generate-schedule")
     public ResponseEntity<ScheduleDto> generateSchedule(@RequestBody GenerateScheduleDto generateScheduleDto) {
+        
         try {
+            logger2.info("Received request to generate schedule: {}", generateScheduleDto);
+
             Integer planId = generateScheduleDto.getSemesterPlan().getId();
             SemesterPlan plan = planId != null ? semesterPlanRepository.findById(planId).orElse(null) : null;
 
             if (plan == null) {
+                logger2.warn("Invalid plan ID received: {}", planId);
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
 
@@ -59,8 +65,11 @@ public class GenerateScheduleController {
             schedule = scheduleRepository.save(schedule);
             var scheduleDto = scheduleController.toDto(schedule);
 
+            logger2.info("Generated schedule successfully for plan ID: {}", planId);
+
             return new ResponseEntity<>(scheduleDto, HttpStatus.OK);
         } catch (Exception e) {
+            logger2.error("Error generating schedule", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
