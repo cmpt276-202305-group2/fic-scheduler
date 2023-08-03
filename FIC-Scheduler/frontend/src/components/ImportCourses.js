@@ -16,6 +16,7 @@ const ImportCourses = ({
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [incorrectFormat, setIncorrectFormat] = useState(null);
+  //   const [showDeleteButton, setShowDeleteButton] = useState(false);
   const [isCourseOfferingListVisible, setIsCourseOfferingListVisible] =
     useState(false);
 
@@ -54,6 +55,34 @@ const ImportCourses = ({
     setIsPreviewVisible
   );
 
+  const handleDelete = async () => {
+    let response = null;
+    try {
+      response = await axios.get("api/semester-plans", tokenConfig());
+      const semesterPlan = response.data[response.data.length - 1];
+      semesterPlan.coursesOffered = [];
+      await axios.post("api/semester-plans", [semesterPlan], tokenConfig());
+
+      response = await axios.get("api/course-offerings", tokenConfig());
+      const currentCourses = response.data;
+
+      if (currentCourses.length > 0) {
+        for (const course of currentCourses) {
+          await axios.delete(
+            `api/course-offerings/${course.id}`,
+            tokenConfig()
+          );
+        }
+      }
+      setIsCourseOfferingListVisible(
+        (prevIsCourseOfferingListVisible) => !prevIsCourseOfferingListVisible
+      );
+      alert("All uploaded courses have been deleted");
+    } catch (error) {
+      console.error("Error deleting uploaded courses:", error);
+    }
+  };
+
   const handleSendToBackEnd = async () => {
     if (coursesSpreadsheetData.length === 0) {
       return;
@@ -61,7 +90,7 @@ const ImportCourses = ({
     const jsonData = coursesSpreadsheetData.map((row) => {
       return {
         id: null,
-        courseName: row[0].trim(),
+        name: row[0].trim(),
         courseNumber: row[1].trim(),
         approvedInstructors: [
           row[2].trim(),
@@ -80,23 +109,20 @@ const ImportCourses = ({
       };
     });
 
-    console.log("jsonData:", jsonData);
+    // console.log("jsonData:", jsonData);
 
     try {
       const uploadedCourses = [];
       uploadedCourses.push(...jsonData.slice(1));
       let response = null;
-
-      response = await axios.get("api/block-splits", tokenConfig());
-      const oldBlocks = response.data;
-
       const importedBlockSplits = new Map();
-
       const roomTypes = new Map();
       let roomTypeNum = 1;
+
       for (let row of uploadedCourses) {
         const blocks = [];
         let blockSplitStr = "";
+        let nameStr = "";
         const { allowedBlockSplits } = row;
         for (const [roomType, duration] of allowedBlockSplits) {
           // Check input format
@@ -124,6 +150,11 @@ const ImportCourses = ({
 
           // The first part of this tuple is a string identifier like H3 or F7
           blocks.push([duration[0] + roomTypeId, { duration, roomType }]);
+
+          if (nameStr.length > 0) {
+            nameStr += " + ";
+          }
+          nameStr += roomType + "/" + duration;
         }
         // The leading string element in tuple makes the list sortable
         blocks.sort();
@@ -133,18 +164,41 @@ const ImportCourses = ({
 
         const blockSplit = {
           id: null,
-          name: blockSplitStr,
+          name: nameStr,
           blocks: blocks.map(([_blockStr, block]) => block),
         };
 
         importedBlockSplits.set(blockSplitStr, blockSplit);
+        row.allowedBlockSplits = [nameStr];
       }
+      //   console.log("importedBlockSplits: ", importedBlockSplits);
+
+      response = await axios.get("api/block-splits", tokenConfig());
+      let oldBlocks = response.data;
+      if (oldBlocks.length > 0) {
+        for (const block of oldBlocks) {
+          //   console.log("block: ", block);
+          await axios.delete(`api/block-splits/${block.id}`, tokenConfig());
+        }
+      }
+      const blockSplitsArray = [];
+      for (const blockSplit of importedBlockSplits.values()) {
+        blockSplitsArray.push(blockSplit);
+      }
+
+      response = await axios.post(
+        "api/block-splits",
+        blockSplitsArray,
+        tokenConfig()
+      );
+      const blockSplitIdsHolder = response.data;
+      //   console.log("blockSplitIdsHolder: ", blockSplitIdsHolder);
 
       response = await axios.get("api/instructors", tokenConfig());
       const currentInstructors = response.data;
-      console.log("currentInstructors: ", currentInstructors);
 
       uploadedCourses.forEach((course) => {
+        // Mapping approvedInstructors
         course.approvedInstructors = course.approvedInstructors.map(
           (instructorName) => {
             const instructor = currentInstructors.find(
@@ -153,10 +207,43 @@ const ImportCourses = ({
             return instructor ? { id: instructor.id } : null;
           }
         );
+
+        // Replacing allowedBlockSplits value with corresponding id
+        blockSplitIdsHolder.forEach((blockSplit) => {
+          if (course.allowedBlockSplits[0] === blockSplit.name) {
+            course.allowedBlockSplits = [{ id: blockSplit.id }];
+          }
+        });
       });
 
-      console.log("uploadedCourses: ", uploadedCourses);
-      console.log("importedBlockSplits: ", importedBlockSplits);
+      //   console.log("uploadedCourses: ", uploadedCourses);
+
+      response = await axios.post(
+        "api/course-offerings",
+        uploadedCourses,
+        tokenConfig()
+      );
+      //   console.log("response data:", response.data);
+      const finalArray = [];
+
+      response.data.forEach((course) => {
+        finalArray.push([{ id: course.id }]);
+      });
+
+      response = await axios.get("api/semester-plans", tokenConfig());
+      const semesterPlan = response.data[response.data.length - 1];
+      semesterPlan.coursesOffered = finalArray;
+
+      response = await axios.post(
+        "api/semester-plans",
+        [semesterPlan],
+        tokenConfig()
+      );
+
+      //   console.log("GET ME OUT: ", response.data);
+      if (response.status === 200) {
+        setShowSuccessMessage(true);
+      }
     } catch (error) {
       console.error("Error sending JSON data to the backend:", error);
     }
@@ -182,6 +269,7 @@ const ImportCourses = ({
       {incorrectFormat != null && (
         <h2 className={styles.errorMessage}>{incorrectFormat}</h2>
       )}
+
       <SpreadsheetTable
         spreadsheetData={coursesSpreadsheetData}
         styles={styles}
@@ -199,6 +287,21 @@ const ImportCourses = ({
       >
         {isCourseOfferingListVisible ? "Hide" : "Show"} Current Course Offerings
       </Button>
+      {isCourseOfferingListVisible && (
+        <Button
+          sx={{
+            color: "white",
+            backgroundColor: "#9f4141",
+            "&:hover": { backgroundColor: "#742e2e" },
+            marginBottom: 2,
+          }}
+          onClick={handleDelete}
+          variant="contained"
+        >
+          {" "}
+          Delete Uploaded Course Offerings{" "}
+        </Button>
+      )}
       {isCourseOfferingListVisible && <ViewUploadedCourseOfferingList />}
     </div>
   );

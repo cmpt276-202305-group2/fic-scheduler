@@ -112,7 +112,7 @@ export function DebugSemesterPlan() {
                         onClick={(event) => {
                           event.preventDefault();
                           const postData = { semesterPlan: { id: rowId } };
-                          console.log(JSON.stringify(postData));
+                          //   console.log(JSON.stringify(postData));
                           axios
                             .post(
                               "api/generate-schedule",
