@@ -46,7 +46,7 @@ export function DebugBlockSplit() {
         <TableContainer
           sx={{
             width: "100%",
-            maxHeight: window.innerWidth >= 600 ? 700 : 350,
+            maxHeight: 300,
           }}
         >
           <Table stickyHeader aria-label="sticky table">

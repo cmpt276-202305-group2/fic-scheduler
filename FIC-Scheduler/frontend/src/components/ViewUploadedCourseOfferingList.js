@@ -28,7 +28,7 @@ export function ViewUploadedCourseOfferingList() {
           ]);
 
         setAllCourseOfferings(courseOfferingsResponse.data);
-
+        // console.log(courseOfferingsResponse.data);
         //this is how the mapping should look like
         const instructorsData = instructorsResponse.data;
         const instructorsById = instructorsData.reduce((acc, instructor) => {

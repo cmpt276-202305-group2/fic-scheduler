@@ -51,7 +51,7 @@ export function DebugClassroom() {
   if (allClassrooms && allClassrooms instanceof Array) {
     data = (
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <TableContainer sx={{ width: "100%", maxHeight: 500 }}>
+        <TableContainer sx={{ width: "100%", maxHeight: 300 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

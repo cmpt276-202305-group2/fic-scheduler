@@ -22,6 +22,27 @@ const ImportClassroom = ({
       (prevIsClassroomListVisible) => !prevIsClassroomListVisible
     );
   };
+  const handleDelete = async () => {
+    let response = null;
+    try {
+      response = await axios.get("api/semester-plans", tokenConfig());
+      const semesterPlan = response.data[response.data.length - 1];
+      semesterPlan.classroomsAvailable = [];
+
+      await axios.post("api/semester-plans", [semesterPlan], tokenConfig());
+
+      response = await axios.get("api/classrooms", tokenConfig());
+      for (const classroom of response.data) {
+        await axios.delete(`api/classrooms/${classroom.id}`, tokenConfig());
+      }
+      alert("All classrooms deleted");
+      setIsClassroomListVisible(
+        (prevIsClassroomListVisible) => !prevIsClassroomListVisible
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const createFileUploadHandler =
     (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
@@ -57,15 +78,15 @@ const ImportClassroom = ({
       const jsonData = classroomSpreadsheetData.map((row) => {
         const data = {
           id: null,
-          roomNumber: row[0],
-          roomType: row[1],
-          notes: row[2],
+          roomNumber: row[0].trim(),
+          roomType: row[1].trim(),
+          notes: row[2].trim(),
         };
 
         return data;
       });
 
-      // console.log("jsonData", jsonData);
+      //   console.log("jsonData", jsonData);
 
       try {
         let response = null;
@@ -108,10 +129,10 @@ const ImportClassroom = ({
 
         // console.log("Classrooms to delete:", classroomsToDelete);
         if (classroomsToDelete.length > 0) {
-          classroomsToDelete.forEach(async (classroom) => {
+          for (const classroom of classroomsToDelete) {
             await axios.delete(`api/classrooms/${classroom.id}`, tokenConfig());
             // console.log(`Deleted classroom with ID: ${classroom.id}`);
-          });
+          }
         }
 
         // console.log("Classrooms to create/update:", classroomsToUpdate);
@@ -121,10 +142,25 @@ const ImportClassroom = ({
             classroomsToUpdate,
             tokenConfig()
           );
-          // console.log("response from create", response);
-          if (response.status === 200 || response.status === 201) {
-            setShowSuccessMessage(true);
-          }
+        }
+        const finalArray = [];
+
+        response.data.forEach((classroom) => {
+          finalArray.push([{ id: classroom.id }]);
+        });
+
+        response = await axios.get("api/semester-plans", tokenConfig());
+        const semesterPlan = response.data[response.data.length - 1];
+        semesterPlan.classroomsAvailable = finalArray;
+
+        response = await axios.post(
+          "api/semester-plans",
+          [semesterPlan],
+          tokenConfig()
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          setShowSuccessMessage(true);
         }
       } catch (error) {
         console.error("Error processing classrooms:", error);
@@ -166,6 +202,21 @@ const ImportClassroom = ({
       >
         {isClassroomListVisible ? "Hide" : "Show"} Current Classroom List
       </Button>
+      {isClassroomListVisible && (
+        <Button
+          sx={{
+            color: "white",
+            backgroundColor: "#9f4141",
+            "&:hover": { backgroundColor: "#742e2e" },
+            marginBottom: 2,
+          }}
+          onClick={handleDelete}
+          variant="contained"
+        >
+          {" "}
+          Delete Uploaded Course Offerings{" "}
+        </Button>
+      )}
       {isClassroomListVisible && <ViewUploadedClassroomList />}
     </div>
   );

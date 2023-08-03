@@ -47,6 +47,29 @@ const ImportAvailabity = ({
     setIsPreviewVisible
   );
 
+  const handleDelete = async () => {
+    let response = null;
+    try {
+      response = await axios.get("api/semester-plans", tokenConfig());
+      const semesterPlan = response.data[response.data.length - 1];
+      semesterPlan.instructorsAvailable = [];
+
+      await axios.post("api/semester-plans", [semesterPlan], tokenConfig());
+
+      response = await axios.get("api/instructors", tokenConfig());
+      for (const instructor of response.data) {
+        await axios.delete(`api/instructors/${instructor.id}`, tokenConfig());
+      }
+      alert("All Instructors and their availabities has been deleted");
+      setisInstructorAvailabilityVisible(
+        (setisInstructorAvailabilityVisible) =>
+          !setisInstructorAvailabilityVisible
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleSendToBackEnd = async () => {
     if (availabilitySpreadsheetData.length === 0) {
       return;
@@ -146,11 +169,6 @@ const ImportAvailabity = ({
       response = await axios.get("api/semester-plans", tokenConfig());
 
       //   console.log("this is get response Response:", response);
-      //   console.log(
-      //     "this is get response Data.data.latest:",
-      //     response.data[response.data.length - 1]
-      //   );
-      //   console.log("this is response.data.length:", response.data.length);
 
       // If the latest semester plan doesn't exist, create a new one
       if (response.data && response.data.length === 0) {
@@ -166,7 +184,7 @@ const ImportAvailabity = ({
           instructorSchedulingRequests: [],
         };
 
-        // console.log("there was no semesterPlan creating ...");
+        console.log("there was no semesterPlan creating one ...");
 
         response = await axios.post(
           "api/semester-plans",
@@ -206,7 +224,7 @@ const ImportAvailabity = ({
       );
 
       if (response.status === 200 || response.status === 201) {
-        console.log("Instructor data upload successful:", response.data);
+        // console.log("Instructor data upload successful:", response.data);
         setShowSuccessMessage(true);
       }
     } catch (error) {
@@ -257,6 +275,22 @@ const ImportAvailabity = ({
         {isInstructorAvailabilityVisible ? "Hide" : "Show"} Current Availability
         List
       </Button>
+
+      {isInstructorAvailabilityVisible && (
+        <Button
+          sx={{
+            color: "white",
+            backgroundColor: "#9f4141",
+            "&:hover": { backgroundColor: "#742e2e" },
+            marginBottom: 2,
+          }}
+          onClick={handleDelete}
+          variant="contained"
+        >
+          {" "}
+          Delete Uploaded Instructors and Their Availabilities{" "}
+        </Button>
+      )}
       {isInstructorAvailabilityVisible && <ViewUploadedAvailabilityList />}
     </div>
   );

@@ -11,6 +11,48 @@ function GenerateSchedule() {
   const [scheduleExists, setScheduleExists] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
+  const deleteAllTables = async () => {
+    let response = null;
+    try {
+      // delete schedules
+      response = await axios.get("api/schedules", tokenConfig());
+      for (const schedule of response.data) {
+        await axios.delete(`api/schedules/${schedule.id}`, tokenConfig());
+      }
+
+      // delete semester plans
+      response = await axios.get("api/semester-plans", tokenConfig());
+      for (const semesterPlan of response.data) {
+        await axios.delete(
+          `api/semester-plans/${semesterPlan.id}`,
+          tokenConfig()
+        );
+      }
+
+      // delete classrooms
+      response = await axios.get("api/classrooms", tokenConfig());
+      for (const classroom of response.data) {
+        await axios.delete(`api/classrooms/${classroom.id}`, tokenConfig());
+      }
+
+      // delete instructors
+      response = await axios.get("api/instructors", tokenConfig());
+      for (const instructor of response.data) {
+        await axios.delete(`api/instructors/${instructor.id}`, tokenConfig());
+      }
+
+      // delete block splits
+      response = await axios.get("api/block-splits", tokenConfig());
+      for (const blockSplit of response.data) {
+        await axios.delete(`api/block-splits/${blockSplit.id}`, tokenConfig());
+      }
+
+      alert("All tables have been deleted successfully");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (!hasFetchedLatestId) {
       axios
@@ -60,11 +102,19 @@ function GenerateSchedule() {
     // console.log("this is postData:", postData);
     axios.post("api/generate-schedule", postData, tokenConfig()).then(
       (response) => {
+        if (response.data.courses.length === 0) {
+          alert(
+            "Generation failed. Please check your data, clear all the fields and try again."
+          );
+        }
         setShowScheduleTable(true);
         setScheduleExists(true);
       },
       (error) => {
         console.log(error);
+        alert(
+          "Error generating schedule either the tables are missing or a system problem has occurred."
+        );
       }
     );
   };
@@ -83,6 +133,19 @@ function GenerateSchedule() {
       >
         Generate Schedule
       </Button>
+      <br></br>
+      <Button
+        sx={{
+          color: "white",
+          backgroundColor: "#9f4141",
+          "&:hover": { backgroundColor: "#742e2e" },
+          marginBottom: 2,
+        }}
+        onClick={deleteAllTables}
+      >
+        Delete all Tables and Schedule
+      </Button>
+
       {showErrorMessage && (
         <div style={{ fontSize: 20 }}>Please Import all the Files Properly</div>
       )}
