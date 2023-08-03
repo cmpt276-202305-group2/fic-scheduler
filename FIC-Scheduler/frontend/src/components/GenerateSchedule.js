@@ -47,6 +47,7 @@ function GenerateSchedule() {
       for (const blockSplit of response.data) {
         await axios.delete(`api/block-splits/${blockSplit.id}`, tokenConfig());
       }
+      setShowScheduleTable(false);
 
       alert("All tables have been deleted successfully");
     } catch (error) {
@@ -97,6 +98,7 @@ function GenerateSchedule() {
     if (scheduleExists) {
       console.log("A schedule already exists.");
       setShowScheduleTable(true);
+      setLoading(false);
       return;
     }
 
@@ -141,7 +143,7 @@ function GenerateSchedule() {
             }}
             style={{ marginBottom: 15 }}
           >
-            Generate Schedule
+            Generate Schedule / View Current Schedule
           </Button>
           <br></br>
           <Button
@@ -153,7 +155,7 @@ function GenerateSchedule() {
             }}
             onClick={deleteAllTables}
           >
-            Delete all Tables and Schedule
+            Delete all Tables and Schedules
           </Button>
 
           {showErrorMessage && (
