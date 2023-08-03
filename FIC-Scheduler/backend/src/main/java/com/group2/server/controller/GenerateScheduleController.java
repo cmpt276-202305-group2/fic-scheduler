@@ -3,7 +3,6 @@ package com.group2.server.controller;
 import java.util.*;
 import java.util.function.*;
 import java.util.regex.*;
-import java.util.stream.*;
 
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,7 @@ public class GenerateScheduleController {
 
     @PostMapping("/generate-schedule")
     public ResponseEntity<ScheduleDto> generateSchedule(@RequestBody GenerateScheduleDto generateScheduleDto) {
-        
+
         try {
             logger2.info("Received request to generate schedule: {}", generateScheduleDto);
 
@@ -101,20 +100,11 @@ public class GenerateScheduleController {
     }
 
     private class ScheduleGenerator {
-        private static final DayOfWeek[] days = new DayOfWeek[] {
-                DayOfWeek.MONDAY, DayOfWeek.TUESDAY,
-                DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY };
-        private static final PartOfDay[] fullBlockTimes = new PartOfDay[] {
-                PartOfDay.MORNING, PartOfDay.AFTERNOON, PartOfDay.EVENING };
-        private static final PartOfDay[] halfBlockTimes = new PartOfDay[] {
-                PartOfDay.MORNING_EARLY, PartOfDay.MORNING_LATE, PartOfDay.AFTERNOON_EARLY, PartOfDay.AFTERNOON_LATE,
-                PartOfDay.EVENING_EARLY, PartOfDay.EVENING_LATE };
-
         private CourseOffering[] coursesOffered;
+        private BlockRequirementSplit[] blockSplits;
         private Classroom[] classrooms;
-        private Instructor[] instructors;
-        private InstructorAvailability[] instructorAvailabilities;
         private HashMap<String, List<Classroom>> classroomsByType;
+        private HashMap<Instructor, List<InstructorAvailability>> availabilitiesByInstructor;
 
         private SemesterPlan semesterPlan;
 
@@ -137,28 +127,35 @@ public class GenerateScheduleController {
             Loader.loadNativeLibraries();
 
             coursesOffered = plan.getCoursesOffered().toArray(CourseOffering[]::new);
+            blockSplits = Arrays.stream(coursesOffered).flatMap((c) -> c.getAllowedBlockSplits().stream()).distinct()
+                    .toArray(BlockRequirementSplit[]::new);
             classrooms = plan.getClassroomsAvailable().toArray(Classroom[]::new);
-            instructorAvailabilities = plan.getInstructorsAvailable().toArray(InstructorAvailability[]::new);
-            instructors = Stream.of(instructorAvailabilities).map(ia -> ia.getInstructor()).distinct()
-                    .toArray(Instructor[]::new);
-            classroomsByType = makeClassroomsByTypeMap(classrooms);
+            classroomsByType = makeClassroomsByTypeMap(() -> Arrays.stream(classrooms).iterator());
+            availabilitiesByInstructor = makeAvailabilitiesByInstructorMap(plan.getInstructorsAvailable());
 
             semesterPlan = plan;
             prepareModel();
         }
 
-        private HashMap<String, List<Classroom>> makeClassroomsByTypeMap(Classroom[] classrooms) {
+        private HashMap<String, List<Classroom>> makeClassroomsByTypeMap(Iterable<Classroom> classrooms) {
             HashMap<String, List<Classroom>> classroomsByType = new HashMap<>();
             for (Classroom classroom : classrooms) {
-                classroomsByType.compute(classroom.getRoomType(), (t, list) -> {
-                    if (list == null) {
-                        list = new ArrayList<Classroom>();
-                    }
-                    list.add(classroom);
-                    return list;
-                });
+                List<Classroom> classroomsOfType = classroomsByType.computeIfAbsent(classroom.getRoomType(),
+                        (t) -> new ArrayList<Classroom>());
+                classroomsOfType.add(classroom);
             }
             return classroomsByType;
+        }
+
+        private HashMap<Instructor, List<InstructorAvailability>> makeAvailabilitiesByInstructorMap(
+                Iterable<InstructorAvailability> instructorAvailabilities) {
+            HashMap<Instructor, List<InstructorAvailability>> availabilitiesByInstructor = new HashMap<>();
+            for (InstructorAvailability ia : instructorAvailabilities) {
+                List<InstructorAvailability> availabilities = availabilitiesByInstructor
+                        .computeIfAbsent(ia.getInstructor(), (i) -> new ArrayList<>());
+                availabilities.add(ia);
+            }
+            return availabilitiesByInstructor;
         }
 
         private void prepareModel() {
@@ -339,56 +336,39 @@ public class GenerateScheduleController {
 
         private void enumerateAllSlots() {
             allSlots = new HashSet<>();
-            HashMap<PartOfDay, Slot> fullBlockSlots = new HashMap<>(fullBlockTimes.length);
             for (CourseOffering course : coursesOffered) {
                 for (BlockRequirementSplit split : course.getAllowedBlockSplits()) {
                     for (Instructor instructor : course.getApprovedInstructors()) {
-                        // TODO could filter day/times by instructor availability
-                        for (DayOfWeek day : days) {
-                            for (String roomType : classroomsByType.keySet()) {
-                                fullBlockSlots.clear();
+                        for (String roomType : classroomsByType.keySet()) {
+                            for (InstructorAvailability availability : availabilitiesByInstructor.get(instructor)) {
+                                DayOfWeek day = availability.getDayOfWeek();
+                                PartOfDay fullTime = availability.getPartOfDay();
+                                // At this time instructors declare their availability in full period chunks --
+                                // this algorithm is written to depend on this fact currently
+                                assert fullTime.getDuration() == Duration.FULL;
+
                                 // In the absence of other constraints, modelVar could reasonably be an IntVar
                                 // with bounds [0, classroomsByType.get(roomType).size()]; but we know for sure
                                 // that classes won't be scheduled in two rooms at once for any particular
                                 // course, because then the students would have to be in two places at once, so
                                 // this might as well be a BoolVar.
-                                for (PartOfDay time : fullBlockTimes) {
-                                    BoolVar modelVar = model.newBoolVar(String.format("blk_%s_%s_%s_%s_%s_%s",
-                                            identify(course), identify(split), identify(instructor), identify(day),
-                                            identify(time), identifyRoomType(roomType)));
-                                    allVars.add(modelVar);
-                                    if (enableModelLog) {
-                                        modelLog.append(String.format("%s: %s w/ %s @ %s %s in %s\n",
-                                                modelVar.getName(), course.getName(), instructor.getName(),
-                                                day.toString(), time.toString(), roomType));
-                                    }
-                                    Slot slot = new Slot(modelVar, day, time, roomType, course, split, instructor);
-                                    allSlots.add(slot);
-                                    fullBlockSlots.put(time, slot);
-                                }
-                                for (PartOfDay time : halfBlockTimes) {
-                                    BoolVar modelVar = model.newBoolVar(
-                                            String.format("blk_%s_%s_%s_%s_%s_%s", identify(course), identify(split),
-                                                    identify(instructor), identify(day), identify(time),
-                                                    identifyRoomType(roomType)));
-                                    allVars.add(modelVar);
-                                    if (enableModelLog) {
-                                        modelLog.append(String.format("%s: %s w/ %s @ %s %s in %s\n",
-                                                modelVar.getName(), course.getName(), instructor.getName(),
-                                                day.toString(), time.toString(), roomType));
-                                    }
-                                    Slot slot = new Slot(modelVar, day, time, roomType, course, split, instructor);
-                                    allSlots.add(slot);
-                                    // If the full-block slot is allocated, that implies the half-block is
-                                    // allocated. Because of this, when checking one-of constraints, we must check
-                                    // either the full block or the half block for allocation, but not both, or the
-                                    // full block will never be allocated!
-                                    Slot fullSlot = fullBlockSlots.get(time.toFull());
-                                    model.addImplication(fullSlot.modelVar(), modelVar);
-                                    if (enableModelLog) {
-                                        modelLog.append(String.format("%s -> %s\n", fullSlot.modelVar().getName(),
-                                                modelVar.getName()));
-                                    }
+                                Slot fullSlot = makeSlotWithModelVar(day, fullTime, roomType, course, split,
+                                        instructor);
+                                Slot earlySlot = makeSlotWithModelVar(day, fullTime.earlyHalf(), roomType, course,
+                                        split, instructor);
+                                Slot lateSlot = makeSlotWithModelVar(day, fullTime.lateHalf(), roomType, course, split,
+                                        instructor);
+                                // If the full-block slot is allocated, that implies the half-block is
+                                // allocated. Because of this, when checking one-of constraints, we must check
+                                // either the full block or the half block for allocation, but not both, or the
+                                // full block will never be allocated!
+                                model.addImplication(fullSlot.modelVar(), earlySlot.modelVar());
+                                model.addImplication(fullSlot.modelVar(), lateSlot.modelVar());
+                                if (enableModelLog) {
+                                    modelLog.append(String.format("%s -> %s\n", fullSlot.modelVar().getName(),
+                                            earlySlot.modelVar().getName()));
+                                    modelLog.append(String.format("%s -> %s\n", fullSlot.modelVar().getName(),
+                                            lateSlot.modelVar().getName()));
                                 }
                             }
                         }
@@ -396,10 +376,25 @@ public class GenerateScheduleController {
                 }
             }
 
-            long denseSize = (long) days.length * halfBlockTimes.length * classrooms.length * instructors.length
-                    * coursesOffered.length;
+            long denseSize = (long) DayOfWeek.values().length * PartOfDay.values().length * classrooms.length
+                    * availabilitiesByInstructor.size() * coursesOffered.length * blockSplits.length;
             logger.info("Total slots: {} (dense size {}: {}% reduction from culling)", allSlots.size(), denseSize,
                     (1.0d - ((double) allSlots.size() / (double) denseSize)) * 100d);
+        }
+
+        private Slot makeSlotWithModelVar(DayOfWeek day, PartOfDay fullTime, String roomType, CourseOffering course,
+                BlockRequirementSplit split, Instructor instructor) {
+            BoolVar modelVar = model
+                    .newBoolVar(String.format("blk_%s_%s_%s_%s_%s_%s", identify(course), identify(split),
+                            identify(instructor), identify(day), identify(fullTime), identifyRoomType(roomType)));
+            allVars.add(modelVar);
+            if (enableModelLog) {
+                modelLog.append(String.format("%s: %s w/ %s @ %s %s in %s\n", modelVar.getName(), course.getName(),
+                        instructor.getName(), day.toString(), fullTime.toString(), roomType));
+            }
+            Slot slot = new Slot(modelVar, day, fullTime, roomType, course, split, instructor);
+            allSlots.add(slot);
+            return slot;
         }
 
         private void addAllGroupingConstraints() {
@@ -665,14 +660,21 @@ public class GenerateScheduleController {
 
             private void checkForNoExtraInstructorAllocation(SemesterPlan semesterPlan,
                     List<ScheduleAssignment> assignments) {
-                Set<Instructor> instructors = Set.copyOf(semesterPlan.getInstructorsAvailable().stream()
-                        .map(InstructorAvailability::getInstructor).distinct().toList());
-                for (ScheduleAssignment sa : assignments) {
-                    if (!instructors.contains(sa.getInstructor())) {
-                        throw new IllegalArgumentException(
-                                String.format("Intructor %s allocated without being listed as available",
-                                        sa.getInstructor().getName()));
+                nextSa: for (ScheduleAssignment sa : assignments) {
+                    if (availabilitiesByInstructor.containsKey(sa.getInstructor())) {
+                        for (InstructorAvailability ia : availabilitiesByInstructor.get(sa.getInstructor())) {
+                            if ((ia.getDayOfWeek() == sa.getDayOfWeek()) && ((ia.getPartOfDay() == sa.getPartOfDay())
+                                    || ((sa.getPartOfDay().getDuration() == Duration.HALF)
+                                            && (sa.getPartOfDay().conflict(ia.getPartOfDay()))))) {
+                                // yep, available for this slot
+                                continue nextSa;
+                            }
+                        }
+
                     }
+                    throw new IllegalArgumentException(
+                            String.format("Intructor %s allocated without being listed as available for %s %s",
+                                    sa.getInstructor().getName(), sa.getDayOfWeek(), sa.getPartOfDay()));
                 }
             }
 
@@ -689,10 +691,11 @@ public class GenerateScheduleController {
             }
 
             private List<ScheduleAssignment> assignSpecificRooms() {
-                // TODO This room assignment is a simple enough process, but ideally we would
-                // like to be able to do things like prefer to allocate specific rooms to
-                // particular instructorsrooms, or keep course sections with multiple
-                // allocations in the same room, etc.
+                // TODO Transition room assignment to solver
+                // This room assignment is a simple enough process, but ideally we would like to
+                // be able to do things like prefer to allocate specific rooms to particular
+                // instructorsrooms, or keep course sections with multiple allocations in the
+                // same room, etc.
 
                 record BlockRoomType(DayOfWeek dayOfWeek, PartOfDay partOfDay, String roomType) {
                 }
