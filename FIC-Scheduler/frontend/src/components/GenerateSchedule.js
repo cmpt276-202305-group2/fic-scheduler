@@ -3,6 +3,8 @@ import Button from "@mui/material/Button";
 import axios from "axios";
 import { tokenConfig } from "../utils";
 import ScheduleTable from "../components/ScheduleTable";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function GenerateSchedule() {
   const [latestSemesterPlanId, setLatestSemesterPlanId] = useState(null);
@@ -48,8 +50,16 @@ function GenerateSchedule() {
         await axios.delete(`api/block-splits/${blockSplit.id}`, tokenConfig());
       }
       setShowScheduleTable(false);
-
-      alert("All tables have been deleted successfully");
+      toast.info("All tables have been deleted successfully", {
+        position: "top-right",
+        autoClose: 6000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (error) {
       console.log(error);
     }
@@ -107,8 +117,18 @@ function GenerateSchedule() {
     axios.post("api/generate-schedule", postData, tokenConfig()).then(
       (response) => {
         if (response.data.courses.length === 0) {
-          alert(
-            "Generation failed. Please check your data, clear all the fields and try again."
+          toast.warn(
+            "Generation failed. Please check your data, clear all the fields and try again.",
+            {
+              position: "top-right",
+              autoClose: 6000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            }
           );
         }
         setLoading(false);
@@ -118,8 +138,18 @@ function GenerateSchedule() {
       (error) => {
         console.log(error);
         setLoading(false);
-        alert(
-          "Error generating schedule either the tables are missing or a system problem has occurred."
+        toast.warn(
+          "Error generating schedule either the tables are missing or a system problem has occurred.",
+          {
+            position: "top-right",
+            autoClose: 6000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          }
         );
       }
     );

@@ -6,6 +6,8 @@ import Button from "@mui/material/Button";
 import { ViewUploadedClassroomList } from "./ViewUploadedClassroomList";
 import { tokenConfig } from "../utils";
 import { FileUploader, SpreadsheetTable } from "./FileUploader";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ImportClassroom = ({
   classroomSpreadsheetData,
@@ -35,7 +37,16 @@ const ImportClassroom = ({
       for (const classroom of response.data) {
         await axios.delete(`api/classrooms/${classroom.id}`, tokenConfig());
       }
-      alert("All classrooms deleted");
+      toast.info("All Classrooms have been deleted.", {
+        position: "top-right",
+        autoClose: 6000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
       setIsClassroomListVisible(
         (prevIsClassroomListVisible) => !prevIsClassroomListVisible
       );

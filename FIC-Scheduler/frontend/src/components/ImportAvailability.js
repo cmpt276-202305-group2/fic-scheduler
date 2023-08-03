@@ -6,6 +6,8 @@ import Button from "@mui/material/Button";
 import { tokenConfig } from "../utils";
 import { FileUploader, SpreadsheetTable } from "./FileUploader";
 import { ViewUploadedAvailabilityList } from "./ViewUploadedAvailabilityList";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ImportAvailabity = ({
   availabilitySpreadsheetData,
@@ -60,7 +62,16 @@ const ImportAvailabity = ({
       for (const instructor of response.data) {
         await axios.delete(`api/instructors/${instructor.id}`, tokenConfig());
       }
-      alert("All Instructors and their availabities has been deleted");
+      toast.info("All Instructors and their availabities have been deleted.", {
+        position: "top-right",
+        autoClose: 6000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
       setisInstructorAvailabilityVisible(
         (setisInstructorAvailabilityVisible) =>
           !setisInstructorAvailabilityVisible

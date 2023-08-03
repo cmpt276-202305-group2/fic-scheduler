@@ -6,6 +6,8 @@ import Button from "@mui/material/Button";
 import { ViewUploadedCourseOfferingList } from "./ViewUploadedCourseOfferingList";
 import { tokenConfig } from "../utils";
 import { FileUploader, SpreadsheetTable } from "./FileUploader";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ImportCourses = ({
   coursesSpreadsheetData,
@@ -77,7 +79,16 @@ const ImportCourses = ({
       setIsCourseOfferingListVisible(
         (prevIsCourseOfferingListVisible) => !prevIsCourseOfferingListVisible
       );
-      alert("All uploaded courses have been deleted");
+      toast.info("All Uploaded Courses have been deleted.", {
+        position: "top-right",
+        autoClose: 6000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (error) {
       console.error("Error deleting uploaded courses:", error);
     }
