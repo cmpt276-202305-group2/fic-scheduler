@@ -14,7 +14,7 @@ import { tokenConfig } from "../utils";
 
 export function ViewUploadedAvailabilityList() {
   const [backendData, setBackendData] = useState(null);
-  const partOfDayOptions = ["AM", "EVE", "PM"];
+  const partOfDayOptions = ["AM", "PM", "EVE"];
   const partOfDayMap = {
     MORNING: "AM",
     AFTERNOON: "PM",
