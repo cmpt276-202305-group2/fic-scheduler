@@ -44,8 +44,6 @@ public class DebugController {
     private static final String roomTypeClassroom = "Classroom";
     private static final String roomTypeScienceLab = "Science Lab";
     private static final String roomTypeComputerLab = "Computer Lab";
-    // private static final String[] roomTypes = { roomTypeSmall, roomTypeLarge,
-    // roomTypeScienceLab, roomTypeComputerLab };
     private static final String[] firstNames = { "Olivia", "Sophia", "Amelia", "Emma", "Ava", "Charlotte", "Lily",
             "Hannah", "Nora", "Isabella", "Noah", "Liam", "Jackson", "Oliver", "Leo", "Lucas", "Luca", "Jack", "James",
             "Benjamin" };

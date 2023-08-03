@@ -3,6 +3,7 @@ package com.group2.server.model;
 import lombok.*;
 
 @RequiredArgsConstructor
+@AllArgsConstructor
 public enum PartOfDay {
     MORNING(0b000011, Duration.FULL),
     AFTERNOON(0b001100, Duration.FULL),
@@ -19,6 +20,49 @@ public enum PartOfDay {
 
     @Getter
     private final Duration duration;
+
+    private PartOfDay fullPart = this;
+
+    private PartOfDay earlyHalf = this;
+
+    private PartOfDay lateHalf = this;
+
+    public PartOfDay toFull() {
+        return fullPart;
+    }
+
+    public PartOfDay earlyHalf() {
+        return earlyHalf;
+    }
+
+    public PartOfDay lateHalf() {
+        return lateHalf;
+    }
+
+    static {
+        for (PartOfDay v : values()) {
+            switch (v.duration) {
+                case FULL:
+                    for (PartOfDay h : values()) {
+                        if (h.duration == Duration.HALF && conflict(v, h)) {
+                            if (h.occupiedTimeBits < (v.occupiedTimeBits ^ h.occupiedTimeBits)) {
+                                v.earlyHalf = h;
+                            } else {
+                                v.lateHalf = h;
+                            }
+                        }
+                    }
+                    break;
+                case HALF:
+                    for (PartOfDay f : values()) {
+                        if (f.duration == Duration.FULL && conflict(v, f)) {
+                            v.fullPart = f;
+                        }
+                    }
+                    break;
+            }
+        }
+    }
 
     public static PartOfDay valueOf(int occupiedTimeBits) {
         for (PartOfDay v : values()) {
