@@ -30,25 +30,25 @@ const ImportCourses = ({
 
   const createFileUploadHandler =
     (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
-    async (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-      const allowedFormats = ["xlsx", "csv"];
-      const fileExtension = file.name.split(".").pop().toLowerCase();
-      if (!allowedFormats.includes(fileExtension)) {
-        setErrorMessage(true);
-        return;
-      }
-      setErrorMessage(false);
-      try {
-        const data = await readExcelFile(file);
-        setData(data);
-        setFile(file.name);
-        setIsPreviewVisible(true);
-      } catch (error) {
-        console.error("Error reading Excel file:", error);
-      }
-    };
+      async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const allowedFormats = ["xlsx", "csv"];
+        const fileExtension = file.name.split(".").pop().toLowerCase();
+        if (!allowedFormats.includes(fileExtension)) {
+          setErrorMessage(true);
+          return;
+        }
+        setErrorMessage(false);
+        try {
+          const data = await readExcelFile(file);
+          setData(data);
+          setFile(file.name);
+          setIsPreviewVisible(true);
+        } catch (error) {
+          console.error("Error reading Excel file:", error);
+        }
+      };
 
   const handleFileUpload = createFileUploadHandler(
     setSelectedFile,
@@ -98,7 +98,7 @@ const ImportCourses = ({
     if (coursesSpreadsheetData.length === 0) {
       return;
     }
-    const jsonData = coursesSpreadsheetData.map((row) => {
+    const jsonData = coursesSpreadsheetData.filter((row) => !!row[0].trim()).map((row) => {
       return {
         id: null,
         name: row[0].trim(),
@@ -118,9 +118,9 @@ const ImportCourses = ({
         ],
         notes: row[14].trim(),
       };
-    });
+    }).filter((c) => !!(c.name && c.courseNumber && c.approvedInstructors.length && c.allowedBlockSplits));
 
-    // console.log("jsonData:", jsonData);
+    console.log("jsonData:", jsonData);
 
     try {
       const uploadedCourses = [];
@@ -182,13 +182,13 @@ const ImportCourses = ({
         importedBlockSplits.set(blockSplitStr, blockSplit);
         row.allowedBlockSplits = [nameStr];
       }
-      //   console.log("importedBlockSplits: ", importedBlockSplits);
+      console.log("importedBlockSplits: ", importedBlockSplits);
 
       response = await axios.get("api/block-splits", tokenConfig());
       let oldBlocks = response.data;
       if (oldBlocks.length > 0) {
         for (const block of oldBlocks) {
-          //   console.log("block: ", block);
+          console.log("block: ", block);
           await axios.delete(`api/block-splits/${block.id}`, tokenConfig());
         }
       }
