@@ -57,25 +57,25 @@ const ImportClassroom = ({
 
   const createFileUploadHandler =
     (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
-    async (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-      const allowedFormats = ["xlsx", "csv"];
-      const fileExtension = file.name.split(".").pop().toLowerCase();
-      if (!allowedFormats.includes(fileExtension)) {
-        setErrorMessage(true);
-        return;
-      }
-      setErrorMessage(false);
-      try {
-        const data = await readExcelFile(file);
-        setData(data);
-        setFile(file.name);
-        setIsPreviewVisible(true);
-      } catch (error) {
-        console.error("Error reading Excel file:", error);
-      }
-    };
+      async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const allowedFormats = ["xlsx", "csv"];
+        const fileExtension = file.name.split(".").pop().toLowerCase();
+        if (!allowedFormats.includes(fileExtension)) {
+          setErrorMessage(true);
+          return;
+        }
+        setErrorMessage(false);
+        try {
+          const data = await readExcelFile(file);
+          setData(data);
+          setFile(file.name);
+          setIsPreviewVisible(true);
+        } catch (error) {
+          console.error("Error reading Excel file:", error);
+        }
+      };
 
   const handleFileUpload = createFileUploadHandler(
     setSelectedFile,
@@ -86,7 +86,7 @@ const ImportClassroom = ({
 
   const handleSendToBackEnd = async () => {
     if (classroomSpreadsheetData.length > 0) {
-      const jsonData = classroomSpreadsheetData.map((row) => {
+      const jsonData = classroomSpreadsheetData.filter((row) => !!row[0].trim()).map((row) => {
         const data = {
           id: null,
           roomNumber: row[0].trim(),
@@ -95,7 +95,7 @@ const ImportClassroom = ({
         };
 
         return data;
-      });
+      }).filter((r) => !!(r.roomNumber && r.roomType));
 
       //   console.log("jsonData", jsonData);
 

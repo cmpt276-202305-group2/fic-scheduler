@@ -22,25 +22,25 @@ const ImportAvailabity = ({
 
   const createFileUploadHandler =
     (setFile, setErrorMessage, setData, setIsPreviewVisible) =>
-    async (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-      const allowedFormats = ["xlsx", "csv"];
-      const fileExtension = file.name.split(".").pop().toLowerCase();
-      if (!allowedFormats.includes(fileExtension)) {
-        setErrorMessage(true);
-        return;
-      }
-      setErrorMessage(false);
-      try {
-        const data = await readExcelFile(file);
-        setData(data);
-        setFile(file.name);
-        setIsPreviewVisible(true);
-      } catch (error) {
-        console.error("Error reading Excel file:", error);
-      }
-    };
+      async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const allowedFormats = ["xlsx", "csv"];
+        const fileExtension = file.name.split(".").pop().toLowerCase();
+        if (!allowedFormats.includes(fileExtension)) {
+          setErrorMessage(true);
+          return;
+        }
+        setErrorMessage(false);
+        try {
+          const data = await readExcelFile(file);
+          setData(data);
+          setFile(file.name);
+          setIsPreviewVisible(true);
+        } catch (error) {
+          console.error("Error reading Excel file:", error);
+        }
+      };
 
   const handleFileUpload = createFileUploadHandler(
     setSelectedFile,
@@ -93,7 +93,10 @@ const ImportAvailabity = ({
     const instructorAvailabilities = [];
 
     for (const row of availabilitySpreadsheetData.slice(1)) {
-      const instructorName = row[0];
+      const instructorName = row[0].trim();
+      if (!instructorName) {
+        continue;
+      }
       //   console.log("Instructor Name:", instructorName);
       //   console.log("Row:", row);
 
@@ -107,7 +110,7 @@ const ImportAvailabity = ({
 
           if (isAvailable) {
             instructorAvailabilities.push({
-              name: instructorName.trim(),
+              name: instructorName,
               partOfDay: partsOfDay[partIndex].trim(),
               dayOfWeek: daysOfWeek[dayIndex].trim(),
             });
