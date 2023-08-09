@@ -2,7 +2,6 @@
 
 ## Abstract
 
-New stuff HEREE!
 
 The FIC Class Scheduler is a course schedule planning tool to help administrative staff develop class schedules which respect the preferences of the teaching staff and maximize their course offerings in the space available. This browser-based application’s primary feature is the generation of a class schedule for the school based on the courses offered, assigning the classes to rooms and professors according to suitability, availability, seniority, and preferences, followed by whatever other constraints are identified. In the proposed version, the application will focus on providing a clear workflow and generating efficient schedules; future work may include features such as tuning or manual tweaking of already-generated schedules, or direct integration of feedback from teachers.
 
@@ -37,12 +36,18 @@ User management and login includes authentication stories such as login/logout, 
 Course and room setup includes stories involving the initial setup of the course offerings for a semester, the rooms which can be assigned, any constraints that limit which courses may be assigned to which rooms or at which time slots. This is the one-time (per semester) setup which is independent of the teacher availability.
 Schedule generation includes stories involving the input of teacher availability data and other constraints or preferences expressed by the teachers, generating appropriate error messages, formatting the output for display and for distribution, and iterating on or modifying the produced schedule.
 
-## Some of the Mockups for the Login Page and the Main Dashboard Page
+## Some of the Mockups for the Login Page and the Main Dashboard Page and a quick walk demo of the project
+
+### Demo 
+
+to be added...
 
 ### Login
 
-![image](https://github.com/peyz21/FIC-Scheduler/assets/64120482/393b294a-fe49-41ee-b990-a653a877b670)
+![image](https://github.com/cmpt276-202305-group2/fic-scheduler/assets/64120482/b5c5eea8-7f76-4566-a1df-537c559c30a0)
+
 
 ### Dashboard page
 
-![image](https://github.com/peyz21/FIC-Scheduler/assets/64120482/8e4b5d5f-3bf9-43d3-956f-9d38b7dec2bf)
+![image](https://github.com/cmpt276-202305-group2/fic-scheduler/assets/64120482/9010faf0-2ddd-474f-a8c1-0ee3a8f39b13)
+
