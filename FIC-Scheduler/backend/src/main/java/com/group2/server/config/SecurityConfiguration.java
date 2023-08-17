@@ -80,6 +80,10 @@ public class SecurityConfiguration {
                             .hasAnyRole(Role.ADMIN.toString(), Role.COORDINATOR.toString());
                     auth.requestMatchers(mvcMatcherBuilder.pattern("/api/users/**")).hasAnyRole(Role.ADMIN.toString());
                     auth.requestMatchers(mvcMatcherBuilder.pattern("/debug/**")).hasAnyRole(Role.DEBUG.toString());
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/")).permitAll();
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/*")).permitAll();
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/debugMenu/*")).permitAll();
+                    auth.requestMatchers(mvcMatcherBuilder.pattern("/static/**")).permitAll();
                     auth.anyRequest().denyAll();
                 })
                 .oauth2ResourceServer(
